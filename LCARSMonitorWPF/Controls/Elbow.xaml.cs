@@ -71,15 +71,29 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(30.0, UpdatePathCallback)
         );
 
-        // TODO: property pra Visual/cor
-        public Brush Fill
+        public Visuals VisualStyle
         {
-            get { return (Brush)GetValue(FillProperty); }
-            set { SetValue(FillProperty, value); }
+            get { return (Visuals)GetValue(VisualStyleProperty); }
+            set { SetValue(VisualStyleProperty, value); }
+        }
+        public static readonly DependencyProperty VisualStyleProperty = DependencyProperty.Register(
+            "VisualStyle",
+            typeof(Visuals),
+            typeof(Elbow),
+            new PropertyMetadata(Visuals.Common, StyleChanged)
+        );
+        private static void StyleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Elbow obj)
+            {
+                // obj.UpdateVisual();
+            }
         }
 
-        public static readonly DependencyProperty FillProperty = DependencyProperty.Register("Fill", typeof(Brush),
-            typeof(Elbow), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+        public Visual Visual
+        {
+            get { return Visual.GetVisual(VisualStyle); }
+        }
 
         // METHODS
         public Elbow()

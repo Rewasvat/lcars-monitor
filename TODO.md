@@ -48,7 +48,7 @@ TODO
     - elbow
         * shape "L" curva do lcars, ligando um "rect" horizontal com um vertical
         + feito com shape (geometria) vetorial direto
-        - deve suportar os STYLES
+        + deve suportar os STYLES
     - Label
     - Image ?
         * svg? escalada? animada?

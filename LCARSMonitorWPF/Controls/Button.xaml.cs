@@ -64,19 +64,13 @@ namespace LCARSMonitorWPF.Controls
         {
             if (d is Button obj)
             {
-                obj.Visual = Visual.GetVisual(obj.VisualStyle);
+                obj.UpdateVisual();
             }
         }
 
-        private Visual lcarsVisual = Visual.Common;
         public Visual Visual
         {
-            get { return lcarsVisual; }
-            set
-            {
-                lcarsVisual = value;
-                UpdateVisual();
-            }
+            get { return Visual.GetVisual(VisualStyle); }
         }
 
         public string Label
@@ -104,7 +98,6 @@ namespace LCARSMonitorWPF.Controls
 
 
         // INTERNAL ATTRIBUTES
-        protected SolidColorBrush FillBrush;
         private bool hasMouseOver = false;
         private bool isPressed = false;
 
@@ -114,8 +107,7 @@ namespace LCARSMonitorWPF.Controls
 
             InitializeComponent();
             rect.BorderBrush = null;
-            FillBrush = new SolidColorBrush(Visual.Normal);
-            rect.Background = FillBrush;
+            rect.Background = Visual.NormalBrush;
 
             UpdateVisual();
             UpdateCorners();
@@ -123,12 +115,12 @@ namespace LCARSMonitorWPF.Controls
 
         protected void UpdateVisual()
         {
-            var fill = Visual.Normal;
-            if (!IsEnabled) fill = Visual.Disabled;
-            else if (isPressed) fill = Visual.Pressed;
-            else if (hasMouseOver) fill = Visual.MouseOver;
+            var fill = Visual.NormalBrush;
+            if (!IsEnabled) fill = Visual.DisabledBrush;
+            else if (isPressed) fill = Visual.PressedBrush;
+            else if (hasMouseOver) fill = Visual.MouseOverBrush;
 
-            FillBrush.Color = fill;
+            rect.Background = fill;
         }
 
         protected void UpdateCorners()

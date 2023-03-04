@@ -11,7 +11,7 @@
         <Label x:Name="labelStuff" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RenderTransformOrigin="0.5,0.5" Height="290" Width="352" Content="esfgsrg&#xA;" Foreground="White"/>
 
         <Controls:Button Margin="584,343,38,0" VerticalAlignment="Top" Label="Stuff" Height="42"/>
-        <Controls:Elbow HorizontalAlignment="Left" Margin="503,10,0,0" VerticalAlignment="Top" Height="160" Width="287" Foreground="#FFFF7B7B" InnerArcRadius="29"/>
+        <Controls:Elbow HorizontalAlignment="Left" Margin="475,45,0,0" VerticalAlignment="Top" Height="142" Width="287" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506"/>
 
     </Grid>
 </Window>

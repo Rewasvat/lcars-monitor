@@ -9,16 +9,59 @@ namespace LCARSMonitorWPF.Controls
 {
     public class Visual
     {
-        public Color Normal { get; set; }
-        public Color MouseOver { get; set; }
-        public Color Pressed { get; set; }
-        public Color Disabled { get; set; }
+        private Color NormalColor;
+        private Color MouseOverColor;
+        private Color PressedColor;
+        private Color DisabledColor;
 
-        public Visual() { }
-
-        public void SetAsFixedColor(Color color)
+        public Color Normal
         {
-            Normal = MouseOver = Pressed = Disabled = color;
+            get { return NormalColor; }
+            protected set
+            {
+                NormalBrush = new SolidColorBrush(value);
+                NormalColor = value;
+            }
+        }
+        public Color MouseOver
+        {
+            get { return MouseOverColor; }
+            protected set
+            {
+                MouseOverBrush = new SolidColorBrush(value);
+                MouseOverColor = value;
+            }
+        }
+        public Color Pressed
+        {
+            get { return PressedColor; }
+            protected set
+            {
+                PressedBrush = new SolidColorBrush(value);
+                PressedColor = value;
+            }
+        }
+        public Color Disabled
+        {
+            get { return DisabledColor; }
+            protected set
+            {
+                DisabledBrush = new SolidColorBrush(value);
+                DisabledColor = value;
+            }
+        }
+
+        public SolidColorBrush NormalBrush { get; protected set; }
+        public SolidColorBrush MouseOverBrush { get; protected set; }
+        public SolidColorBrush PressedBrush { get; protected set; }
+        public SolidColorBrush DisabledBrush { get; protected set; }
+
+        public Visual()
+        {
+            NormalBrush = new SolidColorBrush(Colors.White);
+            MouseOverBrush = new SolidColorBrush(Colors.White);
+            PressedBrush = new SolidColorBrush(Colors.White);
+            DisabledBrush = new SolidColorBrush(Colors.White);
         }
 
         public static Visual Common
