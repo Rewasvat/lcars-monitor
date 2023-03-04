@@ -6,14 +6,27 @@
         xmlns:local="clr-namespace:LCARSMonitorWPF"
         xmlns:Controls="clr-namespace:LCARSMonitorWPF.Controls" x:Class="LCARSMonitorWPF.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="590" Width="972">
     <Grid Background="Black">
         <Label x:Name="labelStuff" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RenderTransformOrigin="0.5,0.5" Height="290" Width="352" Content="esfgsrg&#xA;" Foreground="White"/>
 
-        <Controls:Button Margin="584,343,38,0" VerticalAlignment="Top" Label="Stuff" Height="42"/>
-        <Controls:Elbow HorizontalAlignment="Left" Margin="475,45,0,0" VerticalAlignment="Top" Height="142" Width="287" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506"/>
+        <Controls:Button Margin="568,323,54,0" VerticalAlignment="Top" Label="Stuff" Height="81"/>
+        <Controls:Elbow HorizontalAlignment="Left" Margin="685,-5,0,0" VerticalAlignment="Top" Height="142" Width="287" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506"/>
         <Controls:RedAlert HorizontalAlignment="Left" VerticalAlignment="Top" Height="142" Width="200"/>
-        <Controls:YellowAlert Margin="186,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="132" Width="186"/>
+        <Controls:YellowAlert Margin="186,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="142" Width="213"/>
+        <Controls:ReactorBar HorizontalAlignment="Left" Margin="586,216,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.846,0.311" Height="295"/>
+        <Controls:ProgressBar HorizontalAlignment="Left" Height="184" VerticalAlignment="Top" Width="157" Margin="705,-36,0,0" RenderTransformOrigin="0.5,0.5">
+            <Controls:ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Controls:ProgressBar.RenderTransform>
+        </Controls:ProgressBar>
+        <Controls:SFCM HorizontalAlignment="Left" Margin="25,192,0,0" VerticalAlignment="Top" Width="250"/>
+        <Controls:Communicator HorizontalAlignment="Left" Margin="292,279,0,0" VerticalAlignment="Top" Width="200"/>
 
     </Grid>
 </Window>
