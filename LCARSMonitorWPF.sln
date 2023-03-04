@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33414.496
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LCARSMonitorWPF", "LCARSMonitorWPF\LCARSMonitorWPF.csproj", "{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Debug|x64.ActiveCfg = Debug|x64
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Debug|x64.Build.0 = Debug|x64
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Release|x64.ActiveCfg = Release|x64
+		{3C5CF242-9EA7-45AE-91C1-97B81552DCEC}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {58200381-3F6B-4DDE-88BB-D04F68E9F6DB}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,17 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LCARSMonitorWPF"
+        xmlns:Controls="clr-namespace:LCARSMonitorWPF.Controls" x:Class="LCARSMonitorWPF.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid Background="Black">
+        <Label x:Name="labelStuff" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RenderTransformOrigin="0.5,0.5" Height="290" Width="352" Content="esfgsrg&#xA;" Foreground="White"/>
+
+        <Controls:Button Margin="584,343,38,0" VerticalAlignment="Top" Label="Stuff" Height="42"/>
+        <Controls:Elbow HorizontalAlignment="Left" Margin="503,10,0,0" VerticalAlignment="Top" Height="160" Width="287" Foreground="#FFFF7B7B" InnerArcRadius="29"/>
+
+    </Grid>
+</Window>
