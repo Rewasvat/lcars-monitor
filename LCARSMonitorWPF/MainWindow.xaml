@@ -12,7 +12,8 @@
 
         <Controls:Button Margin="584,343,38,0" VerticalAlignment="Top" Label="Stuff" Height="42"/>
         <Controls:Elbow HorizontalAlignment="Left" Margin="475,45,0,0" VerticalAlignment="Top" Height="142" Width="287" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506"/>
-        <Controls:RedAlert HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Height="142" Width="200"/>
+        <Controls:RedAlert HorizontalAlignment="Left" VerticalAlignment="Top" Height="142" Width="200"/>
+        <Controls:YellowAlert Margin="186,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="132" Width="186"/>
 
     </Grid>
 </Window>
