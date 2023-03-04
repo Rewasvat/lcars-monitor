@@ -15,4 +15,14 @@ namespace LCARSMonitorWPF.Controls
     {
         TopLeft, TopRight, BottomRight, BottomLeft
     }
+
+    [Flags]
+    public enum PanelBorders
+    {
+        None = 0,
+        Top = 1,
+        Right = 2,
+        Bottom = 4,
+        Left = 8,
+    }
 }

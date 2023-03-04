@@ -2,6 +2,9 @@ TODO
 
 # PASSAR TODOS PRA ISSUES NO GITHUB ???
 
+# DOCUMENTAR CLASSES E METODOS!
+
+# STUFF
 - [WidgetVisitor]:
     + suport a unidades dos sensores
     + suport a formatacao padrao dos valores dos sensores

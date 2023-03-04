@@ -14,25 +14,25 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace cu
+namespace LCARSMonitorWPF.Controls
 {
     /// <summary>
-    /// Interaction logic for UserControl1.xaml
+    /// Interaction logic for RedAlert.xaml
     /// </summary>
-    public partial class UserControl1 : UserControl
+    public partial class RedAlert : LCARSControl
     {
-        public UserControl1()
+        public RedAlert()
         {
             InitializeComponent();
 
             //Storyboard sb = (< YourNamespace >.Properties.Resources["BotRotation"] as Storyboard);
-            Storyboard? sb = Resources["Storyboard1"] as Storyboard;
+            Storyboard? sb = Resources["PulseAnimation"] as Storyboard;
             sb?.Begin();
         }
 
         private void Storyboard_Completed(object sender, EventArgs e)
         {
-            Storyboard? sb = Resources["Storyboard1"] as Storyboard;
+            Storyboard? sb = Resources["PulseAnimation"] as Storyboard;
             sb?.Begin();
         }
     }
