@@ -19,7 +19,7 @@ namespace LCARSMonitorWPF.Controls
     /// <summary>
     /// Interaction logic for YellowAlert.xaml
     /// </summary>
-    public partial class YellowAlert : UserControl
+    public partial class YellowAlert : LCARSControl
     {
         public YellowAlert()
         {
