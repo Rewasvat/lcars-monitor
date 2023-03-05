@@ -1,4 +1,5 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
+using LCARSMonitorWPF.Windows.Monitor;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -24,6 +25,7 @@ namespace LCARSMonitorWPF
             trayIcon = new TaskbarIcon();
             trayIcon.IconSource = new BitmapImage(new Uri("pack://application:,,,/Assets/Icons/lcars.png"));
             trayIcon.ToolTipText = "LCARS Monitor";
+            trayIcon.ContextMenu = new TrayMenu();
         }
     }
 }
