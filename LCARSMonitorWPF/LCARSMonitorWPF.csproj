@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
+    <PackageIcon>lcars.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,9 +18,12 @@
     <None Remove="Assets\Fonts\Antonio-SemiBold.ttf" />
     <None Remove="Assets\Fonts\Antonio-Thin.ttf" />
     <None Remove="Assets\Fonts\Federation_Wide.ttf" />
+    <None Remove="Assets\Icons\lcars.ico" />
+    <None Remove="Assets\Icons\lcars.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.1" />
     <PackageReference Include="Svg" Version="3.4.4" />
   </ItemGroup>
@@ -47,6 +51,11 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Assets\Fonts\Federation_Wide.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\lcars.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

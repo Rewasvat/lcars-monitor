@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LCARSMonitorWPF"
         xmlns:Controls="clr-namespace:LCARSMonitorWPF.Controls" x:Class="LCARSMonitorWPF.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="890" Width="1472">
+        Title="MainWindow" Height="890" Width="1472" Icon="/Assets/Icons/lcars.png">
     <Grid Background="Black">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="104*"/>
