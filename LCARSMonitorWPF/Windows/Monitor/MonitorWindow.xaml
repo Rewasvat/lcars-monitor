@@ -7,34 +7,7 @@
         x:Class="LCARSMonitorWPF.Windows.Monitor.MonitorWindow"
         xmlns:Controls="clr-namespace:LCARSMonitorWPF.Controls"
         mc:Ignorable="d"
-        Title="LCARS Monitor" Height="890" Width="1472" Icon="/Assets/Icons/lcars.png">
-    <Grid Background="Black">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="104*"/>
-            <ColumnDefinition Width="798*"/>
-            <ColumnDefinition Width="71*"/>
-        </Grid.ColumnDefinitions>
-        <Label x:Name="labelStuff" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RenderTransformOrigin="0.5,0.5" Height="26" Width="352" Content="esfgsrg&#xA;" Foreground="White" FontFamily="{StaticResource Antonio}" Grid.ColumnSpan="2"/>
-
-        <Controls:Button Margin="850,71,86,0" VerticalAlignment="Top" Label="Stuff" Height="42" Grid.Column="1"/>
-        <Controls:Elbow HorizontalAlignment="Left" Margin="334,46,0,0" VerticalAlignment="Top" Height="82" Width="236" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506" Grid.Column="1" VisualStyle="MainPink"/>
-        <Controls:RedAlert HorizontalAlignment="Left" VerticalAlignment="Top" Height="142" Width="200" Grid.ColumnSpan="2"/>
-        <Controls:YellowAlert Margin="82,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="132" Width="186" Grid.Column="1"/>
-        <Controls:Panel x:Name="panel" Borders="Top,Left,Bottom,Right" HorizontalAlignment="Left" Margin="79,270,0,0" VerticalAlignment="Top" Width="943" Height="567" Grid.ColumnSpan="2" VisualStyle="MainYellow"/>
-
-        <Controls:ReactorBar HorizontalAlignment="Left" Margin="895,43,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.846,0.311" Height="295" Grid.Column="1"/>
-        <Controls:ProgressBar HorizontalAlignment="Left" Height="178" VerticalAlignment="Top" Width="157" Margin="408,9,0,0" RenderTransformOrigin="0.5,0.5" Grid.Column="1">
-            <Controls:ProgressBar.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="90"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Controls:ProgressBar.RenderTransform>
-        </Controls:ProgressBar>
-        <Controls:SFCM HorizontalAlignment="Left" Margin="548,0,0,0" VerticalAlignment="Top" Width="250" Grid.ColumnSpan="2" Grid.Column="1"/>
-        <Controls:Communicator HorizontalAlignment="Left" Margin="986,134,0,0" VerticalAlignment="Top" Width="200" Grid.Column="1"/>
-        <Controls:MainControls Grid.Column="1" HorizontalAlignment="Left" Margin="941,521,0,0" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2"/>
-    </Grid>
+        Title="LCARS Monitor" Height="890" Width="1472" Icon="/Assets/Icons/lcars.png" SizeChanged="OnSizeChanged">
+    <Canvas x:Name="canvas" Background="Black">
+    </Canvas>
 </Window>

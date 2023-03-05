@@ -115,6 +115,7 @@ namespace LCARSMonitorWPF.Controls
             geometry = new PathGeometry();
             geometry.FillRule = FillRule.Nonzero;
             UpdatePath();
+            UpdateVisual();
         }
 
         private void UpdatePath()

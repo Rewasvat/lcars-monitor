@@ -20,55 +20,16 @@ namespace LCARSMonitorWPF.Windows.Monitor
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MonitorWindow : Window
+    public partial class MonitorWindow : Window, ILCARSSingleContainer
     {
-        private Computer computer;
-        private UpdateVisitor visitor = new UpdateVisitor();
+        public Slot ChildSlot { get; protected set; }
 
         public MonitorWindow()
         {
             InitializeComponent();
 
-            computer = new Computer
-            {
-                IsCpuEnabled = true,
-                IsGpuEnabled = true,
-                IsMemoryEnabled = true,
-                IsMotherboardEnabled = true,
-                IsControllerEnabled = true,
-                IsStorageEnabled = true,
-                IsNetworkEnabled = true,
-                IsBatteryEnabled = true,
-                IsPsuEnabled = true,
-            };
-
-            //// computer.HardwareAdded += WAT;
-            //// computer.HardwareRemoved += WAT;
-            //computer.Open();
-
-            //computer.Accept(visitor);
-
-            //string msg = "";
-            //foreach (IHardware hardware in computer.Hardware)
-            //{
-            //    msg += $"Hardware '{hardware.Name}'\n";
-            //    foreach (IHardware subhardware in hardware.SubHardware)
-            //    {
-            //        msg += $"   * SubHardware '{hardware.Name}'\n";
-            //        foreach (ISensor sensor in subhardware.Sensors)
-            //        {
-            //            msg += $"      * Sensor '{sensor.Name}'\n";
-            //        }
-            //    }
-            //    foreach (ISensor sensor in hardware.Sensors)
-            //    {
-            //        msg += $"   * Sensor '{sensor.Name}': {sensor.Value} {sensor.SensorType}\n";
-            //    }
-            //}
-
-            //computer.Close();
-
-            //labelStuff.Content = msg;
+            ChildSlot = new Slot(this);
+            UpdateRootSlot();
 
             // RedAlert red = new RedAlert();
             AxisList list = new AxisList();
@@ -99,26 +60,40 @@ namespace LCARSMonitorWPF.Windows.Monitor
             red4.Label = "Test 4";
             list.ChildSlots[3].AttachedChild = red4;
 
+            Controls.Panel panel = new Controls.Panel();
+            panel.Borders = PanelBorders.Bottom | PanelBorders.Top | PanelBorders.Left;
             panel.ChildSlot.AttachedChild = list;
-        }
-    }
 
-    public class UpdateVisitor : IVisitor
-    {
-        public void VisitComputer(IComputer computer)
+            ChildSlot.AttachedChild = panel;
+        }
+
+        public void UpdateChildSlot(Slot slot, LCARSControl? newChild)
         {
-            computer.Traverse(this);
+            if (slot != ChildSlot)
+            {
+                // throw error?
+                throw new ArgumentException("Tried to update a slot that is not our child slot", "slot");
+            }
+
+            if (slot.AttachedChild != null)
+                canvas.Children.Remove(slot.AttachedChild);  // removing previous child
+            if (newChild != null)
+                canvas.Children.Add(newChild);
         }
 
-        public void VisitHardware(IHardware hardware)
+        private void UpdateRootSlot()
         {
-            hardware.Update();
-            foreach (IHardware subHardware in hardware.SubHardware)
-                subHardware.Accept(this);
+            var rect = ChildSlot.Area;
+            rect.X = 0;
+            rect.Y = 0;
+            rect.Width = Math.Max(10, canvas.ActualWidth);
+            rect.Height = Math.Max(10, canvas.ActualHeight);
+            ChildSlot.Area = rect;
         }
 
-        public void VisitSensor(ISensor sensor) { }
-
-        public void VisitParameter(IParameter parameter) { }
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateRootSlot();
+        }
     }
 }
