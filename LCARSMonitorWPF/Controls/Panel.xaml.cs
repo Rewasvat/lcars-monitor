@@ -18,7 +18,7 @@ namespace LCARSMonitorWPF.Controls
     /// <summary>
     /// Interaction logic for Panel.xaml
     /// </summary>
-    public partial class Panel : LCARSControl
+    public partial class Panel : LCARSControl, ILCARSSingleContainer
     {
         public Visuals VisualStyle
         {
@@ -80,6 +80,8 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(30.0, BordersChanged)
         );
 
+        public Slot ChildSlot { get; protected set; }
+
         protected Elbow topRightCorner;
         protected Elbow topLeftCorner;
         protected Elbow bottomRightCorner;
@@ -89,7 +91,6 @@ namespace LCARSMonitorWPF.Controls
         protected Button rightBorder;
         protected Button leftBorder;
         protected double outMargin = 5.0; // margin from border elements to control edge
-        protected Border slotRect;
 
         // METHODS
         public Panel()
@@ -138,10 +139,7 @@ namespace LCARSMonitorWPF.Controls
             bottomLeftCorner.Visibility = Visibility.Hidden;
             grid.Children.Add(bottomLeftCorner);
 
-            slotRect = new Border();
-            slotRect.BorderBrush = null;
-            slotRect.Background = new SolidColorBrush(Colors.Red);
-            grid.Children.Add(slotRect);
+            ChildSlot = new Slot(this);
 
             UpdateBorders();
         }
@@ -243,8 +241,8 @@ namespace LCARSMonitorWPF.Controls
             double x = 0.0;
             double y = 0.0;
             var size = elbow.BaseArea;
-            double width = size.Width; // TODO: ARRUMAR!
-            double height = size.Height; // TODO: ARRUMAR!
+            double width = size.Width;
+            double height = size.Height;
             switch (type)
             {
                 case (ElbowType.TopRight):
@@ -267,14 +265,8 @@ namespace LCARSMonitorWPF.Controls
                     y = ActualHeight - height - outMargin;
                     break;
             }
-            // if (!enabled)
-            // {
-            //     elbow.Visibility = Visibility.Hidden;
-            //     return;
-            // }
             elbow.Visibility = enabled ? Visibility.Visible : Visibility.Hidden;
 
-            // elbow.Visibility = Visibility.Visible;
             elbow.Width = width;
             elbow.Height = height;
             elbow.SetValue(Canvas.LeftProperty, x);
@@ -306,10 +298,26 @@ namespace LCARSMonitorWPF.Controls
             {
                 slotHeight -= topLeftCorner.ActualHeight;
             }
-            slotRect.SetValue(Canvas.LeftProperty, x);
-            slotRect.SetValue(Canvas.TopProperty, y);
-            slotRect.Width = Math.Max(10, slotWidth);
-            slotRect.Height = Math.Max(10, slotHeight);
+            var rect = ChildSlot.Area;
+            rect.X = x;
+            rect.Y = y;
+            rect.Width = Math.Max(10, slotWidth);
+            rect.Height = Math.Max(10, slotHeight);
+            ChildSlot.Area = rect;
+        }
+
+        public void UpdateChildSlot(Slot slot, LCARSControl? newChild)
+        {
+            if (slot != ChildSlot)
+            {
+                // throw error?
+                throw new ArgumentException("Tried to update a slot that is not our child slot", "slot");
+            }
+
+            if (slot.AttachedChild != null)
+                grid.Children.Remove(slot.AttachedChild);  // removing previous child
+            if (newChild != null)
+                grid.Children.Add(newChild);
         }
 
         private void LCARSControl_SizeChanged(object sender, SizeChangedEventArgs e)

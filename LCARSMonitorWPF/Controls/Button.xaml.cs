@@ -38,17 +38,6 @@ namespace LCARSMonitorWPF.Controls
             (d as Button)?.UpdateCorners();
         }
 
-        private Slot slot;
-        public Slot Slot
-        {
-            get { return slot; }
-            set
-            {
-                slot = value;
-                // TODO: vai ter que atualizar tamanho/visual/corner e tal
-            }
-        }
-
         public Visuals VisualStyle
         {
             get { return (Visuals)GetValue(VisualStyleProperty); }
@@ -105,8 +94,6 @@ namespace LCARSMonitorWPF.Controls
 
         public Button()
         {
-            this.slot = new Slot();
-
             InitializeComponent();
             rect.BorderBrush = null;
             rect.Background = Visual.NormalBrush;
@@ -126,6 +113,7 @@ namespace LCARSMonitorWPF.Controls
             }
 
             rect.Background = fill;
+            label.Foreground = Visual.TextBrush;
         }
 
         protected void UpdateCorners()

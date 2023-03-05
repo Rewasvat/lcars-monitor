@@ -11,13 +11,12 @@ Main Black:
 	RGB: 0 0 0
 	Hex: #000000
 
-Main White: 
-	PRESSED: 
+Grey: 128 128 128
+
+Main White:
+	PRESSED:
 		RGB: 255 255 255
 		Hex: #ffffff
-	UNPRESSED:
-		RGB: 209 211 212
-		Hex: #d1d3d4
 
 Main Red:
 	UNPRESSED:
@@ -43,13 +42,13 @@ Main Blue:
 		RGB: 133 168 197
 		Hex: #85a8c5
 
-	Light Blue:
-		UNPRESSED:
-			RGB: 173 216 230
-			Hex: #add8e6
-		HOVER:
-			RGB: 145 181 192
-			Hex: #91b5c0
+Light Blue:
+	UNPRESSED:
+		RGB: 173 216 230
+		Hex: #add8e6
+	HOVER:
+		RGB: 145 181 192
+		Hex: #91b5c0
 
 Main Orange:
 	UNPRESSED:

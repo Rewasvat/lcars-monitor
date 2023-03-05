@@ -27,4 +27,10 @@ namespace LCARSMonitorWPF.Controls
         Bottom = 4,
         Left = 8,
     }
+
+    public enum AxisOrientation
+    {
+        Horizontal,
+        Vertical
+    }
 }
