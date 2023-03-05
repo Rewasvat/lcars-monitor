@@ -25,15 +25,12 @@ namespace LCARSMonitorWPF.Controls
         {
             InitializeComponent();
 
-            //Storyboard sb = (< YourNamespace >.Properties.Resources["BotRotation"] as Storyboard);
             Storyboard? sb = Resources["PulseAnimation"] as Storyboard;
-            sb?.Begin();
-        }
-
-        private void Storyboard_Completed(object sender, EventArgs e)
-        {
-            Storyboard? sb = Resources["PulseAnimation"] as Storyboard;
-            sb?.Begin();
+            if (sb != null)
+            {
+                sb.RepeatBehavior = RepeatBehavior.Forever;
+                sb.Begin();
+            }
         }
     }
 }

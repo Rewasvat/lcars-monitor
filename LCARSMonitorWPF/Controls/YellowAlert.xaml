@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:LCARSMonitorWPF.Controls"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <Storyboard x:Key="PulseAnimation" Completed="Storyboard_Completed">
+        <Storyboard x:Key="PulseAnimation">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="h" Storyboard.TargetProperty="(UIElement.Opacity)">
                 <EasingDoubleKeyFrame KeyTime="00:00:00" Value="0.8"/>
                 <EasingDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1"/>
