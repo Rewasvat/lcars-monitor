@@ -34,5 +34,6 @@
         </Controls:ProgressBar>
         <Controls:SFCM HorizontalAlignment="Left" Margin="548,0,0,0" VerticalAlignment="Top" Width="250" Grid.ColumnSpan="2" Grid.Column="1"/>
         <Controls:Communicator HorizontalAlignment="Left" Margin="986,134,0,0" VerticalAlignment="Top" Width="200" Grid.Column="1"/>
+        <Controls:maincontrols Grid.Column="1" HorizontalAlignment="Left" Margin="941,521,0,0" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

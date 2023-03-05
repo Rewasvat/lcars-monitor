@@ -1,0 +1,153 @@
+﻿<UserControl x:Class="LCARSMonitorWPF.Controls.maincontrols"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LCARSMonitorWPF.Controls"
+             mc:Ignorable="d">
+    <Viewbox>
+        <Grid>
+            <Canvas>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-73ced3d7-41d0-4e09-84e7-43dae5348014 -->
+                <Path x:Name="btn01" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 46.531,34.430 L 55.161,47.610 C 55.161,47.610 51.541,49.220 48.821,52.020 L 37.021,41.700 C 41.391,37.150 46.531,34.430 46.531,34.430 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-e877a936-7349-4c3e-9147-c20b54c99194 -->
+                <Path x:Name="btn02" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffff9800" Data="F1 M 59.831,29.670 L 60.871,45.550 C 60.871,45.550 58.451,46.150 56.081,47.160 L 47.681,33.800 C 53.421,30.470 59.831,29.670 59.831,29.670 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-3f625792-fbb1-4fcd-a3b5-bbbfd9ccf238 -->
+                <Path x:Name="btn03" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 71.981,45.070 L 73.061,29.400 C 73.061,29.400 67.221,28.470 60.721,29.500 L 61.931,44.700 C 61.931,44.700 66.621,43.910 71.981,45.080 L 71.981,45.070 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-c46f6882-853f-458b-8075-b5455ac9e6bf -->
+                <Path x:Name="btn04" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 108.241,64.410 L 92.461,64.500 C 87.761,48.800 73.061,45.420 73.061,45.420 L 73.841,29.450 C 104.571,34.930 108.231,64.400 108.231,64.400 L 108.241,64.410 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-413257a5-f04b-4053-9532-a9a3b17b3f26 -->
+                <Path x:Name="btn05" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 108.401,76.450 L 92.831,76.550 C 92.831,76.550 94.141,70.810 92.741,65.630 L 108.401,65.530 C 109.291,71.000 108.401,76.450 108.401,76.450 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-d64548da-e68e-4613-a660-cd5534491667 -->
+                <Path x:Name="btn06" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 108.241,77.580 L 92.591,77.580 C 92.591,77.580 90.271,92.050 73.741,96.860 L 74.241,112.280 C 74.241,112.280 102.721,108.620 108.231,77.570 L 108.241,77.580 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-a2619e43-80ae-46d8-98c3-c70407839aa9 -->
+                <Path x:Name="btn07" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 60.201,112.470 L 61.241,97.150 C 67.901,98.510 72.541,97.150 72.541,97.150 L 72.971,112.510 C 72.971,112.510 66.551,113.360 60.191,112.470 L 60.201,112.470 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-73a88b29-d0c9-49dc-a276-cc6892ea8b38 -->
+                <Path x:Name="btn08" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 35.091,124.710 L 53.841,94.390 C 53.841,94.390 56.701,96.190 60.471,96.970 L 58.061,124.710 C 58.061,124.710 35.091,124.710 35.091,124.710 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-774bc0d0-7133-4069-aeac-4ca180b118e2 -->
+                <Path x:Name="btn09" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff98cbff" Data="F1 M 0.501,79.250 L 41.201,77.450 C 41.201,77.450 41.521,78.960 41.891,79.930 L 0.501,99.810 L 0.501,79.260 L 0.501,79.250 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-b8c8fb1e-cfde-4602-b0fa-352cbc9539fd -->
+                <Path x:Name="btn10" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 25.411,64.820 L 41.041,65.750 C 39.911,70.990 40.861,75.960 40.861,75.960 L 25.431,76.680 C 24.541,70.990 25.411,64.820 25.411,64.820 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-d642a9e3-bfb0-4b6d-a0c4-c9fe9656ea11 -->
+                <Path x:Name="btn11" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 25.631,63.990 L 41.261,64.820 C 41.261,64.820 41.891,61.700 43.501,58.980 L 29.191,52.820 C 29.191,52.820 26.581,58.020 25.631,63.980 L 25.631,63.990 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-a41bcc77-28c6-473c-b086-3dfc8b1ec007 -->
+                <Path x:Name="btn12" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 13.041,77.240 L 25.231,76.680 C 25.231,76.680 24.381,70.790 25.021,64.820 L 12.791,64.080 C 12.141,69.970 13.051,77.240 13.051,77.240 L 13.041,77.240 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-8ac79e07-b297-4869-a995-3b78b6e8b525 -->
+                <Path x:Name="btn13" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 0.501,41.660 L 28.711,52.830 C 28.711,52.830 26.281,58.030 25.361,63.730 L 0.501,62.330 L 0.501,41.670 L 0.501,41.660 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-442c7294-03f2-4ab9-a809-5825ad1acca1 -->
+                <Path x:Name="btn14" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 26.201,34.730 L 35.671,42.280 C 32.421,46.000 29.091,52.020 29.091,52.020 L 17.821,47.250 C 21.161,40.000 26.191,34.740 26.191,34.740 L 26.201,34.730 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-8cd02d31-fc6f-4f02-8453-f543035750be -->
+                <Path x:Name="btn15" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 46.091,33.840 L 39.841,23.780 C 39.841,23.780 32.611,27.770 27.121,33.720 L 36.631,41.230 C 41.161,36.870 46.081,33.830 46.081,33.830 L 46.091,33.840 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-f1469541-7cb7-4394-a658-876841989647 -->
+                <Path x:Name="btn16" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffff9800" Data="F1 M 59.531,28.910 L 58.581,17.480 C 58.581,17.480 49.151,18.590 41.121,23.090 L 47.211,33.230 C 53.231,29.840 59.531,28.920 59.531,28.920 L 59.531,28.910 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-feef6930-c2a9-4b59-a664-3c27abff4618 -->
+                <Path x:Name="btn17" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 73.841,17.560 L 73.311,28.650 C 73.311,28.650 66.891,27.810 60.461,28.750 L 59.391,17.380 C 66.621,16.330 73.851,17.570 73.851,17.570 L 73.841,17.560 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-3aebc8f0-2dc5-416d-a7bf-7c88da26afdb -->
+                <Path x:Name="btn18" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 87.541,33.380 L 93.171,24.440 C 93.171,24.440 84.911,19.100 74.501,17.650 L 73.841,28.560 C 81.671,29.600 87.541,33.370 87.541,33.370 L 87.541,33.380 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-acf9c4b4-1b07-4580-914e-3c2a20d0f757 -->
+                <Path x:Name="btn19" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 106.031,35.140 L 98.621,42.100 C 98.621,42.100 93.931,37.070 88.241,33.770 L 94.041,24.970 C 100.951,29.010 106.031,35.130 106.031,35.130 L 106.031,35.140 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-ddf2bff7-deb4-4ae9-a9c1-5bbeaee6ed0c -->
+                <Path x:Name="btn20" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 127.391,43.670 L 105.991,53.380 C 105.991,53.380 103.461,47.340 99.061,42.590 L 116.761,28.210 C 124.651,34.840 127.391,43.670 127.391,43.670 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-87ea402b-44e0-4ab4-ad98-6cecf0d481b2 -->
+                <Path x:Name="btn21" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 131.801,63.720 L 109.091,63.720 C 109.091,63.720 108.541,59.030 106.381,54.260 L 127.711,44.750 C 131.541,53.810 131.801,63.710 131.801,63.710 L 131.801,63.720 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-fe67cac0-23a1-4326-9bc4-3210ac0cff2f -->
+                <Path x:Name="btn22" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 119.381,76.550 L 108.791,76.550 C 108.791,76.550 109.291,70.590 108.791,65.530 L 119.481,65.530 C 120.211,71.040 119.381,76.550 119.381,76.550 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-29acb4eb-ba03-499c-9f26-f34252f6fb2e -->
+                <Path x:Name="btn23" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 74.831,124.040 L 74.311,112.470 C 105.841,106.620 109.091,77.550 109.091,77.550 L 119.271,77.550 C 119.271,77.550 118.981,115.720 74.841,124.040 L 74.831,124.040 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-0c301646-f422-4be5-894a-7d5a0a06bbd9 -->
+                <Path x:Name="btn24" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 59.241,124.710 L 60.201,113.060 C 66.591,113.490 72.991,113.060 72.991,113.060 L 73.381,124.210 C 69.091,124.780 59.241,124.700 59.241,124.700 L 59.241,124.710 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-5ed24243-fea8-4660-8aac-77b4afe096cf -->
+                <Path x:Name="btn25" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 0.541,124.710 L 0.501,102.030 L 42.451,81.400 C 46.101,89.960 52.841,93.710 52.841,93.710 L 33.031,124.710 L 0.541,124.710 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-daa20e2f-9f0d-4c97-8bf7-2f390e9e70bd -->
+                <Path x:Name="btn26" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 32.871,12.030 L 39.841,23.780 C 39.841,23.780 32.321,27.530 27.121,33.720 L 1.981,12.030 L 32.871,12.030 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-90cd7ee5-4d60-4696-86cb-d2d6ca411f83 -->
+                <Path x:Name="btn27" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 59.391,17.370 L 58.931,12.030 L 74.371,12.030 L 73.861,17.370 C 73.861,17.370 66.891,16.420 59.391,17.370 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-539dd985-bf5c-4b20-ab88-09941dae0084 -->
+                <Path x:Name="btn28" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 101.931,12.750 L 117.011,12.750 C 120.048,12.750 122.511,15.212 122.511,18.250 L 122.511,18.250 C 122.511,21.288 120.048,23.750 117.011,23.750 L 101.931,23.750 C 98.893,23.750 96.431,21.288 96.431,18.250 L 96.431,18.250 C 96.431,15.212 98.893,12.750 101.931,12.750 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-fbb6130e-d1d9-4d00-ae77-25f99be3815c -->
+                <Path x:Name="btn29" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff98cbff" Data="F1 M 101.931,0.530 L 117.011,0.530 C 120.048,0.530 122.511,2.992 122.511,6.030 L 122.511,6.030 C 122.511,9.068 120.048,11.530 117.011,11.530 L 101.931,11.530 C 98.893,11.530 96.431,9.068 96.431,6.030 L 96.431,6.030 C 96.431,2.992 98.893,0.530 101.931,0.530 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-0dd172bd-92f5-4ae0-9d23-6c3392fccb35 -->
+                <Path x:Name="btn30" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffeeb556" Data="F1 M 75.801,0.500 L 87.191,0.500 C 90.231,0.500 92.691,2.960 92.691,6.000 L 92.691,6.000 C 92.691,9.040 90.231,11.500 87.191,11.500 L 75.801,11.500 L 75.801,0.500 L 75.801,0.500 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-78da42b5-8a9c-4a6c-accd-442923a94457 -->
+                <Path x:Name="btn31" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffedb582" Data="F1 M 57.241,11.500 L 45.851,11.500 C 42.811,11.500 40.351,9.040 40.351,6.000 L 40.351,6.000 C 40.351,2.960 42.811,0.500 45.851,0.500 L 57.241,0.500 L 57.241,11.500 L 57.241,11.500 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-5789829d-e8e9-4de2-8dab-5ca65373f3b0 -->
+                <Path x:Name="btn32" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ffff9800" Data="F1 M 74.971,11.500 L 58.081,11.500 L 58.081,0.500 L 74.971,0.500 L 74.971,11.500 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-c66c7089-11af-4341-9796-83b16da3056d/uuid-2726ea30-0762-4531-a5c2-86368a8e504f -->
+                <Path x:Name="btn33" StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 33.041,11.530 L 1.991,11.530 L 1.991,0.530 L 33.041,0.530 L 33.041,11.530 Z"/>
+
+            </Canvas>
+            <Canvas Margin="0,0,132,125">
+
+                <Path x:Name="btnnext" Fill="#0014A856" Data="F1 M 71.921,65.960 C 71.921,70.000 71.941,76.030 71.941,76.030 L 92.971,76.030 L 92.771,65.980 L 71.921,65.960 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Path x:Name="btnprev" Fill="#0014A856" Data="F1 M 61.591,76.030 C 61.591,71.990 61.571,65.960 61.571,65.960 L 40.541,65.960 L 40.741,76.010 C 40.741,76.010 61.591,76.030 61.591,76.030 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Path x:Name="btnup" Fill="#0014A856" Data="F1 M 61.671,65.700 C 65.601,65.700 71.461,65.680 71.461,65.680 L 71.461,45.080 L 61.691,45.270 L 61.671,65.690 L 61.671,65.700 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Path x:Name="btndown" Fill="#0014A856" Data="F1 M 71.461,76.360 C 67.531,76.360 61.671,76.380 61.671,76.380 L 61.671,97.160 L 71.441,96.960 L 71.461,76.350 L 71.461,76.360 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Path x:Name="btncenter" Fill="#0014A856" Data="F1 M 71.921,65.350 C 67.691,65.350 61.381,65.360 61.381,65.360 L 61.381,76.310 L 71.901,76.210 C 71.901,76.210 71.921,65.350 71.921,65.350 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Fill="#ff9f6c8b" Data="F1 M 66.761,44.700 C 81.363,44.700 93.201,56.538 93.201,71.140 C 93.201,85.742 81.363,97.580 66.761,97.580 C 52.158,97.580 40.321,85.742 40.321,71.140 C 40.321,56.538 52.158,44.700 66.761,44.700 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-b380f32b-44db-44e5-8f05-d3c6a21ee178/<Path> -->
+                <Path Fill="#ffedb582" Data="F1 M 40.661,65.970 L 92.751,65.970 L 92.751,76.030 L 40.661,76.030 L 40.661,65.970 Z"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-b380f32b-44db-44e5-8f05-d3c6a21ee178/<Path> -->
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 41.041,76.030 C 39.351,71.140 41.021,65.970 41.021,65.970"/>
+
+                <!-- uuid-b401b314-65cd-4739-81ce-4fe494e10b12/uuid-b380f32b-44db-44e5-8f05-d3c6a21ee178/<Path> -->
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 92.781,65.970 C 93.211,69.770 93.471,71.000 92.761,76.030"/>
+                <Path Fill="#ff000000" Data="F1 M 83.201,65.700 L 87.201,65.700 L 87.201,75.760 L 83.201,75.760 L 83.201,65.700 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ffedb582" Data="F1 M 86.591,71.140 L 83.821,68.710 L 83.821,73.570 L 86.591,71.140 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ffedb582" Data="F1 M 71.651,45.080 L 71.651,97.170 L 61.591,97.170 L 61.591,45.080 L 71.651,45.080 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 92.751,76.030 L 41.041,76.030" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 41.011,65.970 L 92.781,65.970" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 71.651,45.430 L 71.651,97.190" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 61.591,97.170 L 61.591,45.450" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 61.591,45.450 C 66.481,43.760 71.651,45.430 71.651,45.430" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path StrokeThickness="1.0" Stroke="#ff000000" StrokeMiterLimit="1.0" Data="F1 M 71.651,97.190 C 67.851,97.620 66.621,97.880 61.591,97.170" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ff000000" Data="F1 M 46.191,65.970 L 50.191,65.970 L 50.191,76.030 L 46.191,76.030 L 46.191,65.970 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ffedb582" Data="F1 M 46.801,71.140 L 49.571,73.570 L 49.571,68.710 L 46.801,71.140 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ff000000" Data="F1 M 71.931,87.620 L 71.931,91.620 L 61.871,91.620 L 61.871,87.620 L 71.931,87.620 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ffedb582" Data="F1 M 66.481,91.010 L 68.911,88.230 L 64.051,88.230 L 66.481,91.010 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ff000000" Data="F1 M 71.651,50.600 L 71.651,54.600 L 61.591,54.600 L 61.591,50.600 L 71.651,50.600 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Path Fill="#ffedb582" Data="F1 M 66.481,51.210 L 64.051,53.990 L 68.911,53.990 L 66.481,51.210 Z" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            </Canvas>
+        </Grid>
+    </Viewbox>
+</UserControl>
