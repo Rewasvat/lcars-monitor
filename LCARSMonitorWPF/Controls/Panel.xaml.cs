@@ -89,6 +89,7 @@ namespace LCARSMonitorWPF.Controls
         protected Button rightBorder;
         protected Button leftBorder;
         protected double outMargin = 5.0; // margin from border elements to control edge
+        protected Border slotRect;
 
         // METHODS
         public Panel()
@@ -137,6 +138,11 @@ namespace LCARSMonitorWPF.Controls
             bottomLeftCorner.Visibility = Visibility.Hidden;
             grid.Children.Add(bottomLeftCorner);
 
+            slotRect = new Border();
+            slotRect.BorderBrush = null;
+            slotRect.Background = new SolidColorBrush(Colors.Red);
+            grid.Children.Add(slotRect);
+
             UpdateBorders();
         }
 
@@ -151,6 +157,8 @@ namespace LCARSMonitorWPF.Controls
             UpdateBorderRectElement(bottomBorder, PanelBorders.Bottom);
             UpdateBorderRectElement(leftBorder, PanelBorders.Left);
             UpdateBorderRectElement(rightBorder, PanelBorders.Right);
+
+            UpdateInternalArea();
         }
         private static void BordersChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -259,17 +267,49 @@ namespace LCARSMonitorWPF.Controls
                     y = ActualHeight - height - outMargin;
                     break;
             }
-            if (!enabled)
-            {
-                elbow.Visibility = Visibility.Hidden;
-                return;
-            }
+            // if (!enabled)
+            // {
+            //     elbow.Visibility = Visibility.Hidden;
+            //     return;
+            // }
+            elbow.Visibility = enabled ? Visibility.Visible : Visibility.Hidden;
 
-            elbow.Visibility = Visibility.Visible;
+            // elbow.Visibility = Visibility.Visible;
             elbow.Width = width;
             elbow.Height = height;
             elbow.SetValue(Canvas.LeftProperty, x);
             elbow.SetValue(Canvas.TopProperty, y);
+        }
+
+        public void UpdateInternalArea()
+        {
+            double slotWidth = ActualWidth - outMargin * 2;
+            double slotHeight = ActualHeight - outMargin * 2;
+
+            double x = outMargin;
+            double y = outMargin;
+            if (Borders.HasFlag(PanelBorders.Left))
+            {
+                x += topLeftCorner.ActualWidth;
+                slotWidth -= topLeftCorner.ActualWidth;
+            }
+            if (Borders.HasFlag(PanelBorders.Top))
+            {
+                y += topLeftCorner.ActualHeight;
+                slotHeight -= topLeftCorner.ActualHeight;
+            }
+            if (Borders.HasFlag(PanelBorders.Right))
+            {
+                slotWidth -= topLeftCorner.ActualWidth;
+            }
+            if (Borders.HasFlag(PanelBorders.Bottom))
+            {
+                slotHeight -= topLeftCorner.ActualHeight;
+            }
+            slotRect.SetValue(Canvas.LeftProperty, x);
+            slotRect.SetValue(Canvas.TopProperty, y);
+            slotRect.Width = Math.Max(10, slotWidth);
+            slotRect.Height = Math.Max(10, slotHeight);
         }
 
         private void LCARSControl_SizeChanged(object sender, SizeChangedEventArgs e)

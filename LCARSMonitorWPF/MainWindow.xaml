@@ -16,10 +16,10 @@
         <Label x:Name="labelStuff" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RenderTransformOrigin="0.5,0.5" Height="26" Width="352" Content="esfgsrg&#xA;" Foreground="White" FontFamily="{StaticResource Antonio}" Grid.ColumnSpan="2"/>
 
         <Controls:Button Margin="850,71,86,0" VerticalAlignment="Top" Label="Stuff" Height="42" Grid.Column="1"/>
-        <Controls:Elbow HorizontalAlignment="Left" Margin="334,46,0,0" VerticalAlignment="Top" Height="82" Width="236" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506" Grid.Column="1" ElbowType="TopRight"/>
+        <Controls:Elbow HorizontalAlignment="Left" Margin="334,46,0,0" VerticalAlignment="Top" Height="82" Width="236" Foreground="#FFFF7B7B" RenderTransformOrigin="0.509,0.506" Grid.Column="1"/>
         <Controls:RedAlert HorizontalAlignment="Left" VerticalAlignment="Top" Height="142" Width="200" Grid.ColumnSpan="2"/>
         <Controls:YellowAlert Margin="82,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="132" Width="186" Grid.Column="1"/>
-        <Controls:Panel Borders="Top,Right,Bottom,Left" HorizontalAlignment="Left" Margin="79,270,0,0" VerticalAlignment="Top" Width="919" Height="561" Grid.ColumnSpan="2"/>
+        <Controls:Panel Borders="Top,Left,Bottom,Right" HorizontalAlignment="Left" Margin="79,270,0,0" VerticalAlignment="Top" Width="943" Height="567" Grid.ColumnSpan="2"/>
 
         <Controls:ReactorBar HorizontalAlignment="Left" Margin="895,43,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.846,0.311" Height="295" Grid.Column="1"/>
         <Controls:ProgressBar HorizontalAlignment="Left" Height="178" VerticalAlignment="Top" Width="157" Margin="408,9,0,0" RenderTransformOrigin="0.5,0.5" Grid.Column="1">
