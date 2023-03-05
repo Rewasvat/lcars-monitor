@@ -18,9 +18,9 @@ namespace LCARSMonitorWPF.Controls
     /// <summary>
     /// Interaction logic for maincontrols.xaml
     /// </summary>
-    public partial class maincontrols : UserControl
+    public partial class MainControls : LCARSControl
     {
-        public maincontrols()
+        public MainControls()
         {
             InitializeComponent();
         }
