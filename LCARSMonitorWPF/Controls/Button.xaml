@@ -8,7 +8,7 @@
              d:DesignHeight="50" d:DesignWidth="100" IsEnabledChanged="LCARSControl_IsEnabledChanged" MouseEnter="LCARSControl_MouseEnter" MouseLeave="LCARSControl_MouseLeave" MouseDown="LCARSControl_MouseDown" MouseUp="LCARSControl_MouseUp" SizeChanged="LCARSControl_SizeChanged">
     <Grid>
         <Border x:Name="rect" BorderThickness="0" Background="Gray" >
-            <Label x:Name="label" Content="" Foreground="Black" FontWeight="Normal" FontSize="16" FontFamily="Arial" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" Padding="5,5,5,5"/>
+            <Label x:Name="label" Content="" Foreground="Black" FontWeight="Normal" FontSize="16" FontFamily="{StaticResource Antonio}" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" Padding="5,5,5,5"/>
         </Border>
 
     </Grid>

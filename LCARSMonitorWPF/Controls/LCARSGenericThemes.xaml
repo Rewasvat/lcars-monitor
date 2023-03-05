@@ -4,7 +4,7 @@
 
     <!--The user will define a FontFamily with Key LCARS, because we can't provide the ttf with the package.-->
     <!--<FontFamily x:Key="LCARS">Resources/lcars.ttf#LCARS</FontFamily>-->
-    <FontFamily x:Key="LCARS">Helvetica</FontFamily>
+    <FontFamily x:Key="LCARS">Antonio</FontFamily>
     <SolidColorBrush x:Key="ButtonPressedBrush" Color="White" />
     <SolidColorBrush x:Key="ControlLabelBrush" Color="Black" />
 

@@ -9,8 +9,46 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Fonts\Antonio-Bold.ttf" />
+    <None Remove="Assets\Fonts\Antonio-ExtraLight.ttf" />
+    <None Remove="Assets\Fonts\Antonio-Light.ttf" />
+    <None Remove="Assets\Fonts\Antonio-Medium.ttf" />
+    <None Remove="Assets\Fonts\Antonio-Regular.ttf" />
+    <None Remove="Assets\Fonts\Antonio-SemiBold.ttf" />
+    <None Remove="Assets\Fonts\Antonio-Thin.ttf" />
+    <None Remove="Assets\Fonts\Federation_Wide.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.1" />
     <PackageReference Include="Svg" Version="3.4.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\Antonio-Bold.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Antonio-ExtraLight.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Antonio-Light.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Antonio-Medium.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Antonio-Regular.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Antonio-SemiBold.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Antonio-Thin.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Fonts\Federation_Wide.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

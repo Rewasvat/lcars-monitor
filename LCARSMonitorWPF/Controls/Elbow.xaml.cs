@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,17 +24,18 @@ namespace LCARSMonitorWPF.Controls
     public partial class Elbow : LCARSControl
     {
         // PROPERTIES
+        private ElbowType type;
         public ElbowType ElbowType
         {
-            get { return (ElbowType)GetValue(ElbowTypeProperty); }
-            set { SetValue(ElbowTypeProperty, value); }
+            // This is not a DependencyProperty on purpose.
+            // The value never changed (stayed always on default) when used as DP, and I could't fix it, so...
+            get { return type; }
+            set
+            {
+                type = value;
+                UpdatePath();
+            }
         }
-        public static readonly DependencyProperty ElbowTypeProperty = DependencyProperty.Register(
-            "ElbowType",
-            typeof(ElbowType),
-            typeof(Button),
-            new PropertyMetadata(ElbowType.TopRight, UpdatePathCallback)
-        );
 
         public double Bar
         {
@@ -95,11 +97,23 @@ namespace LCARSMonitorWPF.Controls
             get { return Visual.GetVisual(VisualStyle); }
         }
 
+        public Size BaseArea
+        {
+            get
+            {
+                return geometry.Bounds.Size;
+            }
+        }
+
+        private PathGeometry geometry;
+
         // METHODS
         public Elbow()
         {
             InitializeComponent();
             this.DataContext = this;
+            geometry = new PathGeometry();
+            geometry.FillRule = FillRule.Nonzero;
             UpdatePath();
         }
 
@@ -114,7 +128,7 @@ namespace LCARSMonitorWPF.Controls
             // a = arc(sizeXY, angle, isLargerThan180, sweepDirection, endXY)
             // l = line(x, y)
             // z = end
-            switch (ElbowType)
+            switch (this.ElbowType)
             {
                 case ElbowType.TopLeft:
                     geo = $"M0,{Bar + small} l{Column},0 a {small},{small} 90 0 1 {small},{-small} l 0,{-Bar} l {-Column - small + big},0 a {big},{big} 90 0 0 {-big},{big} z";
@@ -130,13 +144,12 @@ namespace LCARSMonitorWPF.Controls
                     break;
             }
 
-            PathGeometry pathGeo = new PathGeometry();
-            pathGeo.FillRule = FillRule.Nonzero;
+            geometry.Clear();
             PathFigureCollectionConverter pfcc = new PathFigureCollectionConverter();
-            pathGeo.Figures = pfcc.ConvertFrom(geo) as PathFigureCollection;
+            geometry.Figures = pfcc.ConvertFrom(geo) as PathFigureCollection;
 
-            path.Data = pathGeo;
-            mask.Data = pathGeo;
+            path.Data = geometry;
+            mask.Data = geometry;
         }
 
         private static void UpdatePathCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)

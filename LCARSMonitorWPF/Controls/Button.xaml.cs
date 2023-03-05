@@ -96,6 +96,8 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        public bool UseFixedVisual { get; set; } = false;
+
 
         // INTERNAL ATTRIBUTES
         private bool hasMouseOver = false;
@@ -116,9 +118,12 @@ namespace LCARSMonitorWPF.Controls
         protected void UpdateVisual()
         {
             var fill = Visual.NormalBrush;
-            if (!IsEnabled) fill = Visual.DisabledBrush;
-            else if (isPressed) fill = Visual.PressedBrush;
-            else if (hasMouseOver) fill = Visual.MouseOverBrush;
+            if (!UseFixedVisual)
+            {
+                if (!IsEnabled) fill = Visual.DisabledBrush;
+                else if (isPressed) fill = Visual.PressedBrush;
+                else if (hasMouseOver) fill = Visual.MouseOverBrush;
+            }
 
             rect.Background = fill;
         }

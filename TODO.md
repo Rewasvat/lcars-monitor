@@ -68,18 +68,18 @@ TODO
     - Panel:
         * esse seria o grande organizador da UI... meio complexo =/
         - permite ter "bordas":
-            - linha visual lcars em cima/baixo/direita/esquerda
+            + linha visual lcars em cima/baixo/direita/esquerda
             - permitir incluir labels em alguma seção da linha (pelo menos pra top/bottom)
             - permitir incluir botões nessa linha: sempre serao da variedade quadrada, com a linha preta separando borda|botao|borda
             - espaco interno da borda (onde pode ter labels/botoes) exclui os cantos (stump ou elbow das bordas)
             * então terá que ter algum jeito de seccionar o "espaço interno" da linha da borda, pra poder colocar a label ou botão... Como?
-        - bordas desse panel devem se "encaixar" automaticamente pra definir os cantos
-            - se tem bordas formando um L (tipo top+right), então ali terá um [ELBOW]
-            - se o canto da borda é pra um lado *sem borda*, então ali será um [STUMP]
+        + bordas desse panel devem se "encaixar" automaticamente pra definir os cantos
+            + se tem bordas formando um L (tipo top+right), então ali terá um [ELBOW]
+            + se o canto da borda é pra um lado *sem borda*, então ali será um [STUMP]
         - o espaço interno inteiro do panel, "dentro" das bordas (se existirem) e tal, será um unico SLOT pra um filho.
-        - a borda pode ser feita internamente por um conjunto de stumps, elbows e button/rects, porem:
-            - nao tem mouse-over/click! eh sempre a mesma cor
-            - possivelmente a mesma cor pra todas partes de borda do mesmo panel (no minimo, para as partes de borda que estao conectadas entre si)
+        + a borda pode ser feita internamente por um conjunto de stumps, elbows e button/rects, porem:
+            + nao tem mouse-over/click! eh sempre a mesma cor
+            + possivelmente a mesma cor pra todas partes de borda do mesmo panel (no minimo, para as partes de borda que estao conectadas entre si)
         - mais facil a borda ser uma coisa só, e possiveis botoes nela tem um framezinho left/right ou top/bottom preto pra fazer o "separador"
     - Axis List (Vertical/Horizontal):
         - lista de widgets organizadas verticalmente or horizontalmente, dividindo o espaço de algum jeito (padrao ser uniforme)

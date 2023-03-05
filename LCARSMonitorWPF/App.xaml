@@ -4,6 +4,13 @@
              xmlns:local="clr-namespace:LCARSMonitorWPF"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        
+        <FontFamily x:Key="AntonioBold">pack://application:,,,/Assets/Fonts/#Antonio Bold</FontFamily>
+        <FontFamily x:Key="AntonioExtraLight">pack://application:,,,/Assets/Fonts/#Antonio ExtraLight</FontFamily>
+        <FontFamily x:Key="AntonioLight">pack://application:,,,/Assets/Fonts/#Antonio Light</FontFamily>
+        <FontFamily x:Key="AntonioMedium">pack://application:,,,/Assets/Fonts/#Antonio Medium</FontFamily>
+        <FontFamily x:Key="Antonio">pack://application:,,,/Assets/Fonts/#Antonio</FontFamily>
+        <FontFamily x:Key="AntonioSemiBold">pack://application:,,,/Assets/Fonts/#Antonio SemiBold</FontFamily>
+        <FontFamily x:Key="AntonioThin">pack://application:,,,/Assets/Fonts/#Antonio Thin</FontFamily>
+        <FontFamily x:Key="FederationWide">pack://application:,,,/Assets/Fonts/#FederationWide</FontFamily>
     </Application.Resources>
 </Application>
