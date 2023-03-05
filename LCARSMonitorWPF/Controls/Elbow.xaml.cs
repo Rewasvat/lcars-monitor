@@ -88,7 +88,7 @@ namespace LCARSMonitorWPF.Controls
         {
             if (d is Elbow obj)
             {
-                // obj.UpdateVisual();
+                obj.UpdateVisual();
             }
         }
 
@@ -150,6 +150,11 @@ namespace LCARSMonitorWPF.Controls
 
             path.Data = geometry;
             mask.Data = geometry;
+        }
+
+        private void UpdateVisual()
+        {
+            path.Fill = Visual.NormalBrush;
         }
 
         private static void UpdatePathCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)

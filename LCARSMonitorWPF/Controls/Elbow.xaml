@@ -12,7 +12,7 @@
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Viewbox>
         <Grid>
-            <Path x:Name="path" Fill="{Binding Visual.NormalBrush}" />
+            <Path x:Name="path" Fill="White" />
             <Path x:Name="mask"
                   Fill="#7F000000"
                 Visibility="Collapsed" />
