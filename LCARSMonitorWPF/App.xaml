@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:LCARSMonitorWPF"
-             StartupUri="MainWindow.xaml" Startup="Application_Startup">
+             StartupUri="Windows/Monitor/MonitorWindow.xaml" Startup="Application_Startup">
     <Application.Resources>
         <FontFamily x:Key="AntonioBold">pack://application:,,,/Assets/Fonts/#Antonio Bold</FontFamily>
         <FontFamily x:Key="AntonioExtraLight">pack://application:,,,/Assets/Fonts/#Antonio ExtraLight</FontFamily>

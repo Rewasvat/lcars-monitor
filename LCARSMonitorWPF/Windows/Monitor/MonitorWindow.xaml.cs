@@ -15,17 +15,17 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LCARSMonitorWPF.Controls;
 
-namespace LCARSMonitorWPF
+namespace LCARSMonitorWPF.Windows.Monitor
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MonitorWindow : Window
     {
         private Computer computer;
         private UpdateVisitor visitor = new UpdateVisitor();
 
-        public MainWindow()
+        public MonitorWindow()
         {
             InitializeComponent();
 

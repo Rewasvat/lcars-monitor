@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LCARSMonitorWPF"
-        xmlns:Controls="clr-namespace:LCARSMonitorWPF.Controls" x:Class="LCARSMonitorWPF.MainWindow"
+        xmlns:local="clr-namespace:LCARSMonitorWPF.Windows.Monitor"
+        x:Class="LCARSMonitorWPF.Windows.Monitor.MonitorWindow"
+        xmlns:Controls="clr-namespace:LCARSMonitorWPF.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="890" Width="1472" Icon="/Assets/Icons/lcars.png">
+        Title="LCARS Monitor" Height="890" Width="1472" Icon="/Assets/Icons/lcars.png">
     <Grid Background="Black">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="104*"/>
