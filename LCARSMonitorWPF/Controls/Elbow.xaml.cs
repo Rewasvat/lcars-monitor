@@ -162,5 +162,39 @@ namespace LCARSMonitorWPF.Controls
         {
             (d as Elbow)?.UpdatePath();
         }
+
+        public override LCARSControlData Serialize()
+        {
+            return new ElbowData
+            {
+                Type = this.GetType().FullName,
+                VisualStyle = VisualStyle,
+                ElbowType = ElbowType,
+                Bar = Bar,
+                Column = Column,
+                InnerArcRadius = InnerArcRadius,
+            };
+        }
+
+        public override void LoadData(LCARSControlData baseData)
+        {
+            var data = baseData as ElbowData;
+            if (data == null)
+                return;
+            VisualStyle = data.VisualStyle;
+            ElbowType = data.ElbowType;
+            Bar = data.Bar;
+            Column = data.Column;
+            InnerArcRadius = data.InnerArcRadius;
+        }
+    }
+
+    public class ElbowData : LCARSControlData
+    {
+        public Visuals VisualStyle { get; set; }
+        public ElbowType ElbowType { get; set; }
+        public double Bar { get; set; }
+        public double Column { get; set; }
+        public double InnerArcRadius { get; set; }
     }
 }

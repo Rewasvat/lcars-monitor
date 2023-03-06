@@ -200,5 +200,36 @@ namespace LCARSMonitorWPF.Controls
             // UpdateVisual();
             UpdateCorners();
         }
+
+        public override LCARSControlData Serialize()
+        {
+            return new ButtonData
+            {
+                Type = this.GetType().FullName,
+                UseFixedVisual = UseFixedVisual,
+                Label = Label,
+                VisualStyle = VisualStyle,
+                Stumps = Stumps
+            };
+        }
+
+        public override void LoadData(LCARSControlData baseData)
+        {
+            var data = baseData as ButtonData;
+            if (data == null)
+                return;
+            UseFixedVisual = data.UseFixedVisual;
+            Label = data.Label != null ? data.Label : string.Empty;
+            VisualStyle = data.VisualStyle;
+            Stumps = data.Stumps;
+        }
+    }
+
+    public class ButtonData : LCARSControlData
+    {
+        public bool UseFixedVisual { get; set; }
+        public string? Label { get; set; }
+        public Visuals VisualStyle { get; set; }
+        public Stumps Stumps { get; set; }
     }
 }

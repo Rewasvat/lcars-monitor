@@ -155,5 +155,46 @@ namespace LCARSMonitorWPF.Controls
         {
             UpdateChildren();
         }
+
+        public override LCARSControlData Serialize()
+        {
+            LCARSControlData?[] children = new LCARSControlData[slots.Length];
+            for (int i = 0; i < slots.Length; i++)
+            {
+                children[i] = slots[i].AttachedChild?.Serialize();
+            }
+
+            return new AxisListData
+            {
+                Type = this.GetType().FullName,
+                Orientation = Orientation,
+                Config = Config,
+                Children = children,
+            };
+        }
+
+        public override void LoadData(LCARSControlData baseData)
+        {
+            var data = baseData as AxisListData;
+            if (data == null)
+                return;
+            Orientation = data.Orientation;
+            Config = data.Config!;
+
+            if (data.Children != null)
+            {
+                for (int i = 0; i < data.Children.Length; i++)
+                {
+                    slots[i].AttachedChild = Deserialize(data.Children[i]);
+                }
+            }
+        }
+    }
+
+    public class AxisListData : LCARSControlData
+    {
+        public AxisOrientation Orientation { get; set; }
+        public string? Config { get; set; }
+        public LCARSControlData?[]? Children { get; set; }
     }
 }

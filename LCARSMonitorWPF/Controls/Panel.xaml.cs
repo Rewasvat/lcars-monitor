@@ -334,5 +334,47 @@ namespace LCARSMonitorWPF.Controls
         {
             UpdateBorders();
         }
+
+        public override LCARSControlData Serialize()
+        {
+            return new PanelData
+            {
+                Type = this.GetType().FullName,
+                VisualStyle = VisualStyle,
+                Borders = Borders,
+                BorderHeight = BorderHeight,
+                BorderWidth = BorderWidth,
+                BorderInnerRadius = BorderInnerRadius,
+                Content = ChildSlot.AttachedChild?.Serialize(),
+            };
+        }
+
+        public override void LoadData(LCARSControlData baseData)
+        {
+            var data = baseData as PanelData;
+            if (data == null)
+                return;
+            VisualStyle = data.VisualStyle;
+            Borders = data.Borders;
+            BorderHeight = data.BorderHeight;
+            BorderWidth = data.BorderWidth;
+            BorderInnerRadius = data.BorderInnerRadius;
+
+            if (data.Content != null)
+            {
+                var child = Deserialize(data.Content);
+                ChildSlot.AttachedChild = child;
+            }
+        }
+    }
+
+    public class PanelData : LCARSControlData
+    {
+        public Visuals VisualStyle { get; set; }
+        public PanelBorders Borders { get; set; }
+        public double BorderHeight { get; set; }
+        public double BorderWidth { get; set; }
+        public double BorderInnerRadius { get; set; }
+        public LCARSControlData? Content { get; set; }
     }
 }

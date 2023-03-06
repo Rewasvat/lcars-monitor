@@ -29,5 +29,39 @@ namespace LCARSMonitorWPF.Controls
                 Visibility = System.Windows.Visibility.Hidden;
             }
         }
+
+        public virtual LCARSControlData Serialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void LoadData(LCARSControlData data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static LCARSControl? Deserialize(LCARSControlData? data)
+        {
+            if (data == null)
+                return null;
+            if (data.Type == null)
+            {
+                throw new ArgumentException();
+            }
+            Type? ControlType = Type.GetType(data.Type);
+            if (ControlType == null)
+            {
+                throw new ArgumentException();
+            }
+
+            LCARSControl? control = Activator.CreateInstance(ControlType) as LCARSControl;
+            control?.LoadData(data);
+            return control;
+        }
+    }
+
+    public class LCARSControlData
+    {
+        public string? Type { get; set; }
     }
 }
