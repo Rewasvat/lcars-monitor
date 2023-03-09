@@ -27,10 +27,12 @@ namespace LCARSMonitorWPF.Controls
             }
             else
             {
-                IsEnabled = true;
+                IsEnabled = false;
                 Visibility = System.Windows.Visibility.Hidden;
             }
         }
+
+        ////  SERIALIZATION
 
         public virtual LCARSControlData Serialize()
         {

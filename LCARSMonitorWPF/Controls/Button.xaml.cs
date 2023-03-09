@@ -114,6 +114,7 @@ namespace LCARSMonitorWPF.Controls
 
             rect.Background = fill;
             label.Foreground = Visual.TextBrush;
+            // TODO: fix issue: click, drag outside button and release. Button stays on "pressed" state even tho it isnt anymore
         }
 
         protected void UpdateCorners()
@@ -200,6 +201,8 @@ namespace LCARSMonitorWPF.Controls
             // UpdateVisual();
             UpdateCorners();
         }
+
+        ////  SERIALIZATION
 
         public override LCARSControlData Serialize()
         {

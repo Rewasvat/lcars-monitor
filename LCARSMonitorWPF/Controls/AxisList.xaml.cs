@@ -22,6 +22,7 @@ namespace LCARSMonitorWPF.Controls
     {
         private Slot[] slots;
         public Slot[] ChildSlots { get { return slots; } }
+        public Canvas ChildrenCanvas => canvas;
 
         private AxisOrientation orientation = AxisOrientation.Horizontal;
         public AxisOrientation Orientation
@@ -149,24 +150,12 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
-        public void UpdateChildSlot(Slot slot, LCARSControl? newChild)
-        {
-            if (!slots.Contains(slot))
-            {
-                // throw error?
-                throw new ArgumentException("Tried to update a slot that is not our child slot", "slot");
-            }
-
-            if (slot.AttachedChild != null)
-                canvas.Children.Remove(slot.AttachedChild);  // removing previous child
-            if (newChild != null)
-                canvas.Children.Add(newChild);
-        }
-
         private void LCARSControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateChildren();
         }
+
+        ////  SERIALIZATION
 
         public override LCARSControlData Serialize()
         {

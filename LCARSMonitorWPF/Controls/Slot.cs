@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -27,6 +28,7 @@ namespace LCARSMonitorWPF.Controls
                     child?.OnAttachToSlot(null);
                     child = value;
                     child?.OnAttachToSlot(this);
+                    UpdateChildVisibility();
                 }
             }
         }
@@ -39,6 +41,18 @@ namespace LCARSMonitorWPF.Controls
             {
                 area = value;
                 child?.OnAttachToSlot(this);
+                UpdateChildVisibility();
+            }
+        }
+
+        private bool enabled = true;
+        public bool Enabled
+        {
+            get { return enabled; }
+            set
+            {
+                enabled = value;
+                UpdateChildVisibility();
             }
         }
 
@@ -46,11 +60,37 @@ namespace LCARSMonitorWPF.Controls
         {
             this.parent = parent;
         }
+
+        protected void UpdateChildVisibility()
+        {
+            if (AttachedChild != null)
+            {
+                if (enabled)
+                {
+                    AttachedChild.IsEnabled = true;
+                    AttachedChild.Visibility = System.Windows.Visibility.Visible;
+                }
+                else
+                {
+                    AttachedChild.IsEnabled = false;
+                    AttachedChild.Visibility = System.Windows.Visibility.Hidden;
+                }
+            }
+        }
     }
 
     public interface ILCARSContainer
     {
-        public void UpdateChildSlot(Slot slot, LCARSControl? newChild);
+        public Canvas ChildrenCanvas { get; }
+        internal void UpdateChildSlot(Slot slot, LCARSControl? newChild)
+        {
+            // NOTE: not checking if slot belongs to this container for simplicity, but maybe we should
+
+            if (slot.AttachedChild != null)
+                ChildrenCanvas.Children.Remove(slot.AttachedChild);  // removing previous child
+            if (newChild != null)
+                ChildrenCanvas.Children.Add(newChild);
+        }
     }
     public interface ILCARSSingleContainer : ILCARSContainer
     {

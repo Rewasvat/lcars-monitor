@@ -8,5 +8,5 @@
              SizeChanged="LCARSControl_SizeChanged"
              d:DesignWidth="600" d:DesignHeight="500" Initialized="LCARSControl_Initialized" Loaded="LCARSControl_Loaded">
     
-        <Canvas x:Name="grid" />
+        <Canvas x:Name="canvas" />
 </local:LCARSControl>

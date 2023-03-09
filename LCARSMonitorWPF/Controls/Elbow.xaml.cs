@@ -163,6 +163,8 @@ namespace LCARSMonitorWPF.Controls
             (d as Elbow)?.UpdatePath();
         }
 
+        ////  SERIALIZATION
+
         public override LCARSControlData Serialize()
         {
             return new ElbowData

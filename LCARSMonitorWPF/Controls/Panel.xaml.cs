@@ -81,6 +81,7 @@ namespace LCARSMonitorWPF.Controls
         );
 
         public Slot ChildSlot { get; protected set; }
+        public Canvas ChildrenCanvas => canvas;
 
         protected Elbow topRightCorner;
         protected Elbow topLeftCorner;
@@ -100,44 +101,44 @@ namespace LCARSMonitorWPF.Controls
             topBorder = new Button();
             topBorder.Visibility = Visibility.Hidden;
             topBorder.UseFixedVisual = true;
-            grid.Children.Add(topBorder);
+            canvas.Children.Add(topBorder);
 
             bottomBorder = new Button();
             bottomBorder.Visibility = Visibility.Hidden;
             bottomBorder.UseFixedVisual = true;
-            grid.Children.Add(bottomBorder);
+            canvas.Children.Add(bottomBorder);
 
             rightBorder = new Button();
             rightBorder.Visibility = Visibility.Hidden;
             rightBorder.UseFixedVisual = true;
             rightBorder.Stumps = Stumps.None;
-            grid.Children.Add(rightBorder);
+            canvas.Children.Add(rightBorder);
 
             leftBorder = new Button();
             leftBorder.Visibility = Visibility.Hidden;
             leftBorder.UseFixedVisual = true;
             leftBorder.Stumps = Stumps.None;
-            grid.Children.Add(leftBorder);
+            canvas.Children.Add(leftBorder);
 
             topRightCorner = new Elbow();
             topRightCorner.ElbowType = ElbowType.TopRight;
             topRightCorner.Visibility = Visibility.Hidden;
-            grid.Children.Add(topRightCorner);
+            canvas.Children.Add(topRightCorner);
 
             topLeftCorner = new Elbow();
             topLeftCorner.ElbowType = ElbowType.TopLeft;
             topLeftCorner.Visibility = Visibility.Hidden;
-            grid.Children.Add(topLeftCorner);
+            canvas.Children.Add(topLeftCorner);
 
             bottomRightCorner = new Elbow();
             bottomRightCorner.ElbowType = ElbowType.BottomRight;
             bottomRightCorner.Visibility = Visibility.Hidden;
-            grid.Children.Add(bottomRightCorner);
+            canvas.Children.Add(bottomRightCorner);
 
             bottomLeftCorner = new Elbow();
             bottomLeftCorner.ElbowType = ElbowType.BottomLeft;
             bottomLeftCorner.Visibility = Visibility.Hidden;
-            grid.Children.Add(bottomLeftCorner);
+            canvas.Children.Add(bottomLeftCorner);
 
             ChildSlot = new Slot(this);
 
@@ -306,20 +307,6 @@ namespace LCARSMonitorWPF.Controls
             ChildSlot.Area = rect;
         }
 
-        public void UpdateChildSlot(Slot slot, LCARSControl? newChild)
-        {
-            if (slot != ChildSlot)
-            {
-                // throw error?
-                throw new ArgumentException("Tried to update a slot that is not our child slot", "slot");
-            }
-
-            if (slot.AttachedChild != null)
-                grid.Children.Remove(slot.AttachedChild);  // removing previous child
-            if (newChild != null)
-                grid.Children.Add(newChild);
-        }
-
         private void LCARSControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateBorders();
@@ -334,6 +321,8 @@ namespace LCARSMonitorWPF.Controls
         {
             UpdateBorders();
         }
+
+        ////  SERIALIZATION
 
         public override LCARSControlData Serialize()
         {
