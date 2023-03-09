@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace LCARSMonitor.Widgets
+namespace LCARSMonitor.LCARS
 {
     public abstract class WidgetVisitor : IVisitor
     {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace LCARSMonitor.Widgets.Visitors
+namespace LCARSMonitor.LCARS.Visitors
 {
     public class LabelVisitor : WidgetVisitor
     {
