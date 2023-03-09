@@ -25,6 +25,7 @@ namespace LCARSMonitorWPF.Windows.Monitor
     public partial class MonitorWindow : Window, ILCARSSingleContainer
     {
         public Slot ChildSlot { get; protected set; }
+        public Canvas ChildrenCanvas => canvas;
 
         public MonitorWindow()
         {
@@ -67,21 +68,15 @@ namespace LCARSMonitorWPF.Windows.Monitor
             panel.Borders = PanelBorders.Bottom | PanelBorders.Top | PanelBorders.Left;
             panel.ChildSlot.AttachedChild = list;
 
-            ChildSlot.AttachedChild = panel;
-        }
+            Controls.RedAlert alert = new RedAlert();
 
-        public void UpdateChildSlot(Slot slot, LCARSControl? newChild)
-        {
-            if (slot != ChildSlot)
-            {
-                // throw error?
-                throw new ArgumentException("Tried to update a slot that is not our child slot", "slot");
-            }
+            Controls.Board board = new Board();
+            board.BoardNames = new string[] { "Main", "Alt" };
+            board.CurrentBoard = "Main";
+            board.Slots["Main"].AttachedChild = panel;
+            board.Slots["Alt"].AttachedChild = alert;
 
-            if (slot.AttachedChild != null)
-                canvas.Children.Remove(slot.AttachedChild);  // removing previous child
-            if (newChild != null)
-                canvas.Children.Add(newChild);
+            ChildSlot.AttachedChild = board;
         }
 
         private void UpdateRootSlot()
