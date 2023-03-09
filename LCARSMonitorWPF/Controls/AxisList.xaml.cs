@@ -51,6 +51,17 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        private double padding = 0.0;
+        public double ChildrenPadding
+        {
+            get { return padding; }
+            set
+            {
+                padding = value;
+                UpdateChildren();
+            }
+        }
+
         // TODO: implementar padding entre elementos
 
         // METHODS
@@ -108,8 +119,9 @@ namespace LCARSMonitorWPF.Controls
             }
 
             double axisSize = Orientation == AxisOrientation.Horizontal ? ActualWidth : ActualHeight;
+            axisSize -= padding * (slotPieces.Length + 1);
             double pieceSize = axisSize / totalSlotPieces;
-            double position = 0.0;
+            double position = padding;
             for (int i = 0; i < slots.Length; i++)
             {
                 Slot slot = slots[i];
@@ -120,20 +132,20 @@ namespace LCARSMonitorWPF.Controls
                 if (Orientation == AxisOrientation.Horizontal)
                 {
                     rect.X = position;
-                    rect.Y = 0.0;
+                    rect.Y = padding;
                     rect.Width = Math.Max(10, size);
-                    rect.Height = Math.Max(10, ActualHeight);
+                    rect.Height = Math.Max(10, ActualHeight - padding);
                 }
                 else
                 {
-                    rect.X = 0.0;
+                    rect.X = padding;
                     rect.Y = position;
-                    rect.Width = Math.Max(10, ActualWidth);
+                    rect.Width = Math.Max(10, ActualWidth - padding);
                     rect.Height = Math.Max(10, size);
                 }
                 slot.Area = rect;
 
-                position += size;
+                position += size + padding;
             }
         }
 

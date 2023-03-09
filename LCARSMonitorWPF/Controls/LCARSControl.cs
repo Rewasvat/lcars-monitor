@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -57,6 +59,42 @@ namespace LCARSMonitorWPF.Controls
             LCARSControl? control = Activator.CreateInstance(ControlType) as LCARSControl;
             control?.LoadData(data);
             return control;
+        }
+
+        public static LCARSControl? DeserializeJSON(string jsonData)
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            LCARSControlData? lcarsData = JsonConvert.DeserializeObject(jsonData, settings) as LCARSControlData;
+            return Deserialize(lcarsData);
+        }
+        public static LCARSControl? DeserializeJsonFile(string filePath)
+        {
+            string jsonData = File.ReadAllText(filePath);
+            return DeserializeJSON(jsonData);
+        }
+
+        public void SerializeIntoJsonFile(string filePath)
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            var lcarsData = Serialize();
+            string jsonData = JsonConvert.SerializeObject(lcarsData, Formatting.Indented, settings);
+
+            using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate))
+            {
+                using (StreamWriter sw = new StreamWriter(fs))
+                {
+                    using (JsonTextWriter jw = new JsonTextWriter(sw))
+                    {
+                        jw.Formatting = Formatting.Indented;
+                        jw.IndentChar = ' ';
+                        jw.Indentation = 4;
+
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.TypeNameHandling = TypeNameHandling.All;
+                        serializer.Serialize(jw, lcarsData);
+                    }
+                }
+            }
         }
     }
 
