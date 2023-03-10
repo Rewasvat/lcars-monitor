@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using LCARSMonitor.LCARS;
 using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
@@ -30,6 +31,11 @@ namespace LCARSMonitorWPF.Controls
                 IsEnabled = false;
                 Visibility = System.Windows.Visibility.Hidden;
             }
+        }
+
+        public LCARSControl()
+        {
+            LCARSSystem.Global.RegisterControl(this);
         }
 
         ////  SERIALIZATION

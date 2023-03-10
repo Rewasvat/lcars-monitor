@@ -1,4 +1,4 @@
-﻿using LibreHardwareMonitor.Hardware;
+using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +30,8 @@ namespace LCARSMonitorWPF.Windows.Monitor
         public MonitorWindow()
         {
             InitializeComponent();
+
+            LCARSMonitor.LCARS.LCARSSystem.Global.Initialize(canvas);
 
             ChildSlot = new Slot(this);
             UpdateRootSlot();
@@ -92,6 +94,11 @@ namespace LCARSMonitorWPF.Windows.Monitor
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateRootSlot();
+        }
+
+        private void OnWindowClosed(object sender, EventArgs e)
+        {
+            LCARSMonitor.LCARS.LCARSSystem.Global.Shutdown();
         }
     }
 }

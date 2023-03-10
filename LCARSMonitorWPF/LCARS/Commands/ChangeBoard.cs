@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,8 +21,16 @@ namespace LCARSMonitorWPF.LCARS.Commands
 
         public void OnRun()
         {
-            Board target = new Board(); // TODO: FIX THIS get Board with TargetBoard name
-            target.CurrentBoard = BoardToSelect;
+            Board? target = LCARSMonitor.LCARS.LCARSSystem.Global.GetControlByName(TargetBoard) as Board;
+            if (target != null)
+            {
+                target.CurrentBoard = BoardToSelect;
+                Debug.WriteLine($"{TargetBoard}: changed selected board to '{BoardToSelect}'");
+            }
+            else
+            {
+                Debug.WriteLine($"Couldn't find target Board '{TargetBoard}'");
+            }
         }
     }
 }
