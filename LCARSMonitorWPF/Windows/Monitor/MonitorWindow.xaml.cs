@@ -1,4 +1,4 @@
-using LibreHardwareMonitor.Hardware;
+﻿using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using LCARSMonitorWPF.Controls;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using LCARSMonitorWPF.LCARS.Commands;
 
 namespace LCARSMonitorWPF.Windows.Monitor
 {
@@ -27,6 +28,8 @@ namespace LCARSMonitorWPF.Windows.Monitor
         public Slot ChildSlot { get; protected set; }
         public Canvas ChildrenCanvas => canvas;
 
+        private static string RootBoardName = "RootBoard";
+
         public MonitorWindow()
         {
             InitializeComponent();
@@ -36,7 +39,18 @@ namespace LCARSMonitorWPF.Windows.Monitor
             ChildSlot = new Slot(this);
             UpdateRootSlot();
 
-            RedAlert red = new RedAlert();
+            Controls.Board board = new Board();
+            board.BoardNames = new string[] { "Main", "Alt" };
+            board.CurrentBoard = "Main";
+            board.Slots["Main"].AttachedChild = CreateMainBoard();
+            board.Slots["Alt"].AttachedChild = CreateAltBoard();
+            board.Name = RootBoardName;
+
+            ChildSlot.AttachedChild = board;
+        }
+
+        public Controls.Panel CreateMainBoard()
+        {
             AxisList list = new AxisList();
             list.Orientation = AxisOrientation.Vertical;
             list.Config = "1/1/1/1";
@@ -51,34 +65,49 @@ namespace LCARSMonitorWPF.Windows.Monitor
             Controls.Button red2 = new Controls.Button();
             red2.VisualStyle = Visuals.MainOrange;
             red2.Stumps = Stumps.Both;
-            red2.Label = "Test 2";
+            red2.Label = "<({id}) {name}: {fvalue}{unit}>";
+            red2.AttachedSensorId = "/amdcpu/0/load/0";
             list.ChildSlots[1].AttachedChild = red2;
 
             Controls.Button red3 = new Controls.Button();
             red3.VisualStyle = Visuals.MainPink;
-            red3.Stumps = Stumps.Both;
-            red3.Label = "Test 3";
+            red3.Label = "<({id}) {name}: {fvalue}{unit}>";
+            red3.AttachedSensorId = "/amdcpu/0/temperature/2";
             list.ChildSlots[2].AttachedChild = red3;
 
             Controls.Button red4 = new Controls.Button();
             red4.VisualStyle = Visuals.MainRed;
             red4.Stumps = Stumps.Both;
-            red4.Label = "Test 4";
+            red4.Label = "Change to Alt Board";
+            red4.OnClick = new ChangeBoard(RootBoardName, "Alt");
             list.ChildSlots[3].AttachedChild = red4;
 
             Controls.Panel panel = new Controls.Panel();
             panel.Borders = PanelBorders.Bottom | PanelBorders.Top | PanelBorders.Left;
             panel.ChildSlot.AttachedChild = list;
 
-            Controls.RedAlert alert = new RedAlert();
+            return panel;
+        }
 
-            Controls.Board board = new Board();
-            board.BoardNames = new string[] { "Main", "Alt" };
-            board.CurrentBoard = "Main";
-            board.Slots["Main"].AttachedChild = panel;
-            board.Slots["Alt"].AttachedChild = alert;
+        public Controls.AxisList CreateAltBoard()
+        {
 
-            ChildSlot.AttachedChild = board;
+            AxisList list = new AxisList();
+            list.Orientation = AxisOrientation.Vertical;
+            list.Config = "10/1";
+            list.ChildrenPadding = 7.0;
+
+            RedAlert red = new RedAlert();
+            list.ChildSlots[0].AttachedChild = red;
+
+            Controls.Button btn1 = new Controls.Button();
+            btn1.VisualStyle = Visuals.MainGreen;
+            btn1.Stumps = Stumps.Both;
+            btn1.Label = "Change to Main Board";
+            btn1.OnClick = new ChangeBoard(RootBoardName, "Main");
+            list.ChildSlots[1].AttachedChild = btn1;
+
+            return list;
         }
 
         private void UpdateRootSlot()
