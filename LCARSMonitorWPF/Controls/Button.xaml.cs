@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,14 +13,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using LCARSMonitor.LCARS;
 using LCARSMonitorWPF.LCARS.Commands;
+using LibreHardwareMonitor.Hardware;
 
 namespace LCARSMonitorWPF.Controls
 {
     /// <summary>
     /// Interaction logic for Button.xaml
     /// </summary>
-    public partial class Button : LCARSControl
+    public partial class Button : LCARSControl, ILCARSSensorHandler
     {
         // PROPERTIES
         public Stumps Stumps
@@ -80,12 +82,30 @@ namespace LCARSMonitorWPF.Controls
         {
             if (d is Button obj)
             {
-                obj.label.Content = obj.Label;
+                obj.UpdateLabel();
             }
         }
 
         public bool UseFixedVisual { get; set; } = false;
 
+        public SensorBundle SensorBundle { get; protected set; }
+        private string? attachedSensorId;
+        public string? AttachedSensorId
+        {
+            get { return attachedSensorId; }
+            set
+            {
+                attachedSensorId = value;
+                if (value != null)
+                    SensorBundle.SetSensors(new string[] { value });
+                else
+                {
+                    SensorBundle.SetSensors(new string[] { });
+                }
+            }
+        }
+
+        public ILCARSCommand? OnClick { get; set; }
 
         // INTERNAL ATTRIBUTES
         private bool hasMouseOver = false;
@@ -99,6 +119,8 @@ namespace LCARSMonitorWPF.Controls
 
             UpdateVisual();
             UpdateCorners();
+
+            SensorBundle = new SensorBundle(this);
         }
 
         protected void UpdateVisual()
@@ -140,28 +162,21 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
-        private void rect_MouseEnter(object sender, MouseEventArgs e)
+        protected void UpdateLabel()
         {
-            hasMouseOver = true;
-            UpdateVisual();
+            string finalLabel = Label;
+            if (AttachedSensorId != null)
+            {
+                // when a sensor is attached, the Label can be a format to include sensor data
+                var sensor = SensorBundle.Sensors[AttachedSensorId];
+                finalLabel = SensorBundle.FormatSensorString(sensor, Label);
+            }
+            label.Content = finalLabel;
         }
-        private void rect_MouseLeave(object sender, MouseEventArgs e)
+        public void OnSensorUpdate(ISensor sensor)
         {
-            hasMouseOver = false;
-            UpdateVisual();
-        }
-
-        private void rect_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            isPressed = true;
-            UpdateVisual();
-        }
-        private void rect_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            isPressed = false;
-            UpdateVisual();
-            // TODO: executar comando
-            Console.WriteLine("BUTTON PRESSED!");
+            // UpdateLabel gets the sensor itself instead of receiving from here since we also use that method in other places.
+            UpdateLabel();
         }
 
         private void LCARSControl_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -174,7 +189,6 @@ namespace LCARSMonitorWPF.Controls
             hasMouseOver = true;
             UpdateVisual();
         }
-
         private void LCARSControl_MouseLeave(object sender, MouseEventArgs e)
         {
             hasMouseOver = false;
@@ -211,6 +225,7 @@ namespace LCARSMonitorWPF.Controls
                 Label = Label,
                 VisualStyle = VisualStyle,
                 Stumps = Stumps,
+                AttachedSensorId = AttachedSensorId,
                 OnClick = OnClick,
             };
         }
@@ -224,6 +239,7 @@ namespace LCARSMonitorWPF.Controls
             Label = data.Label != null ? data.Label : string.Empty;
             VisualStyle = data.VisualStyle;
             Stumps = data.Stumps;
+            AttachedSensorId = data.AttachedSensorId;
             OnClick = data.OnClick;
         }
     }
@@ -234,6 +250,7 @@ namespace LCARSMonitorWPF.Controls
         public string? Label { get; set; }
         public Visuals VisualStyle { get; set; }
         public Stumps Stumps { get; set; }
+        public string? AttachedSensorId { get; set; }
         public ILCARSCommand? OnClick { get; set; }
     }
 }
