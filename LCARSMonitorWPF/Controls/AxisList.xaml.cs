@@ -157,7 +157,7 @@ namespace LCARSMonitorWPF.Controls
 
         ////  SERIALIZATION
 
-        public override LCARSControlData Serialize()
+        protected override LCARSControlData CreateDataObject()
         {
             LCARSControlData?[] children = new LCARSControlData[slots.Length];
             for (int i = 0; i < slots.Length; i++)
@@ -167,14 +167,13 @@ namespace LCARSMonitorWPF.Controls
 
             return new AxisListData
             {
-                Type = this.GetType().FullName,
                 Orientation = Orientation,
                 Config = Config,
                 Children = children,
             };
         }
 
-        public override void LoadData(LCARSControlData baseData)
+        protected override void LoadDataInternal(LCARSControlData baseData)
         {
             var data = baseData as AxisListData;
             if (data == null)

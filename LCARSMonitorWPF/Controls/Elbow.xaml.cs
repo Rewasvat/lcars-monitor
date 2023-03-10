@@ -165,11 +165,10 @@ namespace LCARSMonitorWPF.Controls
 
         ////  SERIALIZATION
 
-        public override LCARSControlData Serialize()
+        protected override LCARSControlData CreateDataObject()
         {
             return new ElbowData
             {
-                Type = this.GetType().FullName,
                 VisualStyle = VisualStyle,
                 ElbowType = ElbowType,
                 Bar = Bar,
@@ -178,7 +177,7 @@ namespace LCARSMonitorWPF.Controls
             };
         }
 
-        public override void LoadData(LCARSControlData baseData)
+        protected override void LoadDataInternal(LCARSControlData baseData)
         {
             var data = baseData as ElbowData;
             if (data == null)

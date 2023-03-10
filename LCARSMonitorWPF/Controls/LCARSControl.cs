@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,14 +34,28 @@ namespace LCARSMonitorWPF.Controls
 
         ////  SERIALIZATION
 
-        public virtual LCARSControlData Serialize()
+        protected virtual LCARSControlData CreateDataObject()
         {
             throw new NotImplementedException();
         }
 
-        public virtual void LoadData(LCARSControlData data)
+        protected virtual void LoadDataInternal(LCARSControlData data)
         {
             throw new NotImplementedException();
+        }
+
+        public LCARSControlData Serialize()
+        {
+            var data = CreateDataObject();
+            data.Type = this.GetType().FullName;
+            data.Name = Name;
+            return data;
+        }
+
+        public void LoadData(LCARSControlData data)
+        {
+            Name = data.Name;
+            LoadDataInternal(data);
         }
 
         public static LCARSControl? Deserialize(LCARSControlData? data)
@@ -103,5 +117,6 @@ namespace LCARSMonitorWPF.Controls
     public class LCARSControlData
     {
         public string? Type { get; set; }
+        public string? Name { get; set; }
     }
 }

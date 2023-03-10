@@ -141,7 +141,7 @@ namespace LCARSMonitorWPF.Controls
 
         ////  SERIALIZATION
 
-        public override LCARSControlData Serialize()
+        protected override LCARSControlData CreateDataObject()
         {
             Dictionary<string, LCARSControlData?> children = new Dictionary<string, LCARSControlData?>(slots.Count);
             foreach (var item in slots)
@@ -157,7 +157,7 @@ namespace LCARSMonitorWPF.Controls
             };
         }
 
-        public override void LoadData(LCARSControlData baseData)
+        protected override void LoadDataInternal(LCARSControlData baseData)
         {
             var data = baseData as BoardData;
             if (data == null)

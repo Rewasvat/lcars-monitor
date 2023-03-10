@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -68,8 +68,6 @@ namespace LCARSMonitorWPF.Controls
             set { SetValue(LabelProperty, value); }
             // TODO: suportar mudar tamanho do texto?
             // TODO: poder mudar alinhamento do texto?
-            // TODO: suportar mudar cor do texto dinamicamente baseado em outros fatores
-            //      - incluir no Style, cor do texto em cada estado
         }
         public static readonly DependencyProperty LabelProperty = DependencyProperty.Register(
             "Label",
@@ -204,19 +202,18 @@ namespace LCARSMonitorWPF.Controls
 
         ////  SERIALIZATION
 
-        public override LCARSControlData Serialize()
+        protected override LCARSControlData CreateDataObject()
         {
             return new ButtonData
             {
-                Type = this.GetType().FullName,
                 UseFixedVisual = UseFixedVisual,
                 Label = Label,
                 VisualStyle = VisualStyle,
-                Stumps = Stumps
+                Stumps = Stumps,
             };
         }
 
-        public override void LoadData(LCARSControlData baseData)
+        protected override void LoadDataInternal(LCARSControlData baseData)
         {
             var data = baseData as ButtonData;
             if (data == null)
