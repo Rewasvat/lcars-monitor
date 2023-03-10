@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LCARSMonitorWPF.LCARS.Commands
 {
-    internal interface ILCARSCommand
+    public interface ILCARSCommand
     {
         public void OnRun();
     }

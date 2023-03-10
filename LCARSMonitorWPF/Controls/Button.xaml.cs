@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using LCARSMonitorWPF.LCARS.Commands;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -190,8 +191,8 @@ namespace LCARSMonitorWPF.Controls
         {
             isPressed = false;
             UpdateVisual();
-            // TODO: executar comando
-            Debug.WriteLine("BUTTON PRESSED!");
+            if (OnClick != null)
+                OnClick.OnRun();
         }
 
         private void LCARSControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -210,6 +211,7 @@ namespace LCARSMonitorWPF.Controls
                 Label = Label,
                 VisualStyle = VisualStyle,
                 Stumps = Stumps,
+                OnClick = OnClick,
             };
         }
 
@@ -222,6 +224,7 @@ namespace LCARSMonitorWPF.Controls
             Label = data.Label != null ? data.Label : string.Empty;
             VisualStyle = data.VisualStyle;
             Stumps = data.Stumps;
+            OnClick = data.OnClick;
         }
     }
 
@@ -231,5 +234,6 @@ namespace LCARSMonitorWPF.Controls
         public string? Label { get; set; }
         public Visuals VisualStyle { get; set; }
         public Stumps Stumps { get; set; }
+        public ILCARSCommand? OnClick { get; set; }
     }
 }
