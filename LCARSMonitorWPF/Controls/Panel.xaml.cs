@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -20,6 +21,7 @@ namespace LCARSMonitorWPF.Controls
     /// </summary>
     public partial class Panel : LCARSControl, ILCARSSingleContainer
     {
+        [JsonProperty]
         public Visuals VisualStyle
         {
             get { return (Visuals)GetValue(VisualStyleProperty); }
@@ -32,6 +34,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(Visuals.Common, BordersChanged)
         );
 
+        [JsonProperty]
         public PanelBorders Borders
         {
             get { return (PanelBorders)GetValue(BordersProperty); }
@@ -44,6 +47,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(PanelBorders.None, BordersChanged)
         );
 
+        [JsonProperty]
         public double BorderHeight
         {
             get { return (double)GetValue(BorderHeightProperty); }
@@ -56,6 +60,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(50.0, BordersChanged)
         );
 
+        [JsonProperty]
         public double BorderWidth
         {
             get { return (double)GetValue(BorderWidthProperty); }
@@ -68,6 +73,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(200.0, BordersChanged)
         );
 
+        [JsonProperty]
         public double BorderInnerRadius
         {
             get { return (double)GetValue(BorderInnerRadiusProperty); }
@@ -82,6 +88,13 @@ namespace LCARSMonitorWPF.Controls
 
         public Slot ChildSlot { get; protected set; }
         public Canvas ChildrenCanvas => canvas;
+
+        [JsonProperty]
+        public LCARSControl? ChildControl
+        {
+            get { return ChildSlot.AttachedChild; }
+            set { ChildSlot.AttachedChild = value; }
+        }
 
         protected Elbow topRightCorner;
         protected Elbow topLeftCorner;
@@ -322,47 +335,5 @@ namespace LCARSMonitorWPF.Controls
             UpdateBorders();
         }
 
-        ////  SERIALIZATION
-
-        protected override LCARSControlData CreateDataObject()
-        {
-            return new PanelData
-            {
-                VisualStyle = VisualStyle,
-                Borders = Borders,
-                BorderHeight = BorderHeight,
-                BorderWidth = BorderWidth,
-                BorderInnerRadius = BorderInnerRadius,
-                Content = ChildSlot.AttachedChild?.Serialize(),
-            };
-        }
-
-        protected override void LoadDataInternal(LCARSControlData baseData)
-        {
-            var data = baseData as PanelData;
-            if (data == null)
-                return;
-            VisualStyle = data.VisualStyle;
-            Borders = data.Borders;
-            BorderHeight = data.BorderHeight;
-            BorderWidth = data.BorderWidth;
-            BorderInnerRadius = data.BorderInnerRadius;
-
-            if (data.Content != null)
-            {
-                var child = Deserialize(data.Content);
-                ChildSlot.AttachedChild = child;
-            }
-        }
-    }
-
-    public class PanelData : LCARSControlData
-    {
-        public Visuals VisualStyle { get; set; }
-        public PanelBorders Borders { get; set; }
-        public double BorderHeight { get; set; }
-        public double BorderWidth { get; set; }
-        public double BorderInnerRadius { get; set; }
-        public LCARSControlData? Content { get; set; }
     }
 }

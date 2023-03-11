@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -20,19 +21,12 @@ namespace LCARSMonitorWPF.Controls
     /// </summary>
     public partial class Board : LCARSControl, ILCARSMultiContainer
     {
-        private Dictionary<string, Slot> slots;
-        public Slot[] ChildSlots
-        {
-            get
-            {
-                return slots.Values.ToArray();
-            }
-        }
         public Canvas ChildrenCanvas => canvas;
 
         public Dictionary<string, Slot> Slots { get { return slots; } }
 
         private string[] boardNames = { "default" };
+        [JsonProperty]
         public string[] BoardNames
         {
             get { return boardNames; }
@@ -44,6 +38,7 @@ namespace LCARSMonitorWPF.Controls
         }
 
         private string currentBoard = "default";
+        [JsonProperty]
         public string CurrentBoard
         {
             get { return currentBoard; }
@@ -57,9 +52,45 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        private Dictionary<string, Slot> slots;
+        public Slot[] ChildSlots
+        {
+            get
+            {
+                return slots.Values.ToArray();
+            }
+        }
+
         public Slot CurrentSlot
         {
             get { return slots[CurrentBoard]; }
+        }
+
+        [JsonProperty]
+        public DictControlEntry[] ChildControls
+        {
+            get
+            {
+                var children = new DictControlEntry[slots.Count];
+                int index = 0;
+                foreach (var item in slots)
+                {
+                    children[index] = new DictControlEntry
+                    {
+                        Key = item.Key,
+                        Child = item.Value.AttachedChild
+                    };
+                    index++;
+                }
+                return children;
+            }
+            set
+            {
+                foreach (var item in value)
+                {
+                    slots[item.Key].AttachedChild = item.Child;
+                }
+            }
         }
 
         // METHODS
@@ -138,47 +169,11 @@ namespace LCARSMonitorWPF.Controls
         {
             UpdateInternalArea();
         }
-
-        ////  SERIALIZATION
-
-        protected override LCARSControlData CreateDataObject()
-        {
-            Dictionary<string, LCARSControlData?> children = new Dictionary<string, LCARSControlData?>(slots.Count);
-            foreach (var item in slots)
-            {
-                children[item.Key] = item.Value.AttachedChild?.Serialize();
-            }
-
-            return new BoardData
-            {
-                BoardNames = BoardNames,
-                CurrentBoard = CurrentBoard,
-                Children = children,
-            };
-        }
-
-        protected override void LoadDataInternal(LCARSControlData baseData)
-        {
-            var data = baseData as BoardData;
-            if (data == null)
-                return;
-            BoardNames = data.BoardNames!;
-            CurrentBoard = data.CurrentBoard!;
-
-            if (data.Children != null)
-            {
-                foreach (var item in data.Children)
-                {
-                    slots[item.Key].AttachedChild = Deserialize(item.Value);
-                }
-            }
-        }
     }
 
-    public class BoardData : LCARSControlData
+    public class DictControlEntry
     {
-        public string[]? BoardNames { get; set; }
-        public string? CurrentBoard { get; set; }
-        public Dictionary<string, LCARSControlData?>? Children { get; set; }
+        public string Key { get; set; } = "";
+        public LCARSControl? Child { get; set; }
     }
 }

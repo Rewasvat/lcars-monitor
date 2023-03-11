@@ -27,9 +27,10 @@ namespace LCARSMonitor.LCARS
         private Computer computer;
         private Dictionary<Identifier, bool> updatedHardwares;
         private Dictionary<string, ISensor> allSensors;
-        private List<LCARSControl> controls;
+        private Dictionary<string, LCARSControl> controls;
         private DispatcherTimer timer;
         private BackgroundWorker worker;
+        private int unnamedControlsCount = 0;
 
         public Canvas? RootCanvas { get; private set; }
 
@@ -37,7 +38,7 @@ namespace LCARSMonitor.LCARS
         {
             updatedHardwares = new Dictionary<Identifier, bool>();
             allSensors = new Dictionary<string, ISensor>();
-            controls = new List<LCARSControl>();
+            controls = new Dictionary<string, LCARSControl>();
             timer = new DispatcherTimer();
             worker = new BackgroundWorker();
 
@@ -90,7 +91,7 @@ namespace LCARSMonitor.LCARS
         {
             updatedHardwares.Clear();
 
-            foreach (var control in controls)
+            foreach (var control in controls.Values)
             {
                 ILCARSSensorHandler? handler = control as ILCARSSensorHandler;
                 if (handler != null)
@@ -102,7 +103,7 @@ namespace LCARSMonitor.LCARS
 
         public void Update()
         {
-            foreach (var control in controls)
+            foreach (var control in controls.Values)
             {
                 ILCARSSensorHandler? handler = control as ILCARSSensorHandler;
                 if (handler != null)
@@ -164,7 +165,22 @@ namespace LCARSMonitor.LCARS
         /// <param name="control">new control to be registered</param>
         internal void RegisterControl(LCARSControl control)
         {
-            controls.Add(control);
+            // controls.Add(control);
+            if (control.ID == null || control.ID == "")
+            {
+                control.ID = $"UnnamedControl{unnamedControlsCount++}";
+            }
+            else
+            {
+                controls[control.ID] = control;
+            }
+        }
+
+        internal void UpdateControlID(LCARSControl control, string newId)
+        {
+            controls.Remove(control.ID);
+            control.Name = newId;
+            controls[newId] = control;
         }
 
         /// <summary>
@@ -231,12 +247,7 @@ namespace LCARSMonitor.LCARS
 
         public LCARSControl? GetControlByName(string name)
         {
-            foreach (var control in controls)
-            {
-                if (control.Name == name)
-                    return control;
-            }
-            return null;
+            return controls.GetValueOrDefault(name);
         }
 
         // EVENT CALLBACKS

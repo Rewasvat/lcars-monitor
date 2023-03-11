@@ -7,11 +7,23 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using LCARSMonitor.LCARS;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace LCARSMonitorWPF.Controls
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class LCARSControl : UserControl
     {
+        [JsonProperty]
+        public string ID
+        {
+            get { return Name; }
+            set
+            {
+                LCARSSystem.Global.UpdateControlID(this, value);
+            }
+        }
+
         public virtual void OnAttachToSlot(Slot? slot)
         {
             // NOTE: this assumes parent object is always a Canvas (this is true for Panel, but what about other containers?)
@@ -40,54 +52,10 @@ namespace LCARSMonitorWPF.Controls
 
         ////  SERIALIZATION
 
-        protected virtual LCARSControlData CreateDataObject()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual void LoadDataInternal(LCARSControlData data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public LCARSControlData Serialize()
-        {
-            var data = CreateDataObject();
-            data.Type = this.GetType().FullName;
-            data.Name = Name;
-            return data;
-        }
-
-        public void LoadData(LCARSControlData data)
-        {
-            Name = data.Name;
-            LoadDataInternal(data);
-        }
-
-        public static LCARSControl? Deserialize(LCARSControlData? data)
-        {
-            if (data == null)
-                return null;
-            if (data.Type == null)
-            {
-                throw new ArgumentException();
-            }
-            Type? ControlType = Type.GetType(data.Type);
-            if (ControlType == null)
-            {
-                throw new ArgumentException();
-            }
-
-            LCARSControl? control = Activator.CreateInstance(ControlType) as LCARSControl;
-            control?.LoadData(data);
-            return control;
-        }
-
         public static LCARSControl? DeserializeJSON(string jsonData)
         {
             var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-            LCARSControlData? lcarsData = JsonConvert.DeserializeObject(jsonData, settings) as LCARSControlData;
-            return Deserialize(lcarsData);
+            return JsonConvert.DeserializeObject(jsonData, settings) as LCARSControl;
         }
         public static LCARSControl? DeserializeJsonFile(string filePath)
         {
@@ -98,8 +66,7 @@ namespace LCARSMonitorWPF.Controls
         public void SerializeIntoJsonFile(string filePath)
         {
             var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-            var lcarsData = Serialize();
-            string jsonData = JsonConvert.SerializeObject(lcarsData, Formatting.Indented, settings);
+            // string jsonData = JsonConvert.SerializeObject(lcarsData, Formatting.Indented, settings);
 
             using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate))
             {
@@ -113,16 +80,10 @@ namespace LCARSMonitorWPF.Controls
 
                         JsonSerializer serializer = new JsonSerializer();
                         serializer.TypeNameHandling = TypeNameHandling.All;
-                        serializer.Serialize(jw, lcarsData);
+                        serializer.Serialize(jw, this);
                     }
                 }
             }
         }
-    }
-
-    public class LCARSControlData
-    {
-        public string? Type { get; set; }
-        public string? Name { get; set; }
     }
 }

@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -25,6 +26,7 @@ namespace LCARSMonitorWPF.Controls
     {
         // PROPERTIES
         private ElbowType type;
+        [JsonProperty]
         public ElbowType ElbowType
         {
             // This is not a DependencyProperty on purpose.
@@ -37,6 +39,7 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        [JsonProperty]
         public double Bar
         {
             get { return (double)GetValue(BarProperty); }
@@ -49,6 +52,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(50.0, UpdatePathCallback)
         );
 
+        [JsonProperty]
         public double Column
         {
             get { return (double)GetValue(ColumnProperty); }
@@ -61,6 +65,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(200.0, UpdatePathCallback)
         );
 
+        [JsonProperty]
         public double InnerArcRadius
         {
             get { return (double)GetValue(InnerArcRadiusProperty); }
@@ -73,6 +78,7 @@ namespace LCARSMonitorWPF.Controls
             new PropertyMetadata(30.0, UpdatePathCallback)
         );
 
+        [JsonProperty]
         public Visuals VisualStyle
         {
             get { return (Visuals)GetValue(VisualStyleProperty); }
@@ -163,39 +169,5 @@ namespace LCARSMonitorWPF.Controls
             (d as Elbow)?.UpdatePath();
         }
 
-        ////  SERIALIZATION
-
-        protected override LCARSControlData CreateDataObject()
-        {
-            return new ElbowData
-            {
-                VisualStyle = VisualStyle,
-                ElbowType = ElbowType,
-                Bar = Bar,
-                Column = Column,
-                InnerArcRadius = InnerArcRadius,
-            };
-        }
-
-        protected override void LoadDataInternal(LCARSControlData baseData)
-        {
-            var data = baseData as ElbowData;
-            if (data == null)
-                return;
-            VisualStyle = data.VisualStyle;
-            ElbowType = data.ElbowType;
-            Bar = data.Bar;
-            Column = data.Column;
-            InnerArcRadius = data.InnerArcRadius;
-        }
-    }
-
-    public class ElbowData : LCARSControlData
-    {
-        public Visuals VisualStyle { get; set; }
-        public ElbowType ElbowType { get; set; }
-        public double Bar { get; set; }
-        public double Column { get; set; }
-        public double InnerArcRadius { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -209,6 +211,7 @@ namespace LCARSMonitorWPF.Controls
         }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum Visuals
     {
         Common,

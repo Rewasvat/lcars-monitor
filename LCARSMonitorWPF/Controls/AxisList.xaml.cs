@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -20,11 +21,10 @@ namespace LCARSMonitorWPF.Controls
     /// </summary>
     public partial class AxisList : LCARSControl, ILCARSMultiContainer
     {
-        private Slot[] slots;
-        public Slot[] ChildSlots { get { return slots; } }
         public Canvas ChildrenCanvas => canvas;
 
         private AxisOrientation orientation = AxisOrientation.Horizontal;
+        [JsonProperty]
         public AxisOrientation Orientation
         {
             get { return orientation; }
@@ -39,6 +39,7 @@ namespace LCARSMonitorWPF.Controls
         }
 
         private string config = "1";
+        [JsonProperty]
         public string Config
         {
             get { return config; }
@@ -53,6 +54,7 @@ namespace LCARSMonitorWPF.Controls
         }
 
         private double padding = 0.0;
+        [JsonProperty]
         public double ChildrenPadding
         {
             get { return padding; }
@@ -63,7 +65,27 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
-        // TODO: implementar padding entre elementos
+        private Slot[] slots;
+        public Slot[] ChildSlots { get { return slots; } }
+
+        [JsonProperty]
+        public LCARSControl?[] ChildControls
+        {
+            get
+            {
+                LCARSControl?[] children = new LCARSControl?[ChildSlots.Length];
+                for (int i = 0; i < ChildSlots.Length; i++)
+                    children[i] = ChildSlots[i].AttachedChild;
+                return children;
+            }
+            set
+            {
+                for (int i = 0; i < value.Length; i++)
+                {
+                    ChildSlots[i].AttachedChild = value[i];
+                }
+            }
+        }
 
         // METHODS
         public AxisList()
@@ -155,46 +177,5 @@ namespace LCARSMonitorWPF.Controls
             UpdateChildren();
         }
 
-        ////  SERIALIZATION
-
-        protected override LCARSControlData CreateDataObject()
-        {
-            LCARSControlData?[] children = new LCARSControlData[slots.Length];
-            for (int i = 0; i < slots.Length; i++)
-            {
-                children[i] = slots[i].AttachedChild?.Serialize();
-            }
-
-            return new AxisListData
-            {
-                Orientation = Orientation,
-                Config = Config,
-                Children = children,
-            };
-        }
-
-        protected override void LoadDataInternal(LCARSControlData baseData)
-        {
-            var data = baseData as AxisListData;
-            if (data == null)
-                return;
-            Orientation = data.Orientation;
-            Config = data.Config!;
-
-            if (data.Children != null)
-            {
-                for (int i = 0; i < data.Children.Length; i++)
-                {
-                    slots[i].AttachedChild = Deserialize(data.Children[i]);
-                }
-            }
-        }
-    }
-
-    public class AxisListData : LCARSControlData
-    {
-        public AxisOrientation Orientation { get; set; }
-        public string? Config { get; set; }
-        public LCARSControlData?[]? Children { get; set; }
     }
 }

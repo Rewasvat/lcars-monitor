@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using LCARSMonitor.LCARS;
 using LCARSMonitorWPF.LCARS.Commands;
 using LibreHardwareMonitor.Hardware;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.Controls
 {
@@ -25,6 +26,7 @@ namespace LCARSMonitorWPF.Controls
     public partial class Button : LCARSControl, ILCARSSensorHandler
     {
         // PROPERTIES
+        [JsonProperty]
         public Stumps Stumps
         {
             get { return (Stumps)GetValue(StumpsProperty); }
@@ -41,6 +43,7 @@ namespace LCARSMonitorWPF.Controls
             (d as Button)?.UpdateCorners();
         }
 
+        [JsonProperty]
         public Visuals VisualStyle
         {
             get { return (Visuals)GetValue(VisualStyleProperty); }
@@ -65,6 +68,7 @@ namespace LCARSMonitorWPF.Controls
             get { return Visual.GetVisual(VisualStyle); }
         }
 
+        [JsonProperty]
         public string Label
         {
             get { return (string)GetValue(LabelProperty); }
@@ -86,10 +90,12 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        [JsonProperty]
         public bool UseFixedVisual { get; set; } = false;
 
         public SensorBundle SensorBundle { get; protected set; }
         private string? attachedSensorId;
+        [JsonProperty]
         public string? AttachedSensorId
         {
             get { return attachedSensorId; }
@@ -105,6 +111,7 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        [JsonProperty]
         public ILCARSCommand? OnClick { get; set; }
 
         // INTERNAL ATTRIBUTES
@@ -214,43 +221,5 @@ namespace LCARSMonitorWPF.Controls
             // UpdateVisual();
             UpdateCorners();
         }
-
-        ////  SERIALIZATION
-
-        protected override LCARSControlData CreateDataObject()
-        {
-            return new ButtonData
-            {
-                UseFixedVisual = UseFixedVisual,
-                Label = Label,
-                VisualStyle = VisualStyle,
-                Stumps = Stumps,
-                AttachedSensorId = AttachedSensorId,
-                OnClick = OnClick,
-            };
-        }
-
-        protected override void LoadDataInternal(LCARSControlData baseData)
-        {
-            var data = baseData as ButtonData;
-            if (data == null)
-                return;
-            UseFixedVisual = data.UseFixedVisual;
-            Label = data.Label != null ? data.Label : string.Empty;
-            VisualStyle = data.VisualStyle;
-            Stumps = data.Stumps;
-            AttachedSensorId = data.AttachedSensorId;
-            OnClick = data.OnClick;
-        }
-    }
-
-    public class ButtonData : LCARSControlData
-    {
-        public bool UseFixedVisual { get; set; }
-        public string? Label { get; set; }
-        public Visuals VisualStyle { get; set; }
-        public Stumps Stumps { get; set; }
-        public string? AttachedSensorId { get; set; }
-        public ILCARSCommand? OnClick { get; set; }
     }
 }

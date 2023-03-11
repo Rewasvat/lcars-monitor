@@ -44,9 +44,17 @@ namespace LCARSMonitorWPF.Windows.Monitor
             board.CurrentBoard = "Main";
             board.Slots["Main"].AttachedChild = CreateMainBoard();
             board.Slots["Alt"].AttachedChild = CreateAltBoard();
-            board.Name = RootBoardName;
+            board.ID = RootBoardName;
 
             ChildSlot.AttachedChild = board;
+
+            board.SerializeIntoJsonFile(@"TestLCARSData.json");
+
+            Debug.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+
+            ChildSlot.AttachedChild = LCARSControl.DeserializeJsonFile(@"TestLCARSData.json");
+
+            Debug.WriteLine($"Root object: '{ChildSlot.AttachedChild}'");
         }
 
         public Controls.Panel CreateMainBoard()
