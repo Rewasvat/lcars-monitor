@@ -88,4 +88,26 @@ namespace LCARSMonitorWPF.Controls
     }
 
     public class IgnoreOnEditorAttribute : Attribute { }
+
+    public class EditorValidatorAttribute : Attribute
+    {
+        public string? Validator { get; set; }
+
+        public EditorValidatorAttribute(string? validatorName)
+        {
+            Validator = validatorName;
+        }
+
+        public bool? CheckValidator(object obj)
+        {
+            if (Validator == null)
+                return null;
+
+            var methodInfo = obj.GetType().GetMethod(Validator);
+            if (methodInfo == null)
+                return null;
+
+            return methodInfo.Invoke(obj, null) as bool?;
+        }
+    }
 }

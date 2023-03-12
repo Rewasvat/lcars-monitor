@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using LCARSMonitor.LCARS;
 
 namespace LCARSMonitorWPF.Windows.Editor
 {
@@ -42,7 +43,6 @@ namespace LCARSMonitorWPF.Windows.Editor
             - string []
             - string (ID):
                 - verificar com o System se pode deixar tal ID, ai previne ter duplicatas
-            - string (com lista de opcoes, quase como uma enum) <usaria com lista de sensor IDs pra selecionar>
             */
             var value = prop.GetValue(obj);
 
@@ -76,7 +76,11 @@ namespace LCARSMonitorWPF.Windows.Editor
             }
             else if (prop.PropertyType.Equals(typeof(string)))
             {
-                SetAsPureString((string)value!);
+                var sensorFlag = prop.GetCustomAttribute<EditorSensorAttribute>();
+                if (sensorFlag != null)
+                    SetAsSensorID((string)value!, sensorFlag);
+                else
+                    SetAsPureString((string)value!);
                 return;
             }
 
@@ -178,6 +182,10 @@ namespace LCARSMonitorWPF.Windows.Editor
                 {
                     Property.SetValue(Object, newValue);
                 }
+                // TODO: else aqui é um caso de erro. Mostrar no editor pro user ver
+                // talvez deixar esse ValueProperty com um fundo vermelho ou algo assim? Talvez marcar os nodes na tree até esse Control vermelhos tb?
+                // teria que tirar esse estado de erro ao passar pelo IF acima
+                // pros nodes na tree (os controls) teria que verificar se pelo menos 1 property ta com erro (daria pra fazer via eventos?)
             };
         }
 
@@ -192,6 +200,32 @@ namespace LCARSMonitorWPF.Windows.Editor
                 if (Property != null)
                 {
                     Property.SetValue(Object, box.Text);
+                }
+            };
+        }
+
+        private void SetAsSensorID(string value, EditorSensorAttribute sensorFlag)
+        {
+            ComboBox box = new ComboBox();
+            valueHolder.Child = box;
+
+            box.SelectedValuePath = "SensorID";
+            box.DisplayMemberPath = "DisplayName";
+
+            box.Items.Add(new EditorSensorEntry(null));
+            foreach (var sensor in sensorFlag.Sensors)
+            {
+                var entry = new EditorSensorEntry(sensor);
+                box.Items.Add(entry);
+            }
+
+            box.SelectedValue = value;
+
+            box.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+            {
+                if (Property != null)
+                {
+                    Property.SetValue(Object, box.SelectedValue);
                 }
             };
         }

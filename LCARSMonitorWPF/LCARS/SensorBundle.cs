@@ -87,8 +87,17 @@ namespace LCARSMonitor.LCARS
                 updatedSensors[sensor] = false;
             }
         }
+    }
 
-        public string GetSensorUnit(ISensor sensor)
+    public interface ILCARSSensorHandler
+    {
+        public SensorBundle SensorBundle { get; }
+        public void OnSensorUpdate(ISensor sensor);
+    }
+
+    public static class ISensorExtensions
+    {
+        public static string GetSensorUnit(this ISensor sensor)
         {
             string unit;
             switch (sensor.SensorType)
@@ -150,7 +159,7 @@ namespace LCARSMonitor.LCARS
             return unit;
         }
 
-        public string GetSensorValueFormat(ISensor sensor)
+        public static string GetSensorValueFormat(this ISensor sensor)
         {
             string format;
             switch (sensor.SensorType)
@@ -188,7 +197,34 @@ namespace LCARSMonitor.LCARS
             return format;
         }
 
-        public string FormatSensorString(ISensor sensor, string format)
+        private static object? GetSensorAttribute(this ISensor sensor, string key)
+        {
+            switch (key.ToLower())
+            {
+                case "id":
+                case "identifier":
+                    return sensor.Identifier;
+                case "name":
+                    return sensor.Name;
+                case "min":
+                case "minimum":
+                    return sensor.Min;
+                case "max":
+                case "maximum":
+                    return sensor.Max;
+                case "value":
+                    return sensor.Value;
+                case "fvalue": // (commonly) formatted value
+                    return String.Format(sensor.GetSensorValueFormat(), sensor.Value);
+                case "type":
+                    return sensor.SensorType;
+                case "unit":
+                    return sensor.GetSensorUnit();
+                default: return null;
+            }
+        }
+
+        public static string FormatSensorString(this ISensor sensor, string format)
         {
             return Regex.Replace(format, @"{([^}]+)}", new MatchEvaluator(
                 (Match match) =>
@@ -207,42 +243,45 @@ namespace LCARSMonitor.LCARS
                         varName = parts[0];
                         entryFormat = $"{{0:{parts[1]}}}";
                     }
-                    return String.Format(entryFormat, GetSensorAttribute(sensor, varName));
+                    return String.Format(entryFormat, sensor.GetSensorAttribute(varName));
                 }
             ));
         }
+    }
 
-        private object? GetSensorAttribute(ISensor sensor, string key)
+    public class EditorSensorAttribute : Attribute
+    {
+        public List<ISensor> Sensors
         {
-            switch (key.ToLower())
-            {
-                case "id":
-                case "identifier":
-                    return sensor.Identifier;
-                case "name":
-                    return sensor.Name;
-                case "min":
-                case "minimum":
-                    return sensor.Min;
-                case "max":
-                case "maximum":
-                    return sensor.Max;
-                case "value":
-                    return sensor.Value;
-                case "fvalue": // (commonly) formatted value
-                    return String.Format(GetSensorValueFormat(sensor), sensor.Value);
-                case "type":
-                    return sensor.SensorType;
-                case "unit":
-                    return GetSensorUnit(sensor);
-                default: return null;
-            }
+            get { return LCARSSystem.Global.GetAvailableSensors(); }
         }
     }
 
-    public interface ILCARSSensorHandler
+    public class EditorSensorEntry
     {
-        public SensorBundle SensorBundle { get; }
-        public void OnSensorUpdate(ISensor sensor);
+        public ISensor? Sensor { get; protected set; }
+        public string? SensorID
+        {
+            get
+            {
+                if (Sensor == null)
+                    return null;
+                return Sensor.Identifier.ToString();
+            }
+        }
+        public string DisplayName
+        {
+            get
+            {
+                if (Sensor == null)
+                    return "None";
+                return $"{Sensor.Hardware.Name} ({Sensor.SensorType}): {Sensor.Name}";
+            }
+        }
+
+        public EditorSensorEntry(ISensor? sensor)
+        {
+            Sensor = sensor;
+        }
     }
 }

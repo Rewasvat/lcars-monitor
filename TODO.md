@@ -34,12 +34,12 @@ TODO
         - string pura, na label de botao com sensor: tem umas horas que dá erro no SensorBundle.FormatSensorString
         - Panel, ao editar alguns campos numericos: as bordas/espaco interno não atualizavam corretamente
         - double, como nas props double do panel: o editor parece que não aceita `.` (valor com ponto flutuante)... a regex deve estar errada
+        - quase todos editores de valor tao com tamanho minimo na sua "coluna": fazer eles tomarem o tamanho (mostly width) inteiro disponivel
 
     - TIPOS a suportar:
         - string []
         - string (ID):
             - verificar com o System se pode deixar tal ID, ai previne ter duplicatas
-        - string (com lista de opcoes, quase como uma enum) <usaria com lista de sensor IDs pra selecionar>
 
     - LCARS Command  (complexo) :
         * é tratado no editor como um "filho" do controle, tipo slots/controls filhos. Assim dá pra usar o mesmo esquema de ter o combobox "TIPO" e properties do role selecionado

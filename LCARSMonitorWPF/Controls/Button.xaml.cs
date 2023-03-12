@@ -96,6 +96,7 @@ namespace LCARSMonitorWPF.Controls
         public SensorBundle SensorBundle { get; protected set; }
         private string? attachedSensorId;
         [JsonProperty]
+        [EditorSensor]
         public string? AttachedSensorId
         {
             get { return attachedSensorId; }
@@ -108,6 +109,7 @@ namespace LCARSMonitorWPF.Controls
                 {
                     SensorBundle.SetSensors(new string[] { });
                 }
+                UpdateLabel();
             }
         }
 
@@ -177,7 +179,7 @@ namespace LCARSMonitorWPF.Controls
             {
                 // when a sensor is attached, the Label can be a format to include sensor data
                 var sensor = SensorBundle.Sensors[AttachedSensorId];
-                finalLabel = SensorBundle.FormatSensorString(sensor, Label);
+                finalLabel = sensor.FormatSensorString(Label);
             }
             label.Content = finalLabel;
         }
