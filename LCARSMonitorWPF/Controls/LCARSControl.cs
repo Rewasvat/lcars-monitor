@@ -86,4 +86,6 @@ namespace LCARSMonitorWPF.Controls
             }
         }
     }
+
+    public class IgnoreOnEditorAttribute : Attribute { }
 }

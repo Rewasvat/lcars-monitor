@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using LCARSMonitorWPF.Windows.Editor;
 
 namespace LCARSMonitorWPF.Windows.Monitor
 {
@@ -32,7 +33,8 @@ namespace LCARSMonitorWPF.Windows.Monitor
 
         private void OnOpenEditorClicked(object sender, RoutedEventArgs e)
         {
-
+            EditorWindow editor = new EditorWindow();
+            editor.Show();
         }
     }
 }

@@ -69,6 +69,7 @@ namespace LCARSMonitorWPF.Controls
         public Slot[] ChildSlots { get { return slots; } }
 
         [JsonProperty]
+        [IgnoreOnEditor]
         public LCARSControl?[] ChildControls
         {
             get

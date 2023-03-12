@@ -90,6 +90,7 @@ namespace LCARSMonitorWPF.Controls
         public Canvas ChildrenCanvas => canvas;
 
         [JsonProperty]
+        [IgnoreOnEditor]
         public LCARSControl? ChildControl
         {
             get { return ChildSlot.AttachedChild; }

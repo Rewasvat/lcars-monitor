@@ -92,6 +92,20 @@ namespace LCARSMonitorWPF.Controls
             if (newChild != null)
                 ChildrenCanvas.Children.Add(newChild);
         }
+
+        public List<Slot> GetChildSlots()
+        {
+            var slots = new List<Slot>();
+            if (this is ILCARSSingleContainer single)
+            {
+                slots.Add(single.ChildSlot);
+            }
+            else if (this is ILCARSMultiContainer multi)
+            {
+                slots.AddRange(multi.ChildSlots);
+            }
+            return slots;
+        }
     }
     public interface ILCARSSingleContainer : ILCARSContainer
     {

@@ -112,6 +112,7 @@ namespace LCARSMonitorWPF.Controls
         }
 
         [JsonProperty]
+        [IgnoreOnEditor]
         public ILCARSCommand? OnClick { get; set; }
 
         // INTERNAL ATTRIBUTES

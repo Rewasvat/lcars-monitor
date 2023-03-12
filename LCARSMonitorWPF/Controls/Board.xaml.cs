@@ -67,6 +67,7 @@ namespace LCARSMonitorWPF.Controls
         }
 
         [JsonProperty]
+        [IgnoreOnEditor]
         public DictControlEntry[] ChildControls
         {
             get
