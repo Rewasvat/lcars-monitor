@@ -88,6 +88,7 @@ namespace LCARSMonitorWPF.Controls
 
         public Slot ChildSlot { get; protected set; }
         public Canvas ChildrenCanvas => canvas;
+        public event ILCARSContainer.SlotsChangedEventHandler? SlotsChangedEvent;
 
         [JsonProperty]
         [IgnoreOnEditor]

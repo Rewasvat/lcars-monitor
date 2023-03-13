@@ -22,7 +22,7 @@ namespace LCARSMonitorWPF.Controls
     public partial class Board : LCARSControl, ILCARSMultiContainer
     {
         public Canvas ChildrenCanvas => canvas;
-
+        public event ILCARSContainer.SlotsChangedEventHandler? SlotsChangedEvent;
         public Dictionary<string, Slot> Slots { get { return slots; } }
 
         private string[] boardNames = { "default" };
@@ -53,6 +53,7 @@ namespace LCARSMonitorWPF.Controls
         }
 
         private Dictionary<string, Slot> slots;
+
         public Slot[] ChildSlots
         {
             get
@@ -143,6 +144,8 @@ namespace LCARSMonitorWPF.Controls
             {
                 CurrentBoard = slots.Keys.First();
             }
+
+            SlotsChangedEvent?.Invoke(this, new SlotsChangedEventArgs());
         }
 
         protected void UpdateCurrentBoard()

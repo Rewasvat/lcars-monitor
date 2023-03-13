@@ -30,6 +30,7 @@ namespace LCARSMonitorWPF.Controls
                     child = value;
                     child?.OnAttachToSlot(this);
                     UpdateChildVisibility();
+                    RaiseChildChanged();
                 }
             }
         }
@@ -57,6 +58,9 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        public delegate void ChildChangedEventHandler(object sender, ChildChangedEventArgs x);
+        public event ChildChangedEventHandler? ChildChangedEvent;
+
         public Slot(ILCARSContainer parent)
         {
             this.parent = parent;
@@ -77,6 +81,11 @@ namespace LCARSMonitorWPF.Controls
                     AttachedChild.Visibility = System.Windows.Visibility.Hidden;
                 }
             }
+        }
+
+        protected virtual void RaiseChildChanged()
+        {
+            ChildChangedEvent?.Invoke(this, new ChildChangedEventArgs());
         }
     }
 
@@ -106,6 +115,9 @@ namespace LCARSMonitorWPF.Controls
             }
             return slots;
         }
+
+        public delegate void SlotsChangedEventHandler(object sender, SlotsChangedEventArgs x);
+        public event SlotsChangedEventHandler? SlotsChangedEvent;
     }
     public interface ILCARSSingleContainer : ILCARSContainer
     {
@@ -115,4 +127,7 @@ namespace LCARSMonitorWPF.Controls
     {
         public Slot[] ChildSlots { get; }
     }
+
+    public class SlotsChangedEventArgs { }
+    public class ChildChangedEventArgs { }
 }

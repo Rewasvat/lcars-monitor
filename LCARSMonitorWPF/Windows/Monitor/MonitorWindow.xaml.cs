@@ -1,4 +1,4 @@
-﻿using LibreHardwareMonitor.Hardware;
+using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +27,7 @@ namespace LCARSMonitorWPF.Windows.Monitor
     {
         public Slot ChildSlot { get; protected set; }
         public Canvas ChildrenCanvas => canvas;
+        public event ILCARSContainer.SlotsChangedEventHandler? SlotsChangedEvent;
 
         private static string RootBoardName = "RootBoard";
 
@@ -34,10 +35,10 @@ namespace LCARSMonitorWPF.Windows.Monitor
         {
             InitializeComponent();
 
-            LCARSMonitor.LCARS.LCARSSystem.Global.Initialize(canvas);
-
             ChildSlot = new Slot(this);
             UpdateRootSlot();
+
+            LCARSMonitor.LCARS.LCARSSystem.Global.Initialize(canvas, ChildSlot);
 
             Controls.Board board = new Board();
             board.BoardNames = new string[] { "Main", "Alt" };

@@ -22,6 +22,7 @@ namespace LCARSMonitorWPF.Controls
     public partial class AxisList : LCARSControl, ILCARSMultiContainer
     {
         public Canvas ChildrenCanvas => canvas;
+        public event ILCARSContainer.SlotsChangedEventHandler? SlotsChangedEvent;
 
         private AxisOrientation orientation = AxisOrientation.Horizontal;
         [JsonProperty]
@@ -131,6 +132,8 @@ namespace LCARSMonitorWPF.Controls
                         slots[i] = new Slot(this);
                     }
                 }
+
+                SlotsChangedEvent?.Invoke(this, new SlotsChangedEventArgs());
             }
 
             // Convert config to numerical values and calculate total sum
