@@ -33,6 +33,7 @@ namespace LCARSMonitor.LCARS
         private int unnamedControlsCount = 0;
 
         public Canvas? RootCanvas { get; private set; }
+        public Slot? RootSlot { get; private set; }
 
         private LCARSSystem()
         {
@@ -56,9 +57,10 @@ namespace LCARSMonitor.LCARS
             };
         }
 
-        public void Initialize(Canvas root)
+        public void Initialize(Canvas root, Slot slot)
         {
             RootCanvas = root;
+            RootSlot = slot;
 
             // computer.HardwareAdded += WAT;
             // computer.HardwareRemoved += WAT;
