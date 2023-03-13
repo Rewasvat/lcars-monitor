@@ -15,7 +15,5 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Label x:Name="nameLabel" Content="Label" VerticalContentAlignment="Center"/>
-        <Viewbox x:Name="valueHolder" Grid.Column="1"/>
-
     </Grid>
 </UserControl>

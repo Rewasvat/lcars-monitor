@@ -12,7 +12,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <TreeView x:Name="tree"/>
-        <ListBox x:Name="propertiesList" Grid.Column="1" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        <ListBox x:Name="propertiesList" Grid.Column="1" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalContentAlignment="Stretch"/>
 
     </Grid>
 </Window>

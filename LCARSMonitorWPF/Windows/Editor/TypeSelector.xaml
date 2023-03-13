@@ -15,6 +15,6 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Label x:Name="nameLabel" Content="TYPE:" VerticalContentAlignment="Center"/>
-        <ComboBox x:Name="optionsBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="40"/>
+        <ComboBox x:Name="optionsBox" Grid.Column="1" VerticalAlignment="Center" HorizontalContentAlignment="Stretch"/>
     </Grid>
 </UserControl>

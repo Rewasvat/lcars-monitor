@@ -18,28 +18,22 @@ TODO
         - talvez alguma forma de chamar isso algumas hrs? Talvez pelo [Editor]?
 
 - [EDITOR]:
-    - tem um LCARSControl sendo construido - o OBJETO
-    - tree-view pra mostrar hierarquia do OBJETO
-        - possivelmente a tree-view incorpora atributos do control, o que pode incluir filhos. Então fica tudo visivel na view
-        - outra ideia é a tree-view mostrar só os controles (objeto e seus filhos/tipos de controle), e outra area de Properties mostra os atributos de um objeto selecionado
+    - tem um LCARSControl sendo construido - o OBJETO (ele ta sendo visto na tela Monitor)
     - permite salvar OBJETO no System
     - permite carregar configs do System como controles
     - botão pra atualizar o Monitor:
         - aplica o OBJETO atual na Monitor pra poder ser visto
         - talvez fazer isso automaticamente em alguns casos, tipo carregar de config salva?
-        - talvez poderia fazer isso automaticamente quando editasse qualquer coisa? Poderia ficar muito pesado...
+        + talvez poderia fazer isso automaticamente quando editasse qualquer coisa? Poderia ficar muito pesado...
     * não queremos ver o OBJETO nessa tela! É pra garantir que estamos vendo como fica o objeto na Monitor, na posição/tamanho desejados já.
     - fazer check no TrayMenu pra não permitir abrir a EditorWindow se ela já tá aberta.
     - PROBLEMAS COM EDICAO DE VALORES, coisas a arrumar:
-        - string pura, na label de botao com sensor: tem umas horas que dá erro no SensorBundle.FormatSensorString
+        - string pura, na label de botao com sensor: tem umas horas que dá erro no ISensorExtensions.FormatSensorString
         - Panel, ao editar alguns campos numericos: as bordas/espaco interno não atualizavam corretamente
         - double, como nas props double do panel: o editor parece que não aceita `.` (valor com ponto flutuante)... a regex deve estar errada
-        - quase todos editores de valor tao com tamanho minimo na sua "coluna": fazer eles tomarem o tamanho (mostly width) inteiro disponivel
 
     - TIPOS a suportar:
-        - string []
-        - string (ID):
-            - verificar com o System se pode deixar tal ID, ai previne ter duplicatas
+        - string (ID): verificar com o System se pode deixar tal ID, ai previne ter duplicatas
 
     - LCARS Command  (complexo) :
         * é tratado no editor como um "filho" do controle, tipo slots/controls filhos. Assim dá pra usar o mesmo esquema de ter o combobox "TIPO" e properties do role selecionado
@@ -101,4 +95,3 @@ TODO
         - Communicator (#1)
     * Serialização direta funciona sem implementar coisas extras pro json
         * talvez tenha a ver com o fato que são classes simples, somente com umas properties get/set normais.
-        - talvez desse pra atualizar os LCARSControls pra usar isso? Ai não precisariamos nos preocupar com implementação de serialization neles...

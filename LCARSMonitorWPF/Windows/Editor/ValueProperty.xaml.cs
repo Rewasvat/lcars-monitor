@@ -38,12 +38,8 @@ namespace LCARSMonitorWPF.Windows.Editor
             Property = prop;
             Object = obj;
 
-            nameLabel.Content = prop.Name;
-            /*
-            - string []
-            - string (ID):
-                - verificar com o System se pode deixar tal ID, ai previne ter duplicatas
-            */
+            nameLabel.Content = prop.Name + ":";
+
             var value = prop.GetValue(obj);
 
             if (prop.PropertyType.IsEnum)
@@ -74,6 +70,11 @@ namespace LCARSMonitorWPF.Windows.Editor
                 SetAsDouble((double)value!);
                 return;
             }
+            else if (prop.PropertyType.Equals(typeof(string[])))
+            {
+                SetAsStringArray((string[])value!);
+                return;
+            }
             else if (prop.PropertyType.Equals(typeof(string)))
             {
                 var sensorFlag = prop.GetCustomAttribute<EditorSensorAttribute>();
@@ -86,13 +87,21 @@ namespace LCARSMonitorWPF.Windows.Editor
 
             Label badValueText = new Label();
             badValueText.Content = value;
-            valueHolder.Child = badValueText;
+            SetChildValueControl(badValueText);
+        }
+
+        private void SetChildValueControl(FrameworkElement element)
+        {
+            grid.Children.Add(element);
+            element.SetValue(Grid.ColumnProperty, 1);
+            element.HorizontalAlignment = HorizontalAlignment.Stretch;
+            element.VerticalAlignment = VerticalAlignment.Center;
         }
 
         private void SetAsCombobox(IEnumerable<string> options, string? value)
         {
             ComboBox box = new ComboBox();
-            valueHolder.Child = box;
+            SetChildValueControl(box);
 
             foreach (var option in options)
                 box.Items.Add(option);
@@ -114,7 +123,7 @@ namespace LCARSMonitorWPF.Windows.Editor
         private void SetAsFlags(IEnumerable<string> options, string? value)
         {
             ListBox box = new ListBox();
-            valueHolder.Child = box;
+            SetChildValueControl(box);
 
             RoutedEventHandler onChecked = (object sender, RoutedEventArgs e) =>
             {
@@ -149,7 +158,7 @@ namespace LCARSMonitorWPF.Windows.Editor
         private void SetAsBoolean(bool value)
         {
             CheckBox check = new CheckBox();
-            valueHolder.Child = check;
+            SetChildValueControl(check);
             check.IsChecked = value;
 
             RoutedEventHandler onChecked = (object sender, RoutedEventArgs e) =>
@@ -167,7 +176,7 @@ namespace LCARSMonitorWPF.Windows.Editor
         {
             TextBox box = new TextBox();
             box.Text = value.ToString();
-            valueHolder.Child = box;
+            SetChildValueControl(box);
 
             box.PreviewTextInput += (object sender, TextCompositionEventArgs e) =>
             {
@@ -193,7 +202,7 @@ namespace LCARSMonitorWPF.Windows.Editor
         {
             TextBox box = new TextBox();
             box.Text = value;
-            valueHolder.Child = box;
+            SetChildValueControl(box);
 
             box.TextChanged += (object sender, TextChangedEventArgs e) =>
             {
@@ -207,7 +216,7 @@ namespace LCARSMonitorWPF.Windows.Editor
         private void SetAsSensorID(string value, EditorSensorAttribute sensorFlag)
         {
             ComboBox box = new ComboBox();
-            valueHolder.Child = box;
+            SetChildValueControl(box);
 
             box.SelectedValuePath = "SensorID";
             box.DisplayMemberPath = "DisplayName";
@@ -226,6 +235,35 @@ namespace LCARSMonitorWPF.Windows.Editor
                 if (Property != null)
                 {
                     Property.SetValue(Object, box.SelectedValue);
+                }
+            };
+        }
+
+        private void SetAsStringArray(string[] values)
+        {
+            TextBox box = new TextBox();
+            box.AcceptsReturn = true;
+            box.TextWrapping = TextWrapping.Wrap;
+            box.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            box.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            box.VerticalContentAlignment = VerticalAlignment.Stretch;
+            SetChildValueControl(box);
+
+            string sum = "";
+            if (values.Length > 0)
+                sum = values[0];
+            for (int i = 1; i < values.Length; i++)
+            {
+                sum += $"\n{values[i]}";
+            }
+            box.Text = sum;
+
+            box.TextChanged += (object sender, TextChangedEventArgs e) =>
+            {
+                if (Property != null)
+                {
+                    var lines = box.Text.Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    Property.SetValue(Object, lines);
                 }
             };
         }
