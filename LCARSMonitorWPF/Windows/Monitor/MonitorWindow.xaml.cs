@@ -1,4 +1,4 @@
-using LibreHardwareMonitor.Hardware;
+﻿using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,13 +49,16 @@ namespace LCARSMonitorWPF.Windows.Monitor
 
             ChildSlot.AttachedChild = board;
 
-            board.SerializeIntoJsonFile(@"TestLCARSData.json");
+            // board.SerializeIntoJsonFile(@"TestLCARSData.json");
 
             Debug.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 
-            ChildSlot.AttachedChild = LCARSControl.DeserializeJsonFile(@"TestLCARSData.json");
+            // ChildSlot.AttachedChild = LCARSControl.DeserializeJsonFile(@"TestLCARSData.json");
 
             Debug.WriteLine($"Root object: '{ChildSlot.AttachedChild}'");
+
+            Windows.Editor.EditorWindow editor = new Windows.Editor.EditorWindow();
+            editor.Show();
         }
 
         public Controls.Panel CreateMainBoard()
@@ -78,11 +81,11 @@ namespace LCARSMonitorWPF.Windows.Monitor
             red2.AttachedSensorId = "/amdcpu/0/load/0";
             list.ChildSlots[1].AttachedChild = red2;
 
-            Controls.Button red3 = new Controls.Button();
-            red3.VisualStyle = Visuals.MainPink;
-            red3.Label = "<({id}) {name}: {fvalue}{unit}>";
-            red3.AttachedSensorId = "/amdcpu/0/temperature/2";
-            list.ChildSlots[2].AttachedChild = red3;
+            // Controls.Button red3 = new Controls.Button();
+            // red3.VisualStyle = Visuals.MainPink;
+            // red3.Label = "<({id}) {name}: {fvalue}{unit}>";
+            // red3.AttachedSensorId = "/amdcpu/0/temperature/2";
+            // list.ChildSlots[2].AttachedChild = red3;
 
             Controls.Button red4 = new Controls.Button();
             red4.VisualStyle = Visuals.MainRed;
