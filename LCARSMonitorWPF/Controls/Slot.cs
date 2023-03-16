@@ -35,6 +35,8 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
+        public string Name { get; }
+
         private Rect area;
         public Rect Area
         {
@@ -61,9 +63,10 @@ namespace LCARSMonitorWPF.Controls
         public delegate void ChildChangedEventHandler(object sender, ChildChangedEventArgs x);
         public event ChildChangedEventHandler? ChildChangedEvent;
 
-        public Slot(ILCARSContainer parent)
+        public Slot(ILCARSContainer parent, string name)
         {
             this.parent = parent;
+            Name = name;
         }
 
         protected void UpdateChildVisibility()

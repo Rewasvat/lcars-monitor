@@ -87,11 +87,10 @@ namespace LCARSMonitorWPF.Windows.Editor
 
         protected void UpdateControl()
         {
-            // TODO: include Slot Name/Identifier
             if (Control != null)
-                Header = $"{Control.ID} ({Control.GetType().Name})";
+                Header = $"{Slot!.Name}: {Control.ID} ({Control.GetType().Name})";
             else
-                Header = "EMPTY SLOT";
+                Header = $"{Slot!.Name}: EMPTY";
 
             if (Control is ILCARSContainer container)
             {

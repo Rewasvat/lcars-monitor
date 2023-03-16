@@ -95,7 +95,7 @@ namespace LCARSMonitorWPF.Controls
             InitializeComponent();
 
             slots = new Slot[] {
-                new Slot(this)
+                new Slot(this, "Slot#1")
             };
 
             UpdateChildren();
@@ -129,7 +129,7 @@ namespace LCARSMonitorWPF.Controls
                     else
                     {
                         // create new slot
-                        slots[i] = new Slot(this);
+                        slots[i] = new Slot(this, $"Slot#{i + 1}");
                     }
                 }
 

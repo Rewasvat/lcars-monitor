@@ -155,7 +155,7 @@ namespace LCARSMonitorWPF.Controls
             bottomLeftCorner.Visibility = Visibility.Hidden;
             canvas.Children.Add(bottomLeftCorner);
 
-            ChildSlot = new Slot(this);
+            ChildSlot = new Slot(this, "Content");
 
             UpdateBorders();
         }

@@ -103,7 +103,7 @@ namespace LCARSMonitorWPF.Controls
 
             slots = new Dictionary<string, Slot>
             {
-                ["default"] = new Slot(this)
+                ["default"] = new Slot(this, "default")
             };
             UpdateInternalArea();
         }
@@ -132,7 +132,7 @@ namespace LCARSMonitorWPF.Controls
             }
             foreach (string name in toAdd)
             {
-                slots.Add(name, new Slot(this));
+                slots.Add(name, new Slot(this, name));
             }
 
             // Update slots area if required

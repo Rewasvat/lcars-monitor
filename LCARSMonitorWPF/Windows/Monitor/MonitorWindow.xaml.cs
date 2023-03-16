@@ -35,7 +35,7 @@ namespace LCARSMonitorWPF.Windows.Monitor
         {
             InitializeComponent();
 
-            ChildSlot = new Slot(this);
+            ChildSlot = new Slot(this, "Root");
             UpdateRootSlot();
 
             LCARSMonitor.LCARS.LCARSSystem.Global.Initialize(canvas, ChildSlot);
