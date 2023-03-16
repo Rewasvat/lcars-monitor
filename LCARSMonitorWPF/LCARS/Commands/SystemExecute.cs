@@ -4,21 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace LCARSMonitorWPF.LCARS.Commands
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class SystemExecute : ILCARSCommand
     {
-        public string Command { get; set; }
+        public CommandSlot? ParentSlot { get; set; }
 
-        public SystemExecute(string command)
-        {
-            Command = command;
-        }
+        [JsonProperty]
+        public string Command { get; set; } = "";
 
         public void OnRun()
         {
-            Process.Start(Command);
+            if (Command.Length > 0)
+                Process.Start(Command);
         }
     }
 }

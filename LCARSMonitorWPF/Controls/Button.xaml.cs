@@ -23,7 +23,7 @@ namespace LCARSMonitorWPF.Controls
     /// <summary>
     /// Interaction logic for Button.xaml
     /// </summary>
-    public partial class Button : LCARSControl, ILCARSSensorHandler
+    public partial class Button : LCARSControl, ILCARSSensorHandler, ILCARSCommandContainer
     {
         // PROPERTIES
         [JsonProperty]
@@ -115,7 +115,13 @@ namespace LCARSMonitorWPF.Controls
 
         [JsonProperty]
         [IgnoreOnEditor]
-        public ILCARSCommand? OnClick { get; set; }
+        public ILCARSCommand? OnClick
+        {
+            get { return Commands["OnClick"].Command; }
+            set { Commands["OnClick"].Command = value; }
+        }
+
+        public Dictionary<string, CommandSlot> Commands { get; protected set; }
 
         // INTERNAL ATTRIBUTES
         private bool hasMouseOver = false;
@@ -126,6 +132,9 @@ namespace LCARSMonitorWPF.Controls
             InitializeComponent();
             rect.BorderBrush = null;
             rect.Background = Visual.NormalBrush;
+
+            Commands = new Dictionary<string, CommandSlot>(1);
+            Commands["OnClick"] = new CommandSlot("OnClick", this);
 
             UpdateVisual();
             UpdateCorners();

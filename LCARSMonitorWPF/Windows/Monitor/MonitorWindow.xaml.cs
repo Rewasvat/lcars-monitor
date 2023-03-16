@@ -91,7 +91,10 @@ namespace LCARSMonitorWPF.Windows.Monitor
             red4.VisualStyle = Visuals.MainRed;
             red4.Stumps = Stumps.Both;
             red4.Label = "Change to Alt Board";
-            red4.OnClick = new ChangeBoard(RootBoardName, "Alt");
+            var onClick = new ChangeBoard();
+            onClick.BoardToSelect = "Alt";
+            onClick.TargetBoard = RootBoardName;
+            red4.OnClick = onClick;
             list.ChildSlots[3].AttachedChild = red4;
 
             Controls.Panel panel = new Controls.Panel();
@@ -116,7 +119,10 @@ namespace LCARSMonitorWPF.Windows.Monitor
             btn1.VisualStyle = Visuals.MainGreen;
             btn1.Stumps = Stumps.Both;
             btn1.Label = "Change to Main Board";
-            btn1.OnClick = new ChangeBoard(RootBoardName, "Main");
+            var onClick = new ChangeBoard();
+            onClick.BoardToSelect = "Main";
+            onClick.TargetBoard = RootBoardName;
+            btn1.OnClick = onClick;
             list.ChildSlots[1].AttachedChild = btn1;
 
             return list;
