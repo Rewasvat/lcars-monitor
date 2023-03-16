@@ -35,9 +35,6 @@ TODO
     - TIPOS a suportar:
         - string (ID): verificar com o System se pode deixar tal ID, ai previne ter duplicatas
 
-    - LCARS Command  (complexo) :
-        * é tratado no editor como um "filho" do controle, tipo slots/controls filhos. Assim dá pra usar o mesmo esquema de ter o combobox "TIPO" e properties do role selecionado
-
 - [App]:
     - pro teste inicial, criar alguns widgets hardcoded pra testar
 
