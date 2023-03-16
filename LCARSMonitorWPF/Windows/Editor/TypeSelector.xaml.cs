@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LCARSMonitorWPF.Controls;
+using LCARSMonitorWPF.LCARS.Commands;
 
 namespace LCARSMonitorWPF.Windows.Editor
 {
@@ -29,10 +30,9 @@ namespace LCARSMonitorWPF.Windows.Editor
 
         public void SetAsControlSelector(Slot slot)
         {
-            Type? currentType = slot.AttachedChild?.GetType();
-
             Setup(slot.AttachedChild, typeof(LCARSControl));
 
+            Type? currentType = slot.AttachedChild?.GetType();
             optionsBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
             {
                 Type? selectedType = (Type?)optionsBox.SelectedValue;
@@ -48,9 +48,24 @@ namespace LCARSMonitorWPF.Windows.Editor
             };
         }
 
-        public void SetAsCommandSelector()
+        public void SetAsCommandSelector(CommandSlot slot)
         {
-            // Setup(item.Command, typeof(ILCARSCommand));
+            Setup(slot.Command, typeof(ILCARSCommand));
+
+            Type? currentType = slot.Command?.GetType();
+            optionsBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+            {
+                Type? selectedType = (Type?)optionsBox.SelectedValue;
+                if (selectedType == null)
+                {
+                    slot.Command = null;
+                }
+                else if (!optionsBox.SelectedValue.Equals(currentType))
+                {
+                    slot.Command = Activator.CreateInstance(selectedType) as ILCARSCommand;
+                }
+                currentType = selectedType;
+            };
         }
 
         public void Setup(object? obj, Type baseType)

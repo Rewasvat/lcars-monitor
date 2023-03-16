@@ -47,45 +47,6 @@ namespace LCARSMonitorWPF.Windows.Editor
                 tree.Items.Add(rootItem);
             }
         }
-
-        public void AddCommandToTree(Button control, ItemCollection parentItems)
-        {
-            CommandTreeItem item = new CommandTreeItem();
-            if (control.OnClick != null)
-                item.Header = $"{control.OnClick.GetType().ToString()}";
-            else
-                item.Header = "NO COMMAND";
-            parentItems.Add(item);
-            item.Command = control.OnClick;
-            item.ParentControl = control;
-            item.MouseDoubleClick += OnCommandItemDoubleClick;
-        }
-
-        private void OnCommandItemDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            CommandTreeItem? item = e.Source as CommandTreeItem;
-            if (item == null || !item.IsSelected)
-                return;
-
-            propertiesList.Items.Clear();
-
-            var typeSelector = new TypeSelector();
-            typeSelector.SetAsCommandSelector();
-            propertiesList.Items.Add(typeSelector);
-
-            if (item.Command == null)
-            {
-                return;
-            }
-
-            var props = item.Command.GetType().GetProperties();
-            foreach (var prop in props)
-            {
-                ValueProperty handler = new ValueProperty();
-                handler.BuildFor(prop, item.Command);
-                propertiesList.Items.Add(handler);
-            }
-        }
     }
 
     public class ControlTreeItem : TreeViewItem
@@ -126,6 +87,7 @@ namespace LCARSMonitorWPF.Windows.Editor
 
         protected void UpdateControl()
         {
+            // TODO: include Slot Name/Identifier
             if (Control != null)
                 Header = $"{Control.ID} ({Control.GetType().Name})";
             else
@@ -134,21 +96,26 @@ namespace LCARSMonitorWPF.Windows.Editor
             if (Control is ILCARSContainer container)
             {
                 container.SlotsChangedEvent += OnChildSlotsChanged;
-                PopulateChildren(container);
             }
+            PopulateChildren();
         }
 
-        protected void PopulateChildren(ILCARSContainer container)
+        protected void PopulateChildren()
         {
-            // if (Control is Button button)
-            // {
-            //     // TODO: fix this to properly get the commands the control may have or not
-            //     AddCommandToTree(button, Items);
-            // }
-
-            foreach (var childSlot in container.GetChildSlots())
+            if (Control is ILCARSCommandContainer commandContainer)
             {
-                AddChildSlot(childSlot);
+                foreach (var item in commandContainer.Commands)
+                {
+                    AddCommandSlot(item.Value);
+                }
+            }
+
+            if (Control is ILCARSContainer container)
+            {
+                foreach (var childSlot in container.GetChildSlots())
+                {
+                    AddChildSlot(childSlot);
+                }
             }
         }
 
@@ -158,6 +125,14 @@ namespace LCARSMonitorWPF.Windows.Editor
             childItem.PropertiesList = PropertiesList;
             childItem.Slot = childSlot;
             Items.Add(childItem);
+        }
+
+        protected void AddCommandSlot(CommandSlot commandSlot)
+        {
+            CommandTreeItem commandItem = new CommandTreeItem();
+            commandItem.PropertiesList = PropertiesList;
+            commandItem.Slot = commandSlot;
+            Items.Add(commandItem);
         }
 
         protected void ClearChildren()
@@ -170,7 +145,7 @@ namespace LCARSMonitorWPF.Windows.Editor
                 }
                 else if (item is CommandTreeItem commandItem)
                 {
-                    // TODO: clear CommandItem
+                    commandItem.Dispose();
                 }
             }
             Items.Clear();
@@ -227,10 +202,7 @@ namespace LCARSMonitorWPF.Windows.Editor
             // When our Child Slots changes (that is, the ChildSlots of our control have changed)
             // Then we only need to update our children content: so erase all children and re-populate them.
             ClearChildren();
-            if (Control is ILCARSContainer container)
-            {
-                PopulateChildren(container);
-            }
+            PopulateChildren();
         }
 
         private void OnDoubleClick(object sender, MouseButtonEventArgs e)
@@ -241,7 +213,84 @@ namespace LCARSMonitorWPF.Windows.Editor
 
     public class CommandTreeItem : TreeViewItem
     {
-        public Button? ParentControl { get; set; }
-        public ILCARSCommand? Command { get; set; }
+        public ListBox? PropertiesList { get; set; }
+
+        private CommandSlot? slot;
+        public CommandSlot? Slot
+        {
+            get { return slot; }
+            set
+            {
+                UpdateSlot(value);
+            }
+        }
+        public ILCARSCommand? Command { get { return slot?.Command; } }
+
+        public CommandTreeItem()
+        {
+            MouseDoubleClick += OnDoubleClick;
+        }
+
+        protected void UpdateSlot(CommandSlot? newSlot)
+        {
+            Dispose();
+
+            slot = newSlot;
+
+            if (slot != null)
+                slot.CommandChangedEvent += OnCommandChanged;
+
+            UpdateCommand();
+        }
+
+        protected void UpdateCommand()
+        {
+            if (Command != null)
+                Header = $"{slot!.Name}: {Command.GetType().Name}";
+            else
+                Header = $"{slot!.Name}: NO COMMAND";
+        }
+
+        protected void UpdatePropertiesList()
+        {
+            if (!IsSelected || PropertiesList == null || Slot == null)
+                return;
+
+            PropertiesList.Items.Clear();
+
+            var typeSelector = new TypeSelector();
+            typeSelector.SetAsCommandSelector(Slot);
+            PropertiesList.Items.Add(typeSelector);
+
+            if (Command == null)
+            {
+                return;
+            }
+
+            var props = Command.GetType().GetProperties();
+            foreach (var prop in props)
+            {
+                ValueProperty handler = new ValueProperty();
+                handler.BuildFor(prop, Command);
+                PropertiesList.Items.Add(handler);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (slot != null)
+                slot.CommandChangedEvent += OnCommandChanged;
+        }
+
+        private void OnCommandChanged(object sender, CommandChangedEventArgs e)
+        {
+            UpdateCommand();
+            UpdatePropertiesList();
+        }
+
+        private void OnDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            UpdatePropertiesList();
+        }
     }
 }
