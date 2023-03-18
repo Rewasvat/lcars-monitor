@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LCARSMonitorWPF.Controls;
 using LCARSMonitorWPF.LCARS.Commands;
+using LCARSMonitor.LCARS;
 
 namespace LCARSMonitorWPF.Windows.Editor
 {
@@ -30,27 +31,38 @@ namespace LCARSMonitorWPF.Windows.Editor
 
         public void SetAsControlSelector(Slot slot)
         {
-            Setup(slot.AttachedChild, typeof(LCARSControl));
+            var items = GetOptionsForType(typeof(LCARSControl));
+            foreach (var controlID in LCARSSystem.Global.GetSavedControlNames())
+            {
+                items.Add(new SavedControlEntry(controlID));
+            }
+            Setup(slot.AttachedChild, items);
 
             Type? currentType = slot.AttachedChild?.GetType();
             optionsBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
             {
-                Type? selectedType = (Type?)optionsBox.SelectedValue;
-                if (selectedType == null)
+                if (optionsBox.SelectedValue == null)
                 {
                     slot.AttachedChild = null;
                 }
-                else if (!optionsBox.SelectedValue.Equals(currentType))
+                else if (optionsBox.SelectedValue is Type selectedType)
                 {
-                    slot.AttachedChild = Activator.CreateInstance(selectedType) as LCARSControl;
+                    if (!selectedType.Equals(currentType))
+                    {
+                        slot.AttachedChild = Activator.CreateInstance(selectedType) as LCARSControl;
+                        currentType = selectedType;
+                    }
                 }
-                currentType = selectedType;
+                else if (optionsBox.SelectedValue is string controlID)
+                {
+                    slot.AttachedChild = LCARSSystem.Global.LoadControl(controlID);
+                }
             };
         }
 
         public void SetAsCommandSelector(CommandSlot slot)
         {
-            Setup(slot.Command, typeof(ILCARSCommand));
+            Setup(slot.Command, GetOptionsForType(typeof(ILCARSCommand)));
 
             Type? currentType = slot.Command?.GetType();
             optionsBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
@@ -68,18 +80,28 @@ namespace LCARSMonitorWPF.Windows.Editor
             };
         }
 
-        public void Setup(object? obj, Type baseType)
+        private List<ISelectorEntry> GetOptionsForType(Type baseType)
         {
             var assembly = Assembly.GetAssembly(baseType)!;
             var types = assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
 
-            optionsBox.SelectedValuePath = "Type";
-            optionsBox.DisplayMemberPath = "Name";
-
-            optionsBox.Items.Add(new TypeSelectorEntry(null));
+            List<ISelectorEntry> items = new List<ISelectorEntry>();
+            items.Add(new TypeSelectorEntry(null));
             foreach (var type in types)
             {
-                optionsBox.Items.Add(new TypeSelectorEntry(type));
+                items.Add(new TypeSelectorEntry(type));
+            }
+            return items;
+        }
+
+        private void Setup(object? obj, List<ISelectorEntry> items)
+        {
+            optionsBox.SelectedValuePath = "Value";
+            optionsBox.DisplayMemberPath = "Name";
+
+            foreach (var item in items)
+            {
+                optionsBox.Items.Add(item);
             }
 
             if (obj != null)
@@ -89,19 +111,39 @@ namespace LCARSMonitorWPF.Windows.Editor
         }
     }
 
-    internal class TypeSelectorEntry
+    public interface ISelectorEntry
     {
-        public Type? Type { get; set; }
+        public string Name { get; }
+        public object? Value { get; set; }
+    }
+
+    public class TypeSelectorEntry : ISelectorEntry
+    {
+        public object? Value { get; set; }
         public string Name
         {
             get
             {
-                if (Type == null)
-                    return "None";
-                return Type.Name;
+                if (Value is Type type)
+                    return $"NEW: {type.Name}";
+                return "None";
             }
         }
 
-        public TypeSelectorEntry(Type? type) { Type = type; }
+        public TypeSelectorEntry(Type? type) { Value = type; }
+    }
+
+    public class SavedControlEntry : ISelectorEntry
+    {
+        public object? Value { get; set; }
+        public string Name
+        {
+            get
+            {
+                return $"SAVED: {Value}";
+            }
+        }
+
+        public SavedControlEntry(string id) { Value = id; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,16 +88,24 @@ namespace LCARSMonitorWPF.Windows.Editor
 
         protected void UpdateControl()
         {
+            UpdateHeader();
             if (Control != null)
-                Header = $"{Slot!.Name}: {Control.ID} ({Control.GetType().Name})";
-            else
-                Header = $"{Slot!.Name}: EMPTY";
-
+            {
+                Control.IDChangedEvent += OnControlIDChanged;
+            }
             if (Control is ILCARSContainer container)
             {
                 container.SlotsChangedEvent += OnChildSlotsChanged;
             }
             PopulateChildren();
+        }
+
+        protected void UpdateHeader()
+        {
+            if (Control != null)
+                Header = $"{Slot!.Name}: {Control.ID} ({Control.GetType().Name})";
+            else
+                Header = $"{Slot!.Name}: EMPTY";
         }
 
         protected void PopulateChildren()
@@ -185,15 +194,31 @@ namespace LCARSMonitorWPF.Windows.Editor
                 handler.BuildFor(prop, Control);
                 PropertiesList.Items.Add(handler);
             }
+
+            var saveBtn = new System.Windows.Controls.Button();
+            saveBtn.Content = "Save Control";
+            saveBtn.IsEnabled = true;
+            PropertiesList.Items.Add(saveBtn);
+            saveBtn.Click += (object sender, RoutedEventArgs e) =>
+            {
+                LCARSSystem.Global.SaveControl(Control);
+            };
         }
 
         protected void OnControlChanged(object sender, ChildChangedEventArgs e)
         {
             // When our control changes (that is, the AttachedChild of our slot)
             // We basically need to reset our content: erase all children and update content (including adding possible children)
+            if (e.PreviousChild != null)
+                e.PreviousChild.IDChangedEvent -= OnControlIDChanged;
             ClearChildren();
             UpdateControl();
             UpdatePropertiesList();
+        }
+
+        protected void OnControlIDChanged(object sender, EventArgs e)
+        {
+            UpdateHeader();
         }
 
         protected void OnChildSlotsChanged(object sender, SlotsChangedEventArgs e)

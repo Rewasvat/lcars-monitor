@@ -5,9 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using LCARSMonitorWPF.Properties;
 using LCARSMonitorWPF.Controls;
 using System.ComponentModel;
 using System.Windows.Threading;
+using System.Configuration;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace LCARSMonitor.LCARS
 {
@@ -23,6 +27,7 @@ namespace LCARSMonitor.LCARS
                 return global;
             }
         }
+        private static string SettingsFilePath = "LCARSSettings.json";
 
         private Computer computer;
         private Dictionary<Identifier, bool> updatedHardwares;
@@ -31,6 +36,7 @@ namespace LCARSMonitor.LCARS
         private DispatcherTimer timer;
         private BackgroundWorker worker;
         private int unnamedControlsCount = 0;
+        private SystemSettings settings;
 
         public Canvas? RootCanvas { get; private set; }
         public Slot? RootSlot { get; private set; }
@@ -55,6 +61,8 @@ namespace LCARSMonitor.LCARS
                 IsBatteryEnabled = true,
                 IsPsuEnabled = true,
             };
+
+            settings = new SystemSettings();
         }
 
         public void Initialize(Canvas root, Slot slot)
@@ -79,10 +87,18 @@ namespace LCARSMonitor.LCARS
             foreach (ISensor sensor in GetAvailableSensors())
             {
                 allSensors[sensor.Identifier.ToString()] = sensor;
-                System.Diagnostics.Debug.WriteLine($"SENSOR: {sensor.Name} / {sensor.Identifier}"); // TODO: remove me
             }
 
-            // TODO: load settings/config (and controls data)
+            if (File.Exists(SettingsFilePath))
+            {
+                using (StreamReader file = File.OpenText(SettingsFilePath))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    settings = (SystemSettings)serializer.Deserialize(file, typeof(SystemSettings))!;
+                }
+            }
+
+            RootSlot.AttachedChild = LoadControl(settings.CurrentRootControl);
         }
 
         /// <summary>
@@ -131,10 +147,32 @@ namespace LCARSMonitor.LCARS
             computer.Close();
         }
 
+        public void Save()
+        {
+            if (RootSlot != null && RootSlot.AttachedChild != null)
+            {
+                settings.CurrentRootControl = RootSlot.AttachedChild.ID;
+                SaveControl(RootSlot.AttachedChild);
+            }
+
+            using (StreamWriter file = File.CreateText(SettingsFilePath))
+            {
+                using (JsonTextWriter jw = new JsonTextWriter(file))
+                {
+                    jw.Formatting = Formatting.Indented;
+                    jw.IndentChar = ' ';
+                    jw.Indentation = 4;
+
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(jw, settings);
+                }
+            }
+        }
+
         public void Shutdown()
         {
             Dispose();
-            // TODO: save settings/config
+            Save();
             timer.Stop();
             worker.Dispose();
         }
@@ -167,7 +205,6 @@ namespace LCARSMonitor.LCARS
         /// <param name="control">new control to be registered</param>
         internal void RegisterControl(LCARSControl control)
         {
-            // controls.Add(control);
             if (control.ID == null || control.ID == "")
             {
                 control.ID = $"UnnamedControl{unnamedControlsCount++}";
@@ -252,6 +289,32 @@ namespace LCARSMonitor.LCARS
             return controls.GetValueOrDefault(name);
         }
 
+        public void SaveControl(LCARSControl control)
+        {
+            var controlPath = BuildControlFilePath(control);
+            settings.ControlFilePaths[control.ID] = controlPath;
+            Directory.CreateDirectory("UserControls");
+            control.SerializeIntoJsonFile(controlPath);
+        }
+
+        public LCARSControl? LoadControl(string name)
+        {
+            if (!settings.ControlFilePaths.ContainsKey(name))
+                return null;
+            var controlPath = settings.ControlFilePaths[name];
+            return LCARSControl.DeserializeJsonFile(controlPath);
+        }
+
+        private string BuildControlFilePath(LCARSControl control)
+        {
+            return $"UserControls/Control_{control.ID}.json";
+        }
+
+        public List<string> GetSavedControlNames()
+        {
+            return settings.ControlFilePaths.Keys.ToList<string>();
+        }
+
         // EVENT CALLBACKS
         private void Timer_Tick(object? sender, EventArgs e)
         {
@@ -285,5 +348,11 @@ namespace LCARSMonitor.LCARS
             Dispose();
             // TODO: save settings/config
         }
+    }
+
+    public class SystemSettings
+    {
+        public Dictionary<string, string> ControlFilePaths { get; set; } = new Dictionary<string, string>();
+        public string CurrentRootControl { get; set; } = "";
     }
 }

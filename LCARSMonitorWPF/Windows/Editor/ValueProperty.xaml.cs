@@ -138,9 +138,11 @@ namespace LCARSMonitorWPF.Windows.Editor
                     }
 
                     if (sumFlags.Length > 0)
+                    {
                         sumFlags = sumFlags.Remove(sumFlags.Length - 2);
 
-                    Property.SetValue(Object, Enum.Parse(Property.PropertyType, sumFlags));
+                        Property.SetValue(Object, Enum.Parse(Property.PropertyType, sumFlags));
+                    }
                 }
             };
 

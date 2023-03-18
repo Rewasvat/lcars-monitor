@@ -25,12 +25,13 @@ namespace LCARSMonitorWPF.Controls
             {
                 if (value != child)
                 {
+                    var prev = child;
                     parent.UpdateChildSlot(this, value);
                     child?.OnAttachToSlot(null);
                     child = value;
                     child?.OnAttachToSlot(this);
                     UpdateChildVisibility();
-                    RaiseChildChanged();
+                    RaiseChildChanged(prev, child);
                 }
             }
         }
@@ -86,9 +87,12 @@ namespace LCARSMonitorWPF.Controls
             }
         }
 
-        protected virtual void RaiseChildChanged()
+        protected virtual void RaiseChildChanged(LCARSControl? prevChild, LCARSControl? newChild)
         {
-            ChildChangedEvent?.Invoke(this, new ChildChangedEventArgs());
+            var args = new ChildChangedEventArgs();
+            args.PreviousChild = prevChild;
+            args.NewChild = newChild;
+            ChildChangedEvent?.Invoke(this, args);
         }
     }
 
@@ -132,5 +136,9 @@ namespace LCARSMonitorWPF.Controls
     }
 
     public class SlotsChangedEventArgs { }
-    public class ChildChangedEventArgs { }
+    public class ChildChangedEventArgs
+    {
+        public LCARSControl? PreviousChild { get; set; }
+        public LCARSControl? NewChild { get; set; }
+    }
 }

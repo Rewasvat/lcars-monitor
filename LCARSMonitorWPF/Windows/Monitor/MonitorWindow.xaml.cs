@@ -40,6 +40,16 @@ namespace LCARSMonitorWPF.Windows.Monitor
 
             LCARSMonitor.LCARS.LCARSSystem.Global.Initialize(canvas, ChildSlot);
 
+            // CreateTestControls();
+
+            Debug.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+            Debug.WriteLine($"Root object: '{ChildSlot.AttachedChild}'");
+            Windows.Editor.EditorWindow editor = new Windows.Editor.EditorWindow();
+            editor.Show();
+        }
+
+        public void CreateTestControls()
+        {
             Controls.Board board = new Board();
             board.BoardNames = new string[] { "Main", "Alt" };
             board.CurrentBoard = "Main";
@@ -48,17 +58,6 @@ namespace LCARSMonitorWPF.Windows.Monitor
             board.ID = RootBoardName;
 
             ChildSlot.AttachedChild = board;
-
-            // board.SerializeIntoJsonFile(@"TestLCARSData.json");
-
-            Debug.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-
-            // ChildSlot.AttachedChild = LCARSControl.DeserializeJsonFile(@"TestLCARSData.json");
-
-            Debug.WriteLine($"Root object: '{ChildSlot.AttachedChild}'");
-
-            Windows.Editor.EditorWindow editor = new Windows.Editor.EditorWindow();
-            editor.Show();
         }
 
         public Controls.Panel CreateMainBoard()

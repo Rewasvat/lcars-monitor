@@ -21,8 +21,11 @@ namespace LCARSMonitorWPF.Controls
             set
             {
                 LCARSSystem.Global.UpdateControlID(this, value);
+                IDChangedEvent?.Invoke(this, new EventArgs());
             }
         }
+        public delegate void IDChangedEventHandler(object sender, EventArgs x);
+        public event IDChangedEventHandler? IDChangedEvent;
 
         public virtual void OnAttachToSlot(Slot? slot)
         {
@@ -63,10 +66,14 @@ namespace LCARSMonitorWPF.Controls
             return DeserializeJSON(jsonData);
         }
 
+        public string Serialize()
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            return JsonConvert.SerializeObject(this, Formatting.None, settings);
+        }
         public void SerializeIntoJsonFile(string filePath)
         {
             var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-            // string jsonData = JsonConvert.SerializeObject(lcarsData, Formatting.Indented, settings);
 
             using (FileStream fs = File.Open(filePath, FileMode.OpenOrCreate))
             {

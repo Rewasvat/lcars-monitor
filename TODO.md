@@ -8,9 +8,6 @@ TODO
         - permitir um threshold/offset pra verificar se o valor do sensor tá *perto* de entrar nesses ranges
 
 - [LCARSSystem]:
-    - Sistema de Storage de configs de Controls.
-        - permite salvar/carregar configs (json) de Controls.
-        - salva dentro do executavel, naquele esquema de properties ou DB, whatever do C#. Não salvar em JSON no disco!
     - flag interna pra "desabilitar" o sistema: pra ajudar a debuggar, quando não precisamos dele podemos só "desligar" pra carregar mais rapido
         * permite a construção/uso das UIs
         * não carregar nada do hardware
@@ -18,14 +15,6 @@ TODO
         - talvez alguma forma de chamar isso algumas hrs? Talvez pelo [Editor]?
 
 - [EDITOR]:
-    - tem um LCARSControl sendo construido - o OBJETO (ele ta sendo visto na tela Monitor)
-    - permite salvar OBJETO no System
-    - permite carregar configs do System como controles
-    - botão pra atualizar o Monitor:
-        - aplica o OBJETO atual na Monitor pra poder ser visto
-        - talvez fazer isso automaticamente em alguns casos, tipo carregar de config salva?
-        + talvez poderia fazer isso automaticamente quando editasse qualquer coisa? Poderia ficar muito pesado...
-    * não queremos ver o OBJETO nessa tela! É pra garantir que estamos vendo como fica o objeto na Monitor, na posição/tamanho desejados já.
     - fazer check no TrayMenu pra não permitir abrir a EditorWindow se ela já tá aberta.
     - PROBLEMAS COM EDICAO DE VALORES, coisas a arrumar:
         - string pura, na label de botao com sensor: tem umas horas que dá erro no ISensorExtensions.FormatSensorString
@@ -34,9 +23,6 @@ TODO
 
     - TIPOS a suportar:
         - string (ID): verificar com o System se pode deixar tal ID, ai previne ter duplicatas
-
-- [App]:
-    - pro teste inicial, criar alguns widgets hardcoded pra testar
 
 - [Controls]
     - Button / Rect
@@ -89,6 +75,5 @@ TODO
 * [COMANDOS/ACOES]:
     - Implementar Suporte em:
         - MainControls (#N)
-        - Communicator (#1)
     * Serialização direta funciona sem implementar coisas extras pro json
         * talvez tenha a ver com o fato que são classes simples, somente com umas properties get/set normais.
