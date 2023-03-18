@@ -44,8 +44,6 @@ namespace LCARSMonitorWPF.Windows.Monitor
 
             Debug.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
             Debug.WriteLine($"Root object: '{ChildSlot.AttachedChild}'");
-            Windows.Editor.EditorWindow editor = new Windows.Editor.EditorWindow();
-            editor.Show();
         }
 
         public void CreateTestControls()

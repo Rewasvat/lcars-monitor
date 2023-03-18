@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LCARSMonitorWPF.Windows.Editor"
         mc:Ignorable="d"
+        Icon="/Assets/Icons/lcars.png"
         Title="EditorWindow" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>

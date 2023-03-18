@@ -10,8 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using LCARSMonitor.LCARS;
 using LCARSMonitorWPF.Windows.Editor;
 
 namespace LCARSMonitorWPF.Windows.Monitor
@@ -21,9 +20,13 @@ namespace LCARSMonitorWPF.Windows.Monitor
     /// </summary>
     public partial class TrayMenu : ContextMenu
     {
+        private EditorWindow? editor;
+
         public TrayMenu()
         {
             InitializeComponent();
+
+            LCARSSystem.Global.InitializedEvent += OnSystemInitialized;
         }
 
         private void OnQuitClicked(object sender, RoutedEventArgs e)
@@ -33,8 +36,30 @@ namespace LCARSMonitorWPF.Windows.Monitor
 
         private void OnOpenEditorClicked(object sender, RoutedEventArgs e)
         {
-            EditorWindow editor = new EditorWindow();
-            editor.Show();
+            ShowEditor();
+        }
+
+        private void ShowEditor()
+        {
+            if (editor == null)
+            {
+                editor = new EditorWindow();
+                editor.Show();
+                editor.Closed += OnEditorClosed;
+            }
+        }
+
+        private void OnSystemInitialized(object sender, EventArgs e)
+        {
+            if (LCARSSystem.Global.RootSlot?.AttachedChild == null)
+            {
+                ShowEditor();
+            }
+        }
+
+        private void OnEditorClosed(object? sender, EventArgs e)
+        {
+            editor = null;
         }
     }
 }

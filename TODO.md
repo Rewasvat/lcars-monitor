@@ -15,7 +15,6 @@ TODO
         - talvez alguma forma de chamar isso algumas hrs? Talvez pelo [Editor]?
 
 - [EDITOR]:
-    - fazer check no TrayMenu pra não permitir abrir a EditorWindow se ela já tá aberta.
     - PROBLEMAS COM EDICAO DE VALORES, coisas a arrumar:
         - string pura, na label de botao com sensor: tem umas horas que dá erro no ISensorExtensions.FormatSensorString
         - Panel, ao editar alguns campos numericos: as bordas/espaco interno não atualizavam corretamente

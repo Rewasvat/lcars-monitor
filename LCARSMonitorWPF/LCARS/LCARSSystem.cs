@@ -41,6 +41,9 @@ namespace LCARSMonitor.LCARS
         public Canvas? RootCanvas { get; private set; }
         public Slot? RootSlot { get; private set; }
 
+        public delegate void InitializedEventHandler(object sender, EventArgs x);
+        public event InitializedEventHandler? InitializedEvent;
+
         private LCARSSystem()
         {
             updatedHardwares = new Dictionary<Identifier, bool>();
@@ -99,6 +102,8 @@ namespace LCARSMonitor.LCARS
             }
 
             RootSlot.AttachedChild = LoadControl(settings.CurrentRootControl);
+
+            InitializedEvent?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
