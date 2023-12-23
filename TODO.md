@@ -32,18 +32,18 @@ TODO
             - permitir mudar alinhamento? (alem das condicoes acima)
             - arrumar tamanho da label pra funcionar com os controles escalaveis
     - ProgressBar
-        - (range) min/max da barra devem ser customizaveis
-            - inclusive pelo sensor associado
-            - valor entao sempre será nesse range
-        - talvez suportar min/max do valor do sensor?
-            - tipo, alem da barra em si ter um comeco/fim (o range min/max), e mostrar aonde está o valor atual, ela poderia mostrar
+        + (range) min/max da barra devem ser customizaveis
+            + inclusive pelo sensor associado
+            + valor entao sempre será nesse range
+        + talvez suportar min/max do valor do sensor?
+            + tipo, alem da barra em si ter um comeco/fim (o range min/max), e mostrar aonde está o valor atual, ela poderia mostrar
               aonde nesse range tá os valores de value min/max registrados pelo sensor
             - talvez deixar esses "value min/max" customizaveis? ai poderiam ser usados pra algo alem de dados do sensor
-        - suportar imagem da "barra": visual fixo da barra
-        - suportar fill da barra: alguma imagem-fill, imagem-cursor ou rect-fill pra mostrar o valor atual da barra
-        - de preferencia suportar "skins" diferentes: Reactor Bar / Progress Bar (lcars) / Rects simplão
+        + suportar imagem da "barra": visual fixo da barra
+        + suportar fill da barra: alguma imagem-fill, imagem-cursor ou rect-fill pra mostrar o valor atual da barra
+        + de preferencia suportar "skins" diferentes: Reactor Bar / Progress Bar (lcars) / Rects simplão
         - implementar Serializacao
-        - implementar suporte a 2x Sensores (ILCARSSensorHandler)
+        + implementar suporte a 2x Sensores (ILCARSSensorHandler)
     - Panel:
         - Implementar suporte a Buttons nas bordas:
             - permitir incluir labels em alguma seção da linha (pelo menos pra top/bottom)
@@ -67,8 +67,7 @@ TODO
 
 + [SENSORES]
     - Implementar o ILCARSSensorHandler nos seguintes controles:
-        - ProgressBar (#2)
-        - ReactorBar (#2)
+        + ProgressBar (#2)
         - MainControls??? acho que nao, é mais pra comandos (mas se fosse, seria #N?)
 
 * [COMANDOS/ACOES]:

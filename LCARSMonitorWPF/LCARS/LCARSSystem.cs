@@ -37,6 +37,7 @@ namespace LCARSMonitor.LCARS
         private BackgroundWorker worker;
         private int unnamedControlsCount = 0;
         private SystemSettings settings;
+        private bool disableRootControlLoad = true;
 
         public Canvas? RootCanvas { get; private set; }
         public Slot? RootSlot { get; private set; }
@@ -101,7 +102,8 @@ namespace LCARSMonitor.LCARS
                 }
             }
 
-            RootSlot.AttachedChild = LoadControl(settings.CurrentRootControl);
+            if (!disableRootControlLoad)
+                RootSlot.AttachedChild = LoadControl(settings.CurrentRootControl);
 
             InitializedEvent?.Invoke(this, new EventArgs());
         }
@@ -154,7 +156,7 @@ namespace LCARSMonitor.LCARS
 
         public void Save()
         {
-            if (RootSlot != null && RootSlot.AttachedChild != null)
+            if (RootSlot != null && RootSlot.AttachedChild != null && !disableRootControlLoad)
             {
                 settings.CurrentRootControl = RootSlot.AttachedChild.ID;
                 SaveControl(RootSlot.AttachedChild);

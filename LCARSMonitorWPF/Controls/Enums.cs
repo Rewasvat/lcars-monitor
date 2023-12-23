@@ -39,4 +39,21 @@ namespace LCARSMonitorWPF.Controls
         Horizontal,
         Vertical
     }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BarStyles
+    {
+        Reactor,
+        Waves,
+        Regular,
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BarLimitsRange
+    {
+        SensorCritical,  // deve equivaler ao ICriticalSensorLimits do sensor  (not sure se todos tem)
+        SensorLimits,    // deve equivaler ao ISensorLimits do sensor  (not sure se todos tem)
+        SensorValueRange, // range min-max de valor registrado do sensor
+        UserDefined,      // range hardcoded pelo user na ProgressBar
+    }
 }

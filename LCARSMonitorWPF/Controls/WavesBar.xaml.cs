@@ -12,14 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using LibreHardwareMonitor.Hardware;
 
 namespace LCARSMonitorWPF.Controls
 {
     /// <summary>
-    /// Interaction logic for ReactorBar.xaml
+    /// Interaction logic for WavesBar.xaml
     /// </summary>
-    public partial class ReactorBar : UserControl, IProgressBarStyle
+    public partial class WavesBar : UserControl, IProgressBarStyle
     {
         private SolidColorBrush markerBrush;
         private Thickness upMaxMarkerMargin;
@@ -28,7 +27,7 @@ namespace LCARSMonitorWPF.Controls
         private Thickness downMinMarkerMargin;
         private Dictionary<string, BarConfig?> lastConfigs;
 
-        public ReactorBar()
+        public WavesBar()
         {
             InitializeComponent();
 
@@ -54,9 +53,9 @@ namespace LCARSMonitorWPF.Controls
             //
             // RenderTransformOrigin = 0.5,0.5
             //
-            // Stats: size=150x182 / upY(bottom-margin)=331 / bottomY(up-margin)=331
-            // Up Elements: verticalAlign=Bottom (Y)bottomMargin=331
-            // Down Elemts: verticalAlign=Top (Y)topMargin=331
+            // Stats: size=32x402.1
+            // Up Elements: verticalAlign=Bottom horizontalAlign=Left (X)leftMargin=1 (Y)bottomMargin=22.1
+            // Down Elemts: verticalAlign=Bottom horizontalAlign=Right (X)rightMargin=1 (Y)bottomMargin=22.1
         }
 
         public void OnSensorUpdate(BarConfig config)
@@ -108,8 +107,12 @@ namespace LCARSMonitorWPF.Controls
                 }
                 else
                 {
-                    downMaxMarkerMargin.Top = bg.Margin.Top + bg.Height * config.CalculatePercentInRange(config.Sensor.Max);
-                    downMinMarkerMargin.Top = (bg.Margin.Top - minMarker.Height) + bg.Height * config.CalculatePercentInRange(config.Sensor.Min);
+                    // NOTE: at first this entire logic of WavesBar (all in this class) is essentially the same as in the ReactorBar.
+                    // Basically only difference is this: here, downMarkers use Bottom margin for positioning, as well as the upMarkers
+                    // However in ReactorBar, upMarkers use Bottom, while downMarkers use Top margin.
+                    // TODO: might be better if we refactor this logic somewhere else to reuse in this WavesBar and in ReactorBar
+                    downMaxMarkerMargin.Bottom = bg.Margin.Bottom + bg.Height * config.CalculatePercentInRange(config.Sensor.Max);
+                    downMinMarkerMargin.Bottom = (bg.Margin.Bottom - minMarker.Height) + bg.Height * config.CalculatePercentInRange(config.Sensor.Min);
                     downMaxMarker.Margin = downMaxMarkerMargin;
                     downMinMarker.Margin = downMinMarkerMargin;
                 }
