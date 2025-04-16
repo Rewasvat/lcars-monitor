@@ -1,47 +1,38 @@
 # LCARS Monitor
-Windows WPF App to monitor hardware status with a customizable LCARS-themed interface.
+Python/IMGUI App to monitor hardware sensors with a customizable LCARS-themed interface.
 
 ## Features:
-* Stays in System Tray
-* The following windows which can be opened from the app in tray:
-    * **Monitor:** custom interface to monitor hardware (more on this below)
-    * **Editor:** allows the customization of the Monitor window.
-* Saves settings to a local JSON
+* **UISystem**: a customizable graph-based GUI system integrating Widgets (UI elements), Actions (logic nodes) and Sensors (data sources).
+* Different modes for the GUI:
+    * **EDIT** Mode: GUI to create/see/edit/select/delete UISystems (more on this below).
+    * **DISPLAY** Mode: borderless-fullscreen GUI to display a single UISystem to the user, so you can see the system you've defined while doing something else (like gaming).
+* App settings, configured UISystems and other persisted data are saved to a binary file located in the user's HOME directory.
 
-### Monitor Window
-The Monitor shows the user-defined interface to monitor his hardware.
+### UI System
+> TODO: describe this
 
-This is based on a set of control widgets with simplified configuration and with Star Trek LCARS themes.
-With simple configuration the user can place panels, buttons, images, bars, labels and more in order to build a LCARS interface to:
-* Show Hardware Status
-    * Supports multiple CPU/GPU/Motherboard/RAM/Storage Devices/Network hardware
-    * Support several sensors: power, load, frequency, temperature, and more.
-* Show alerts when some sensor reaches critical values
-    * And alerts can be customized as well
-* Supports different "tabs" of widgets:
-    * User can configure multiple tabs.
-    * The monitor shows a single tab of widgets.
-    * A tab can have a control that when pressed, switches "selected tab" to another one.
-* Support simple external commands:
-    * allows some controls to open an external program or run a script.
+### Monitor EDIT Mode
+> TODO: describe this
 
 
-## Requirements to Run
-* Elevated Privileges: required to be able to properly read status from all hardware in your PC. The app should by default ask the user for it through UAC.
-* x64 system
-* .NET framework
-    > TODO: which?
-
-### Dependencies
-List of dependencies used by LCARS Monitor.
-* .NET / WPF
-* [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor): in order to read hardware sensor status.
-* [XAML Export](https://www.mikeswanson.com/xamlexport/): Adobe Illustrator plugin to export vector assets directly as XAML to use with WPF.
+### Hardware Sensors Data
+LCARSMonitor uses [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) in order to read hardware sensor status.
+This is included as a DLL in the LCARSMonitor package.
 
 
 ## How To Install
-The build should be a standalone application, without need to "install" per-se.
-Just extract the application to a folder of your choosing, and run the executable.
+* As a standalone executable:
+    * We build LCARS Monitor to a single executable app for ease of use: just double-clicking it will open.
+    * The executable is fully packaged and should require no other dependencies to run.
+    * When running it extracts its files to a temporary directory. These are deleted when the app is closed.
+* As a Python Package/Tool:
+    * Download this repository and `pip install .` as usual.
+    * or `pip install lcarsmonitor` to download and install the package from PyPI (WIP!)
+    * *This is indicated for developers working on this package or more advanced users*
+
 
 ## How to Use
 > TODO
+
+### Requirements to Run
+* Elevated Privileges: required to be able to properly read status from all hardware in your PC. The app should by default ask the user for it through UAC.

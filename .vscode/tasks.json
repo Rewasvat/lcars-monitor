@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "LCARSMonitor EDIT",
+            "type": "shell",
+            "command": "lcarsmonitor edit",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "LCARSMonitor DISPLAY",
+            "type": "shell",
+            "command": "lcarsmonitor open",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "LCARSMonitor EDIT DEBUG",
+            "type": "shell",
+            "command": "lcarsmonitor -d edit",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "LCARSMonitor DISPLAY DEBUG",
+            "type": "shell",
+            "command": "lcarsmonitor -d open",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Standalone Executable",
+            "type": "shell",
+            "command": "pyinstaller --clean -y lcarsmonitor.spec",
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}
