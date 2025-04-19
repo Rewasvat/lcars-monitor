@@ -3,9 +3,7 @@
 # this module from anywhere.
 
 # Basic Widget types
-from lcarsmonitor.widgets.system import UISystem, UIManager
 from lcarsmonitor.widgets.base import BaseWidget, LeafWidget, ContainerWidget
-from lcarsmonitor.widgets.system_node import UseSystem
 
 # Container Widget Types
 from lcarsmonitor.widgets.board import Board

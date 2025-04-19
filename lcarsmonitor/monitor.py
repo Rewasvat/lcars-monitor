@@ -1,6 +1,6 @@
 import math
 import click
-import lcarsmonitor.sensors as sensors
+import lcarsmonitor.sensors.sensors as sensors
 import libasvat.command_utils as cmd_utils
 import libasvat.utils as utils
 import libasvat.imgui.windows as windows
@@ -82,7 +82,7 @@ class SystemMonitorApp(windows.AppWindow):
         super().__init__(f"System Monitor {title_suffix}", windows.RunnableAppMode.DOCK)
         self.data = data
         self.do_restart = False
-        from lcarsmonitor.widgets import UISystem, UIManager
+        from lcarsmonitor.system.system import UISystem, UIManager
         self.system_manager = UIManager()
         self.opened_systems: dict[str, UISystem] = {}
         self._reset_window_attrs()
@@ -161,7 +161,7 @@ class SystemMonitorApp(windows.AppWindow):
         if self.system_manager.has_config(name):
             click.secho(f"Can't create new system named '{name}'", fg="red")
             return False
-        from lcarsmonitor.widgets import UISystem
+        from lcarsmonitor.system.system import UISystem
         system = UISystem(name)
         self.opened_systems[name] = system
         self.system_manager.update_system(system)

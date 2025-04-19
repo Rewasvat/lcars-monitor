@@ -3,7 +3,7 @@ from libasvat.imgui.colors import Color
 from libasvat.imgui.general import not_user_creatable
 from libasvat.imgui.nodes import PinKind, input_property, output_property
 from libasvat.imgui.nodes.nodes_data import DataPin, DataPinState, SyncedDataPropertyState
-from lcarsmonitor.widgets.system import UIManager, UISystem, SystemConfig
+from lcarsmonitor.system.system import UIManager, UISystem, SystemConfig
 from lcarsmonitor.widgets.base import LeafWidget, ContainerWidget, WidgetColors, Slot
 from lcarsmonitor.actions.actions import Action, ActionFlow
 from imgui_bundle import imgui

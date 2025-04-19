@@ -6,8 +6,8 @@ from libasvat.imgui.nodes import Node, NodePin, NodeLink, NodeSystem, PinKind, o
 from libasvat.imgui.nodes.node_config import SystemConfig
 from libasvat.imgui.colors import Colors, Color
 from lcarsmonitor.widgets.base import BaseWidget, Slot, WidgetParentPin, draw_widget_pin_icon
-from lcarsmonitor.sensors import Hardware, ComputerSystem
-from lcarsmonitor.sensor_node import Sensor
+from lcarsmonitor.sensors.sensors import Hardware, ComputerSystem
+from lcarsmonitor.sensors.sensor_node import Sensor
 from libasvat.data import DataCache
 
 
@@ -182,13 +182,13 @@ class UISystem(NodeSystem):
     @property
     def input_nodes(self):
         """Gets all System Input nodes for this system. These are nodes that contain output-pins that provide data for this system."""
-        from lcarsmonitor.widgets.system_node import SystemAction
+        from lcarsmonitor.system.system_node import SystemAction
         return [node for node in self.nodes if isinstance(node, SystemAction) and "Input" in node.__class__.__name__]
 
     @property
     def output_nodes(self):
         """Gets all System Output nodes for this system. These are nodes that contain input-pins that return data from this system."""
-        from lcarsmonitor.widgets.system_node import SystemAction, ExternalWidget
+        from lcarsmonitor.system.system_node import SystemAction, ExternalWidget
         nodes = [node for node in self.nodes if isinstance(node, ExternalWidget)]
         return nodes + [node for node in self.nodes if isinstance(node, SystemAction) and "Output" in node.__class__.__name__]
 

@@ -4,7 +4,7 @@ import click
 from libasvat.imgui.math import Vector2, multiple_lerp_with_weigths
 from libasvat.imgui.colors import Colors, Color
 from libasvat.imgui.nodes import PinKind, Node, input_property, output_property
-from lcarsmonitor.sensors import InternalSensor, SensorLimitsType, Hardware, SensorUnit, SensorID, ComputerSystem
+from lcarsmonitor.sensors.sensors import InternalSensor, SensorLimitsType, Hardware, SensorUnit, SensorID, ComputerSystem
 
 
 class Sensor(Node):

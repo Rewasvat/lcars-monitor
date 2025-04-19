@@ -9,7 +9,7 @@ import libasvat.imgui.type_editor as types
 import libasvat.imgui.nodes.node_config as node_config
 
 if TYPE_CHECKING:
-    from lcarsmonitor.widgets.system import UISystem
+    from lcarsmonitor.system.system import UISystem
 
 
 class WidgetColors:

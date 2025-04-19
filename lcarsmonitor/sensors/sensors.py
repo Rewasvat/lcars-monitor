@@ -8,15 +8,15 @@ from dataclasses import dataclass
 from typing import Iterator, TYPE_CHECKING
 from imgui_bundle import imgui
 from libasvat.data import DataCache
-from lcarsmonitor.native_api import SensorType, ISensor, Computer
-from lcarsmonitor.test_sensor import TestIHardware, TestIComputer
+from lcarsmonitor.sensors.native_api import SensorType, ISensor, Computer
+from lcarsmonitor.sensors.test_sensor import TestIHardware, TestIComputer
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.general import drop_down
 
 
 if TYPE_CHECKING:
-    from lcarsmonitor.sensor_node import Sensor
+    from lcarsmonitor.sensors.sensor_node import Sensor
 
 
 # Local implementation of classes wrapping C# types.
@@ -416,7 +416,7 @@ class InternalSensor:
         Returns:
             Sensor: newly created Sensor object.
         """
-        from lcarsmonitor.sensor_node import Sensor
+        from lcarsmonitor.sensors.sensor_node import Sensor
         sensor = Sensor(self.id)
         self._add(sensor)
         return sensor
