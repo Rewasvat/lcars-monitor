@@ -1,8 +1,9 @@
 import math
 import libasvat.imgui.type_editor as types
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
-from lcarsmonitor.widgets.rect import RectMixin, RectCorners
+from lcarsmonitor.widgets.rect import RectCorners
 from lcarsmonitor.widgets.label import TextMixin
+from lcarsmonitor.widgets.style import VisualStyle
 from libasvat.imgui.colors import Colors, Color
 from libasvat.imgui.math import Vector2, Rectangle
 from libasvat.imgui.nodes import input_property
@@ -299,9 +300,11 @@ class ProgressBar(TextMixin, LeafWidget):
 
     # Editable Properties
     @input_property()
-    def color(self) -> Color:
-        """The color of the bar background. [GET/SET]"""
-        return Colors.grey
+    def style(self) -> VisualStyle:
+        """Visual style of this label. [GET/SET]"""
+        st = VisualStyle()
+        st.normal_color = Colors.grey
+        return st
 
     @types.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def rounding(self):
@@ -375,14 +378,14 @@ class ProgressBar(TextMixin, LeafWidget):
 
     # Method Overrides
     def render(self):
-        self._inner_bar.color = self.color
+        self._handle_interaction()
+        self._inner_bar.color = self.style.get_current_color(self)
         self._inner_bar.bar_color = self.bar_color
         self._inner_bar.frame_color = self.frame_color
         self._inner_bar.value = self.value
         self._inner_bar.area = self.area
         self._inner_bar.draw()
-        self._draw_text()
-        self._handle_interaction()
+        self._draw_text(self.style.text_color)
 
     def _format_text(self, text: str):
         tags = {"value": self.value * 100}

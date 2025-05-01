@@ -5,6 +5,7 @@ from libasvat.imgui.colors import Colors, Color
 from libasvat.imgui.nodes import input_property
 from libasvat.imgui.math import Vector2, Rectangle
 from libasvat.imgui.fonts import FontDatabase, FontID
+from lcarsmonitor.widgets.style import VisualStyle
 from imgui_bundle import imgui
 from enum import Enum
 
@@ -245,9 +246,9 @@ class TextObject:
 
         Args:
             line_rects (list[Rectangle]): list of line rectangles of this label. At this point passed as input here,
-            each line's position means nothing, but its size is the text line's size in regular font-size (no scaling)
-            with text-wrap applied. After this method, these rectangles will've been updated in-place with their proper
-            positions and scaled sizes.
+                each line's position means nothing, but its size is the text line's size in regular font-size (no scaling)
+                with text-wrap applied. After this method, these rectangles will've been updated in-place with their proper
+                positions and scaled sizes.
             scale (float): The current actual scale for drawing text in this label.
 
         Returns:
@@ -310,11 +311,6 @@ class TextMixin:
         """The text being displayed [GET/SET]"""
         return ""  # this is essentially the default value.
 
-    @input_property()
-    def text_color(self) -> Color:
-        """The color of the text [GET/SET]"""
-        return Colors.white  # this is essentially the default value.
-
     @types.bool_property()
     def is_wrapped(self):
         """If the text will wrap around to not exceed our available width space [GET/SET]"""
@@ -362,11 +358,11 @@ class TextMixin:
     def font(self, value: LCARSFont):
         self._text_internal.font = value
 
-    def _draw_text(self):
+    def _draw_text(self, color: Color):
         """Internal utility to render our label's text."""
         self._text_internal.area = self.area
         self._text_internal.text = self._format_text(self.text)
-        self._text_internal.color = self.text_color
+        self._text_internal.color = color
         self._text_internal.scale = self.scale
         self._text_internal.draw()
 
@@ -394,6 +390,11 @@ class Label(TextMixin, LeafWidget):
         TextMixin.__init__(self, text)
         self.node_header_color = WidgetColors.Primitives
 
+    @input_property()
+    def style(self) -> VisualStyle:
+        """Visual style of this label. [GET/SET]"""
+        return VisualStyle()
+
     def render(self):
-        self._draw_text()
+        self._draw_text(self.style.text_color)
         self._handle_interaction()

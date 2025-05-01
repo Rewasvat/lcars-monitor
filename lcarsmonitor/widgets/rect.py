@@ -1,8 +1,9 @@
 import libasvat.imgui.type_editor as types
 from libasvat.imgui.math import Rectangle
-from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
-from libasvat.imgui.colors import Color, Colors
+from libasvat.imgui.colors import Color
 from libasvat.imgui.nodes import input_property
+from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
+from lcarsmonitor.widgets.style import VisualStyle
 from imgui_bundle import imgui
 from enum import Flag
 
@@ -31,20 +32,12 @@ class RectCorners(Flag):
         return val
 
 
-# TODO: alterar cor de acordo com hovered (clicked talvez? ou só no button?).
 class RectMixin:
     """Widget mixin class to add Rect features to a widget."""
 
-    def __init__(self, color: Color = None):
-        if color:
-            self.color = color
+    def __init__(self):
         self._rounding: float = 0.0
         self._corners: RectCorners = RectCorners.NONE
-
-    @input_property()
-    def color(self) -> Color:
-        """The color of this rect. [GET/SET]"""
-        return Colors.white
 
     @types.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def rounding(self):
@@ -69,27 +62,32 @@ class RectMixin:
         self._corners = value
 
     @property
-    def actual_rounding(self):
+    def actual_rounding(self) -> float:
         """Actual value of corner roundness, used for drawing the rectangle.
         This converts our ``self.rounding`` scaling factor to the actual range of pixel values for the rounding. [GET]"""
         area: Rectangle = self.area
         max_value = area.size.min_component() * 0.5
         return max_value * self.rounding
 
-    def _draw_rect(self):
+    def _draw_rect(self, color: Color):
         """Internal utility to render our rectangle."""
         area: Rectangle = self.area
-        area.draw(self.color, True, rounding=self.actual_rounding, flags=self.corners.get_flags())
+        area.draw(color, True, rounding=self.actual_rounding, flags=self.corners.get_flags())
 
 
 class Rect(RectMixin, LeafWidget):
     """Simple colored Rectangle widget."""
 
-    def __init__(self, color: Color = None):
+    def __init__(self):
         LeafWidget.__init__(self)
-        RectMixin.__init__(self, color)
+        RectMixin.__init__(self)
         self.node_header_color = WidgetColors.Primitives
 
+    @input_property()
+    def style(self) -> VisualStyle:
+        """Visual style of this rect. [GET/SET]"""
+        return VisualStyle()
+
     def render(self):
-        self._draw_rect()
         self._handle_interaction()
+        self._draw_rect(self.style.get_current_color(self))
