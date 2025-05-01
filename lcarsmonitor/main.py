@@ -27,14 +27,19 @@ class LCARSMonitorCommands(cmd_utils.RootCommands):
 
     @cmd_utils.instance_command()
     @click.option("--test", "-t", is_flag=True, help="Use dummy testing sensors")
-    def open(self, test):
-        """Opens the System Monitor GUI in DISPLAY mode."""
+    @click.option("--system-name", "-s", type=str, default=None, help="Name of UISystem to force-select to display.")
+    def open(self, test=False, system_name=None):
+        """Opens the System Monitor GUI in DISPLAY mode.
+
+        The displayed UISystem will be the one selected as the 'main' system in EDIT mode.
+        However, if SYSTEM_NAME is given, that system will be displayed instead.
+        """
         if test:
             ComputerSystem().open(True)
         elif not utils.is_admin_user():
             click.secho("Can't run the System Monitor GUI without admin permissions!", fg="red")
             # return  # TODO: fix this
-        app = SystemMonitorApp(False)
+        app = SystemMonitorApp(False, system_name)
         app.run()
 
     @cmd_utils.instance_command()

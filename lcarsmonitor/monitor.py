@@ -48,8 +48,6 @@ class MonitorAppData:
 #       - poder configurar settings:
 #           - se DISPLAY mode vai ser borderless-window ou não
 #           - se DISPLAY mode vai ser fullscreen ou não
-#   - COMMAND LINE ARGS:
-#       - arg pra forcar o UISystem selecionado
 #   - Pra trocar de um modo pra outro tem que recriar a janela:
 #       - tentar fechar/reabrir a janela não funciona direito, várias merdas na IMGUI em relação a isso...
 #       - no momento talvez melhor opção seria em standalone-mode, usar feature do pyinstaller pra reiniciar o app...
@@ -74,7 +72,7 @@ class SystemMonitorApp(windows.AppWindow):
     the mode (and window) programatically during the same LCARSMonitor session caused several issues... So for now this way it works.
     """
 
-    def __init__(self, force_edit_mode=None):
+    def __init__(self, force_edit_mode=None, forced_system_name: str = None):
         data = MonitorAppData.load()
         if force_edit_mode is not None:
             data.in_edit_mode = force_edit_mode
@@ -82,10 +80,22 @@ class SystemMonitorApp(windows.AppWindow):
         super().__init__(f"System Monitor {title_suffix}", windows.RunnableAppMode.DOCK)
         self.data = data
         self.do_restart = False
+        self._forced_system_name = forced_system_name
         from lcarsmonitor.system.system import UISystem, UIManager
         self.system_manager = UIManager()
         self.opened_systems: dict[str, UISystem] = {}
         self._reset_window_attrs()
+
+    @property
+    def selected_system(self) -> str:
+        """Name of the selected UISystem to display.
+
+        This is a read-only property that also considers if the Monitor was opened with a forced system name.
+        To get/set the actual persisted main system name, use `self.data.selected_system` instead.
+        """
+        if self._forced_system_name is not None:
+            return self._forced_system_name
+        return self.data.selected_system
 
     @property
     def _in_edit_mode(self):
@@ -118,11 +128,13 @@ class SystemMonitorApp(windows.AppWindow):
         if self._in_edit_mode:
             self.update_closed_systems()
         else:
-            system = self.opened_systems.get(self.data.selected_system)
+            system = self.opened_systems.get(self.selected_system)
             if system:
                 window_flags = imgui.WindowFlags_.no_scrollbar | imgui.WindowFlags_.no_scroll_with_mouse
                 with imgui_ctx.begin_child("SystemDisplay", window_flags=window_flags):
                     system.render()
+            elif self.selected_system is not None:
+                imgui.text_colored(Colors.red, f"Invalid UISystem name '{self.selected_system}'\nOpen monitor in EDIT mode to select a system.")
             else:
                 imgui.text_colored(Colors.red, "No UISystem selected.\nOpen monitor in EDIT mode to select a system.")
 
@@ -136,7 +148,7 @@ class SystemMonitorApp(windows.AppWindow):
         if self._in_edit_mode:
             self.add_child_window(MonitorMainWindow(self))
         else:
-            self.update_opened_system(self.data.selected_system)
+            self.update_opened_system(self.selected_system)
 
     def on_before_exit(self):
         for system in self.opened_systems.values():
