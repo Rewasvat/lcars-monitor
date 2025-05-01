@@ -118,6 +118,12 @@ class BaseWidget(Node):
         """If this widget is editable by the user during runtime. Depends on our UISystem having edit enabled."""
         self.interactive = True
         """If this widget's common user interaction (via ``self._handle_interaction()``) is enabled."""
+        self.is_clicked = False
+        """If this widget is currently clicked by the user. This is set by ``self._handle_interaction()``.
+        This is not the same as "pressed". While user is holding the button, this is True.
+        """
+        self.is_hovered = False
+        """If this widget is currently hovered by the user's mouse. This is set by ``self._handle_interaction()``."""
         self.edit_ignored_properties: set[str] = {"this"}
         """Set of imgui-property names that shall be ignored when rendering this widget's imgui-properties through the
         default ``self.render_edit_details()`` implementation."""
@@ -257,16 +263,20 @@ class BaseWidget(Node):
         Returns:
             bool: if the invisible button was clicked.
         """
+        self.is_hovered = False
+        self.is_clicked = False
         if not self.interactive:
             return False
         pos = imgui.get_cursor_pos()
         imgui.set_cursor_pos(ImVec2(0, 0))
         size = imgui.get_content_region_avail()
-        clicked = imgui.invisible_button(f"{self}Interaction", size)
+        is_pressed = imgui.invisible_button(f"{self}Interaction", size)
+        self.is_hovered = imgui.is_item_hovered()
+        self.is_clicked = self.is_hovered and imgui.is_mouse_down(imgui.MouseButton_.left)
         if self.system is not None and self.system.edit_enabled:
             self.open_edit_menu()
         imgui.set_cursor_pos(pos)
-        return clicked
+        return is_pressed
 
     def _set_pos_and_size(self, pos: Vector2 = None, size: Vector2 = None):
         """Updates the area and position vectors this widget internally stores, according to the parent slot this widget is being
