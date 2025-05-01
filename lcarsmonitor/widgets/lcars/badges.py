@@ -1,5 +1,6 @@
 import libasvat.imgui.type_editor as types
-from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
+from lcarsmonitor.widgets.lcars import LCARSWidget
+from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.label import TextObject, LCARSFont
 from lcarsmonitor.widgets.lcars.alerts import XAMLPath
 from libasvat.imgui.colors import Color, Colors
@@ -7,7 +8,7 @@ from libasvat.imgui.math import Vector2
 from imgui_bundle import imgui
 
 
-class SFCM(LeafWidget):
+class SFCM(LCARSWidget):
     """Purely visual STARFLEET COMMAND badge widget.
 
     The badge graphics itself has a fixed aspect-ratio to preserve its proportions, and will try to fit to the slot's area.

@@ -1,5 +1,6 @@
 import libasvat.imgui.type_editor as types
-from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
+from lcarsmonitor.widgets.lcars import LCARSWidget
+from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.progressbar import ChainedBarObject, BarType, RectCorners
 from lcarsmonitor.widgets.lcars.alerts import XAMLPath
 from libasvat.imgui.nodes import input_property
@@ -8,7 +9,7 @@ from libasvat.imgui.math import Vector2, Rectangle
 from imgui_bundle import imgui
 
 
-class WavesBar(LeafWidget):
+class WavesBar(LCARSWidget):
     """A LCARS "Waves" Bar widget.
 
     The Waves bar is a widget seen in Star Trek's LCARS screens, usually in Federation starships.

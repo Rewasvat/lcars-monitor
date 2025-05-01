@@ -1,5 +1,6 @@
 import libasvat.imgui.type_editor as types
-from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
+from lcarsmonitor.widgets.lcars import LCARSWidget
+from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.lcars.alerts import XAMLPath
 from libasvat.imgui.nodes import input_property
 from libasvat.imgui.colors import Color, Colors
@@ -7,7 +8,7 @@ from libasvat.imgui.math import Vector2, Rectangle
 from imgui_bundle import imgui
 
 
-class MainControls(LeafWidget):
+class MainControls(LCARSWidget):
     """A LCARS "Main Controls" widget.
 
     This is a collection of several buttons of different sizes disposed generally in an inner and outer

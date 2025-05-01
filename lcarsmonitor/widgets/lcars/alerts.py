@@ -1,6 +1,7 @@
 import re
 import libasvat.imgui.type_editor as types
-from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
+from lcarsmonitor.widgets.lcars import LCARSWidget
+from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.label import TextObject, LCARSFont, TextAlignment
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.nodes import input_property
@@ -15,7 +16,7 @@ class AlertType(Enum):
     YELLOW = "YELLOW"
 
 
-class Alert(LeafWidget):
+class Alert(LCARSWidget):
     """Purely visual animated LCARS Alert widget.
 
     The type of the alert (Red, Yellow, etc) is selectable via property, and will update the alert visual representation

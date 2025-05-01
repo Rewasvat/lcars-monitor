@@ -1,5 +1,7 @@
-from lcarsmonitor.widgets.lcars.alerts import Alert
-from lcarsmonitor.widgets.lcars.badges import SFCM
-from lcarsmonitor.widgets.lcars.reactor_bar import ReactorBar
-from lcarsmonitor.widgets.lcars.waves_bar import WavesBar
-from lcarsmonitor.widgets.lcars.main_controls import MainControls
+from lcarsmonitor.widgets.base import LeafWidget
+from libasvat.imgui.general import not_user_creatable
+
+
+@not_user_creatable
+class LCARSWidget(LeafWidget):
+    """Abstract base LeafWidget class for LCARS widgets."""

@@ -1,5 +1,6 @@
 import libasvat.imgui.type_editor as types
-from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
+from lcarsmonitor.widgets.lcars import LCARSWidget
+from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.progressbar import ChainedBarObject, BarType, RectCorners
 from lcarsmonitor.widgets.lcars.alerts import XAMLPath
 from libasvat.imgui.nodes import input_property
@@ -8,7 +9,7 @@ from libasvat.imgui.math import Vector2, Rectangle
 from imgui_bundle import imgui
 
 
-class ReactorBar(LeafWidget):
+class ReactorBar(LCARSWidget):
     """A LCARS Reactor Bar widget.
 
     Visually, this widget is the reactor display seen in Star Trek's LCARS screens, usually in
