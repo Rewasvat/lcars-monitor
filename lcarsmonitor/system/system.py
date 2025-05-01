@@ -1,3 +1,4 @@
+import re
 import lcarsmonitor.actions as actions
 import libasvat.command_utils as cmd_utils
 from imgui_bundle import imgui, imgui_node_editor  # type: ignore
@@ -215,7 +216,10 @@ class UISystem(NodeSystem):
         Returns:
             Action: the newly created instance of a action, if any. None otherwise.
         """
-        return object_creation_menu(actions.Action)
+        def name_getter(cls: type):
+            return re.sub(r"([a-z])([A-Z])", r"\1 \2", cls.__name__)
+
+        return object_creation_menu(actions.Action, name_getter)
 
     def render_create_sensor_menu(self) -> Sensor | None:
         """Renders the contents for a menu that allows the user to create a Sensor node.
