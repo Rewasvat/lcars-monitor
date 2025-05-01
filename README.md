@@ -35,4 +35,4 @@ This is included as a DLL in the LCARSMonitor package.
 > TODO
 
 ### Requirements to Run
-* Elevated Privileges: required to be able to properly read status from all hardware in your PC. The app should by default ask the user for it through UAC.
+* Elevated Privileges: required to be able to properly read status from all hardware sensors in your PC. The app should by default ask the user for it through UAC.
