@@ -2,7 +2,7 @@
 import click
 import libasvat.command_utils as cmd_utils
 import libasvat.utils as utils
-import lcarsmonitor.sensors as sensors
+from lcarsmonitor.sensors.sensors import ComputerSystem
 from lcarsmonitor.monitor import SystemMonitorApp
 from lcarsmonitor.widgets.label import setup_lcars_fonts
 
@@ -30,7 +30,7 @@ class LCARSMonitorCommands(cmd_utils.RootCommands):
     def open(self, test):
         """Opens the System Monitor GUI in DISPLAY mode."""
         if test:
-            sensors.ComputerSystem().open(True)
+            ComputerSystem().open(True)
         elif not utils.is_admin_user():
             click.secho("Can't run the System Monitor GUI without admin permissions!", fg="red")
             # return  # TODO: fix this
@@ -42,7 +42,7 @@ class LCARSMonitorCommands(cmd_utils.RootCommands):
     def edit(self, test):
         """Opens the System Monitor GUI in EDIT mode."""
         if test:
-            sensors.ComputerSystem().open(True)
+            ComputerSystem().open(True)
         elif not utils.is_admin_user():
             click.secho("Can't run the System Monitor GUI without admin permissions!", fg="red")
             # return

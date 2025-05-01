@@ -109,7 +109,7 @@ class SystemMonitorApp(windows.AppWindow):
     def render(self):
         if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.mod_shift | imgui.Key.q):
             self.close()
-        if imgui.is_key_down(imgui.Key.left_ctrl) and imgui.is_key_pressed(imgui.Key.end):
+        if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.end):
             self.change_mode()
 
         delta_t = imgui.get_io().delta_time

@@ -17,6 +17,3 @@ from lcarsmonitor.widgets.label import Label
 from lcarsmonitor.widgets.corner import Corner
 from lcarsmonitor.widgets.button import Button
 from lcarsmonitor.widgets.progressbar import ProgressBar
-
-# LCARS
-import lcarsmonitor.widgets.lcars

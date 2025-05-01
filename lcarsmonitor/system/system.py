@@ -108,10 +108,6 @@ class SystemRootNode(Node):
 # TODO: widget novo: polygon. Tipo o XAMLPath. User pode configurar vários shapes em runtime.
 #   - pra cada shape, user vai configurando segmentos, fill color, stroke color, stroke thickness, etc.
 #   - poder setar o aspect-ratio: se tamanho é relativo à widget area, ou relativo a um ratio fixo
-# TODO: Refatorar o NodeEditor pra ser um "System" básico, e esse UISystem iria herdar dele. Consequentemente tb refatorar o SystemConfig.
-#   isso permitiria que o sistema básico de nodes fosse mais genérico e fácil de usar em outros projetos. Atualmente não tem nada no sistema básico
-#   que permite cuidar/guardar/instanciar vários nodes de uma vez pq é o UISystem aqui que faz essa função, mas é algo importante pra um sistema de
-#   nodes funcionar, e o NodeEditor tá bem perto disso que poderia ser a classe base de um system.
 class UISystem(NodeSystem):
     """Represents a complete user-configurable UI and logic system.
 
