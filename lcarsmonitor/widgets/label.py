@@ -10,18 +10,31 @@ from imgui_bundle import imgui
 from enum import Enum
 
 
-# TODO: verificar mas provavelmente vai precisar arrumar o TypeEditor de Enum relacionado a isso pra
-#   mostrar o NAME (LCARS) da enum em vez do VALUE (path da fonte/ID)
-class LCARSFont(FontID, Enum):
+class LCARSFont(Enum):
     """Available LCARS fonts to use with FontDatabase and the Widgets system."""
-    LCARS = "LCARS/Antonio-Regular"
-    LCARS_WIDE = "LCARS/Federation_Wide"
-    LCARS_BOLD = "LCARS/Antonio-Bold"
-    LCARS_SEMI_BOLD = "LCARS/Antonio-SemiBold"
-    LCARS_MEDIUM = "LCARS/Antonio-Medium"
-    LCARS_LIGHT = "LCARS/Antonio-Light"
-    LCARS_EXTRA_LIGHT = "LCARS/Antonio-ExtraLight"
-    LCARS_THIN = "LCARS/Antonio-Thin"
+    LCARS = "LCARS"
+    LCARS_WIDE = "LCARS_WIDE"
+    LCARS_BOLD = "LCARS_BOLD"
+    LCARS_SEMI_BOLD = "LCARS_SEMI_BOLD"
+    LCARS_MEDIUM = "LCARS_MEDIUM"
+    LCARS_LIGHT = "LCARS_LIGHT"
+    LCARS_EXTRA_LIGHT = "LCARS_EXTRA_LIGHT"
+    LCARS_THIN = "LCARS_THIN"
+
+    @property
+    def font_path(self):
+        """Gets the path to the font file for this LCARS Font."""
+        mapping = {
+            self.LCARS: "LCARS/Antonio-Regular",
+            self.LCARS_WIDE: "LCARS/Federation_Wide",
+            self.LCARS_BOLD: "LCARS/Antonio-Bold",
+            self.LCARS_SEMI_BOLD: "LCARS/Antonio-SemiBold",
+            self.LCARS_MEDIUM: "LCARS/Antonio-Medium",
+            self.LCARS_LIGHT: "LCARS/Antonio-Light",
+            self.LCARS_EXTRA_LIGHT: "LCARS/Antonio-ExtraLight",
+            self.LCARS_THIN: "LCARS/Antonio-Thin",
+        }
+        return mapping.get(self, self.value)
 
     def get_pos_fix_multiplier(self):
         """Gets the pos-fix multiplier for this kind of LCARS Font.
@@ -43,13 +56,16 @@ class LCARSFont(FontID, Enum):
         }
         return multipliers.get(self, default_multiplier)
 
+    def __str__(self):
+        return self.value
+
 
 def setup_lcars_fonts():
     """Sets up the LCARS Fonts with the FontDatabase. This should be called on App Initialization."""
     font_db = FontDatabase()
     for lcarsfont in LCARSFont:
-        font_id = lcarsfont.value
-        alias = lcarsfont.name
+        font_id = lcarsfont.font_path
+        alias = lcarsfont.value
         # Setup font alias
         font_db.set_font_alias(font_id, alias)
         # Setup font pos/size fix
