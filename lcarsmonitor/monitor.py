@@ -21,6 +21,8 @@ class MonitorAppData:
         """Name of the selected UISystem to display."""
         self.in_edit_mode: bool = True
         """If the Monitor is in Edit mode or in Display mode."""
+        self.use_borderless_display: bool = False
+        """If the DISPLAY mode window should be borderless."""
 
     def save(self):
         """Saves the MonitorAppData to LCARSMonitor's DataCache for persistence."""
@@ -113,7 +115,7 @@ class SystemMonitorApp(windows.AppWindow):
         self.show_menu_bar = self._in_edit_mode
         self.show_status_bar = self._in_edit_mode
         self.enable_viewports = self._in_edit_mode
-        self.use_borderless = not self._in_edit_mode
+        self.use_borderless = (not self._in_edit_mode) and (self.data.use_borderless_display)
         self.debug_menu_enabled = True
 
     def render(self):
