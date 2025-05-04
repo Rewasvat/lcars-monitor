@@ -2,13 +2,20 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "LCARSMonitor EDIT",
+            "label": "LCARSMonitor RUN",
             "type": "shell",
-            "command": "lcarsmonitor edit",
+            "command": "lcarsmonitor run",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "LCARSMonitor EDIT",
+            "type": "shell",
+            "command": "lcarsmonitor edit",
+            "group": "build",
             "problemMatcher": []
         },
         {
