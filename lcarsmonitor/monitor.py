@@ -50,11 +50,6 @@ class MonitorAppData:
 #       - poder configurar settings:
 #           - se DISPLAY mode vai ser borderless-window ou não
 #           - se DISPLAY mode vai ser fullscreen ou não
-#   - Pra trocar de um modo pra outro tem que recriar a janela:
-#       - tentar fechar/reabrir a janela não funciona direito, várias merdas na IMGUI em relação a isso...
-#       - no momento talvez melhor opção seria em standalone-mode, usar feature do pyinstaller pra reiniciar o app...
-#       - fora do standalone... se vira hahaha
-#           - Ver se é possivel fechar o python (exit no script) mas antes mandar rodar outro com os.system ou algo assim?
 class SystemMonitorApp(windows.AppWindow):
     """System Monitor App.
 
@@ -169,8 +164,13 @@ class SystemMonitorApp(windows.AppWindow):
         super().on_before_exit()
 
     def change_mode(self):
-        """TODO"""
-        # TODO: no standalone mode isso talvez funcione com feature de "reiniciar" app do pyinstaller
+        """Changes the GUI mode of the Monitor App between EDIT and DISPLAY.
+
+        This updates the wanted mode and closes the app, which will save all opened systems and configs, and persist
+        all data to disk. Then, the app will be restarted in the newly selected mode.
+
+        Restarting the app is required since DISPLAY and EDIT modes are essentially different main app-windows.
+        """
         self._in_edit_mode = not self._in_edit_mode
         self.do_restart = True
         self.close()
