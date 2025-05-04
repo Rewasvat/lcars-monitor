@@ -126,17 +126,25 @@ class SystemMonitorApp(windows.AppWindow):
         sensors.ComputerSystem().timed_update(delta_t)
 
         if self._in_edit_mode:
-            self.update_closed_systems()
+            self._render_edit_mode()
         else:
-            system = self.opened_systems.get(self.selected_system)
-            if system:
-                window_flags = imgui.WindowFlags_.no_scrollbar | imgui.WindowFlags_.no_scroll_with_mouse
-                with imgui_ctx.begin_child("SystemDisplay", window_flags=window_flags):
-                    system.render()
-            elif self.selected_system is not None:
-                imgui.text_colored(Colors.red, f"Invalid UISystem name '{self.selected_system}'\nOpen monitor in EDIT mode to select a system.")
-            else:
-                imgui.text_colored(Colors.red, "No UISystem selected.\nOpen monitor in EDIT mode to select a system.")
+            self._render_display_mode()
+
+    def _render_edit_mode(self):
+        """Renders contents of this window when in EDIT mode."""
+        self.update_closed_systems()
+
+    def _render_display_mode(self):
+        """Renders contents of this window when in DISPLAY mode."""
+        system = self.opened_systems.get(self.selected_system)
+        if system:
+            window_flags = imgui.WindowFlags_.no_scrollbar | imgui.WindowFlags_.no_scroll_with_mouse
+            with imgui_ctx.begin_child("SystemDisplay", window_flags=window_flags):
+                system.render()
+        elif self.selected_system is not None:
+            imgui.text_colored(Colors.red, f"Invalid UISystem name '{self.selected_system}'\nOpen monitor in EDIT mode to select a system.")
+        else:
+            imgui.text_colored(Colors.red, "No UISystem selected.\nOpen monitor in EDIT mode to select a system.")
 
     def on_init(self):
         super().on_init()
