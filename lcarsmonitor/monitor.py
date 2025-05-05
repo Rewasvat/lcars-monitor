@@ -162,23 +162,16 @@ class SystemMonitorApp(windows.AppWindow):
             return self._forced_system_name
         return self.data.selected_system
 
-    @property
-    def _in_edit_mode(self):
-        """If the Monitor app is in Edit mode (or in Display mode)."""
-        return self.data.in_edit_mode
-
-    @_in_edit_mode.setter
-    def _in_edit_mode(self, value: bool):
-        self.data.in_edit_mode = value
-
     def _reset_window_attrs(self):
         """Sets Basic/AppWindow attributes we inherit."""
-        self.mode = windows.RunnableAppMode.DOCK if self._in_edit_mode else windows.RunnableAppMode.SIMPLE
-        self.show_app_menu = self._in_edit_mode
-        self.show_menu_bar = self._in_edit_mode
-        self.show_status_bar = self._in_edit_mode
-        self.enable_viewports = self._in_edit_mode
-        self.use_borderless = (not self._in_edit_mode) and (self.data.use_borderless_display)
+        in_edit_mode = self.data.in_edit_mode
+        self.mode = windows.RunnableAppMode.DOCK if in_edit_mode else windows.RunnableAppMode.SIMPLE
+        self.idle_fps = self.data.idle_fps
+        self.show_app_menu = in_edit_mode
+        self.show_menu_bar = in_edit_mode
+        self.show_status_bar = in_edit_mode
+        self.enable_viewports = in_edit_mode
+        self.use_borderless = (not in_edit_mode) and (self.data.use_borderless_display)
         self.debug_menu_enabled = True
 
     def render(self):
@@ -190,7 +183,7 @@ class SystemMonitorApp(windows.AppWindow):
         delta_t = imgui.get_io().delta_time
         sensors.ComputerSystem().timed_update(delta_t)
 
-        if self._in_edit_mode:
+        if self.data.in_edit_mode:
             self._render_edit_mode()
         else:
             self._render_display_mode()
@@ -218,7 +211,7 @@ class SystemMonitorApp(windows.AppWindow):
         computer.update_time = self.data.update_time
         self.children.clear()
         self.update_closed_systems()
-        if self._in_edit_mode:
+        if self.data.in_edit_mode:
             self.add_child_window(MonitorMainWindow(self))
         else:
             self.update_opened_system(self.selected_system)
@@ -232,14 +225,14 @@ class SystemMonitorApp(windows.AppWindow):
         super().on_before_exit()
 
     def change_mode(self):
-        """Changes the GUI mode of the Monitor App between EDIT and DISPLAY.
+        """Changes the GUI mode of the Monitor App between EDIT and DISPLAY (Key shortcut: CTRL+END).
 
         This updates the wanted mode and closes the app, which will save all opened systems and configs, and persist
         all data to disk. Then, the app will be restarted in the newly selected mode.
 
         Restarting the app is required since DISPLAY and EDIT modes are essentially different main app-windows.
         """
-        self._in_edit_mode = not self._in_edit_mode
+        self.data.in_edit_mode = not self.data.in_edit_mode
         self.do_restart = True
         self.close()
 

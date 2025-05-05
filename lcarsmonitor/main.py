@@ -74,7 +74,7 @@ class LCARSMonitorCommands(cmd_utils.RootCommands):
         app = SystemMonitorApp(force_edit_mode, force_system_name)
         app.run()
         if app.do_restart:
-            mode_name = "EDIT" if app._in_edit_mode else "DISPLAY"
+            mode_name = "EDIT" if app.data.in_edit_mode else "DISPLAY"
             click.secho(f"Restarting the Monitor in {mode_name} mode...", fg="yellow")
             if utils.is_frozen():
                 utils.try_app_restart()
