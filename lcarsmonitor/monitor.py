@@ -108,16 +108,6 @@ class MonitorAppData:
         return obj
 
 
-# TODO: refatorar MonitorApp pra ter 2 modos de display: EDIT e DISPLAY (names pending)
-#   * DISPLAY:
-#       - right-click menu:
-#           - QUIT
-#           - trocar pro EDIT (se for possível) (atalho de teclado pra isso)
-#           - opções pra mudar os settings (como no edit)? essas talvez tenham que reiniciar o app (reabrir a janela)...
-#   * EDIT:
-#       - poder configurar settings:
-#           - se DISPLAY mode vai ser borderless-window ou não
-#           - se DISPLAY mode vai ser fullscreen ou não
 class SystemMonitorApp(windows.AppWindow):
     """System Monitor App.
 
