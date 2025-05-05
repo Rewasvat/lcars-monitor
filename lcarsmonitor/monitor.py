@@ -207,6 +207,13 @@ class SystemMonitorApp(windows.AppWindow):
         else:
             imgui.text_colored(Colors.red, "No UISystem selected.\nOpen monitor in EDIT mode to select a system.")
 
+    def draw_settings(self):
+        """Draws the settings menu for the Monitor App."""
+        changed = types.render_all_properties(self.data)
+        if changed:
+            if self.idle_fps != self.data.idle_fps:
+                self.idle_fps = self.data.idle_fps
+
     def on_init(self):
         super().on_init()
         computer = sensors.ComputerSystem()
@@ -389,6 +396,13 @@ class MonitorMainWindow(windows.BasicWindow):
         if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.q):
             self.parent.close()
 
+        imgui_utils.simple_table("MonitorEditModeMain", {
+            "UISystems": self._draw_systems_column,
+            "Settings": self._draw_settings_column,
+        })
+
+    def _draw_systems_column(self, col_name):
+        """Draws the UISystems column in the EDIT mode window."""
         new_system_name = self.new_system_popup.render()
         if new_system_name is not None:
             self.parent.create_new_system(new_system_name)
@@ -457,6 +471,10 @@ class MonitorMainWindow(windows.BasicWindow):
                 imgui.pop_id()
 
             imgui.end_table()
+
+    def _draw_settings_column(self, col_name):
+        """Draws the settings column in the EDIT mode window."""
+        self.parent.draw_settings()
 
     def validate_new_system_name(self, value: str) -> tuple[bool, str]:
         """Checks if the given value is valid for a new system name.
