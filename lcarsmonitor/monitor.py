@@ -202,6 +202,7 @@ class SystemMonitorApp(windows.AppWindow):
             window_flags = imgui.WindowFlags_.no_scrollbar | imgui.WindowFlags_.no_scroll_with_mouse
             with imgui_ctx.begin_child("SystemDisplay", window_flags=window_flags):
                 system.render()
+                self._render_display_mode_context_menu()
         elif self.selected_system is not None:
             imgui.text_colored(Colors.red, f"Invalid UISystem name '{self.selected_system}'\nOpen monitor in EDIT mode to select a system.")
         else:
@@ -213,6 +214,34 @@ class SystemMonitorApp(windows.AppWindow):
         if changed:
             if self.idle_fps != self.data.idle_fps:
                 self.idle_fps = self.data.idle_fps
+
+    def _render_display_mode_context_menu(self):
+        menu_title = "MonitorDisplayModeMenu"
+        if imgui.is_mouse_released(imgui.MouseButton_.right):
+            imgui.open_popup(menu_title, imgui.PopupFlags_.mouse_button_right)
+
+        opened = imgui.begin_popup(menu_title)
+        if opened:
+            imgui.text("Settings:")
+            self.draw_settings()
+            imgui.separator()
+            if imgui.menu_item_simple("Change to EDIT Mode"):
+                self.change_mode()
+            imgui.set_item_tooltip(self.change_mode.__doc__)
+            imgui.separator()
+            imgui.text("Selected UISystem:")
+            select_help = "Select the UISystem to display.\nThis changes the selected 'main' system as well."
+            system_names = self.system_manager.get_all_config_names()
+            changed, selected_name = imgui_utils.drop_down(self.data.selected_system, system_names, default_doc=select_help)
+            if changed:
+                self.data.selected_system = selected_name
+                self.update_closed_systems()
+                self.update_opened_system(self.selected_system)
+                imgui.close_current_popup()
+            imgui.separator()
+            if imgui.menu_item_simple("Quit"):
+                self.close()
+            imgui.end_popup()
 
     def on_init(self):
         super().on_init()
