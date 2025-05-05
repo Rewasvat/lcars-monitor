@@ -357,6 +357,12 @@ class SystemMonitorApp(windows.AppWindow):
                     system.save_config()
                     system.clear()
 
+    def render_app_menu_items(self):
+        if imgui.menu_item_simple("Change to DISPLAY Mode"):
+            self.change_mode()
+        imgui.set_item_tooltip(self.change_mode.__doc__)
+        return super().render_app_menu_items()
+
 
 class MonitorMainWindow(windows.BasicWindow):
     """Main sub-window of `MonitorApp`.
