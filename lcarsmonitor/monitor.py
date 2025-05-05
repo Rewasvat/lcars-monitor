@@ -175,7 +175,10 @@ class SystemMonitorApp(windows.AppWindow):
         self.debug_menu_enabled = True
 
     def render(self):
-        if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.mod_shift | imgui.Key.q):
+        close_shortcut = imgui.Key.mod_ctrl | imgui.Key.q
+        if self.data.in_edit_mode:
+            close_shortcut = close_shortcut | imgui.Key.mod_shift
+        if imgui.is_key_chord_pressed(close_shortcut):
             self.close()
         if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.end):
             self.change_mode()
