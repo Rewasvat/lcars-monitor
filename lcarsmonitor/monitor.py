@@ -1,10 +1,10 @@
-import math
 import click
 import lcarsmonitor.sensors.sensors as sensors
 import libasvat.command_utils as cmd_utils
 import libasvat.utils as utils
 import libasvat.imgui.windows as windows
 import libasvat.imgui.general as imgui_utils
+import libasvat.imgui.type_editor as types
 from libasvat.imgui.popups import button_with_confirmation, TextInputPopup
 from libasvat.imgui.colors import Colors
 from libasvat.data import DataCache
@@ -15,14 +15,82 @@ class MonitorAppData:
     """Struct containing data and other user settings for the Monitor App window."""
 
     def __init__(self):
-        self.update_time: float = 1.0
-        """Amount of time (in secs) to update sensors."""
-        self.selected_system: str = None
-        """Name of the selected UISystem to display."""
         self.in_edit_mode: bool = True
         """If the Monitor is in Edit mode or in Display mode."""
-        self.use_borderless_display: bool = False
-        """If the DISPLAY mode window should be borderless."""
+        self.selected_system: str = None
+        """Name of the selected UISystem to display."""
+        self._update_time: float = 1.0
+        self._use_borderless_display: bool = False
+        self._idle_fps: int = 1
+
+    @property
+    def update_time(self) -> float:
+        """Time between sensor updates (in seconds).
+
+        Every this amount of time, the sensors will be polled for new data, updating their values.
+
+        Lower values will make the sensors update more often, but will also increase CPU usage.
+        Default is 1 second.
+        """
+        return self._update_time
+
+    @update_time.setter
+    def update_time(self, value: float):
+        self._update_time = value
+        computer = sensors.ComputerSystem()
+        computer.update_time = self._update_time
+
+    @types.int_property(min=1, max=60, is_slider=True)
+    def sensor_polling_rate(self) -> int:
+        """Number of times per second the sensors will be polled for new data, updating their values.
+
+        Higher values will make the sensors update more often, but will also increase CPU usage.
+        Default is 1 update per second.
+        """
+        return 1.0 / self.update_time
+
+    @sensor_polling_rate.setter
+    def sensor_polling_rate(self, value: int):
+        self.update_time = 1.0 / max(1, value)
+
+    @types.bool_property()
+    def use_borderless_display(self) -> bool:
+        """If the DISPLAY mode window should be borderless.
+
+        Borderless windows have larger areas since they have no borders or title bars, but can still be moved aroundm resized and closed as usual.
+
+        The window has a "dummy" title bar that appears when the mouse hovers over the top-region of the window. Clicking and dragging it allows
+        moving the window, and clicking the "X" button closes it. When the lower-right corner is hovered, a "resize" widget appears, allowing
+        clicking&dragging to resize the window.
+
+        The downside is that the window can't be maximized as usual, and its selected size/position in your desktop isn't always properly saved
+        at the moment.
+        """
+        return self._use_borderless_display
+
+    @use_borderless_display.setter
+    def use_borderless_display(self, value: bool):
+        self._use_borderless_display = value
+
+    @types.int_property(min=1, max=30, is_slider=True)
+    def idle_fps(self) -> int:
+        """FPS at which the window will run when the app is idle.
+
+        The app is considered idle when no user interaction is detected for a few seconds.
+        When idling the FPS is capped to this value, which will reduce the CPU usage of the app.
+
+        If any user interaction is detected, the FPS cap will be removed and the app will run at the
+        maximum FPS possible, until it idles again.
+
+        Note that this is just the "target" FPS cap. The actual FPS when idling may be lower depending on the system performance.
+
+        FPS Idling can be toggled on/off in the app's menu or status bar when in EDIT mode.
+        """
+        return self._idle_fps
+
+    @idle_fps.setter
+    def idle_fps(self, value: int):
+        self._idle_fps = value
 
     def save(self):
         """Saves the MonitorAppData to LCARSMonitor's DataCache for persistence."""
