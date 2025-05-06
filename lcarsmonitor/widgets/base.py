@@ -477,6 +477,8 @@ class Slot(NodePin):
         ok, why_not = super().can_link_to(pin)
         if not ok:
             return ok, why_not
+        if not isinstance(pin, WidgetParentPin):
+            return False, "Can only link to a Widget's Parent pin."
         widget = pin.parent_node  # remember, nodes are widgets
         if not self.accepts_widget(widget):
             return False, f"{self.parent_node}'s {self} can't accept widget '{widget}' (a {type(widget)}) as child."
