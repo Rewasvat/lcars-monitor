@@ -1,6 +1,7 @@
 import libasvat.imgui.type_editor as types
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
-from libasvat.imgui.colors import Colors, Color
+from lcarsmonitor.widgets.style import VisualStyle
+from libasvat.imgui.colors import Colors
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.nodes import input_property
 from imgui_bundle import imgui
@@ -15,7 +16,6 @@ class CornerType(Enum):
     BOTTOM_LEFT = "BOTTOM_LEFT"
 
 
-# TODO: talvez trocar pra usar imgui style var/colors pra definir curvatura e cor?
 class Corner(LeafWidget):
     """Colored "corner" UI widget.
 
@@ -78,9 +78,9 @@ class Corner(LeafWidget):
         self._use_absolute_values = value
 
     @input_property()
-    def color(self) -> Color:
-        """The color of the corner [GET/SET]"""
-        return Colors.white
+    def style(self) -> VisualStyle:
+        """Visual style of this rect. [GET/SET]"""
+        return VisualStyle()
 
     @property
     def size(self):
@@ -194,7 +194,7 @@ class Corner(LeafWidget):
             small_start = pos + (size.x, 0)
             small_end = pos + (self.area.size.x, rest.y)
 
-        draw.add_rect_filled(pos, pos + self.area.size, self.color.u32, big, flags)
+        draw.add_rect_filled(pos, pos + self.area.size, self.style.normal_color.u32, big, flags)
         draw.add_rect_filled(small_start, small_end, Colors.background.u32, small, flags)
 
     @classmethod
