@@ -2,9 +2,10 @@ import libasvat.imgui.type_editor as types
 from lcarsmonitor.widgets.base import ContainerWidget, Slot
 from lcarsmonitor.widgets.corner import Corner, CornerType
 from lcarsmonitor.widgets.rect import Rect
+from lcarsmonitor.widgets.style import VisualStyle
 from libasvat.imgui.math import Vector2
-from libasvat.imgui.colors import Color
 from libasvat.imgui.general import menu_item
+from libasvat.imgui.nodes import input_property
 from imgui_bundle import imgui
 from enum import Flag, auto
 
@@ -41,7 +42,6 @@ class Panel(ContainerWidget):
         self._border_height_ratio = 0.1
         self._corner_inner_radius_ratio = 0.15  # based on width
         self._use_absolute_values = False
-        self._color_border_childs = True
 
         self._fixed_slots = [Slot(self, name) for name in base_names]
         self.corners = [
@@ -133,29 +133,10 @@ class Panel(ContainerWidget):
     def use_absolute_values(self, value: bool):
         self._use_absolute_values = value
 
-    @types.bool_property()
-    def color_border_childs(self) -> bool:
-        """If True, when updating our ``border_color`` property, it'll also set the ``color`` property of any child in the borders."""
-        return self._color_border_childs
-
-    @color_border_childs.setter
-    def color_border_childs(self, value: bool):
-        self._color_border_childs = value
-
-    @types.color_property()
-    def border_color(self):
+    @input_property()
+    def border_style(self) -> VisualStyle:
         """The color of the borders and corners. [GET/SET]"""
-        return self.corners[0].color
-
-    @border_color.setter
-    def border_color(self, value: Color):
-        for corner in self.corners:
-            corner.color = value
-        for border in self.borders.values():
-            border.area_outline_color = value
-            if self._color_border_childs and border.child:
-                if hasattr(border.child, "color"):
-                    setattr(border.child, "color", value)
+        return VisualStyle()
 
     @types.bool_property()
     def outline_borders(self) -> bool:
@@ -246,6 +227,7 @@ class Panel(ContainerWidget):
         corner.slot.enabled = True
         corner.slot.area.position = pos
         corner.slot.area.size = size
+        corner.style = self.border_style
 
     def _update_border(self, border: Slot, side: PanelBorders):
         """Updates our given border slot as being at the given SIDE."""
@@ -284,16 +266,18 @@ class Panel(ContainerWidget):
         actual_border_size = p2 - p1
         border.area.position = p1
         border.area.size = actual_border_size
+        border.area_outline_color = self.border_style.normal_color
 
     def fill_borders_with_rects(self):
         """Fills our borders with rects, by adding a new Rect widget to any empty slot in our borders.
 
-        These rects will have our border color.
+        These rects will have our border style.
         """
         for side, border in self.borders.items():
             if border.child is None:
                 r = Rect()
-                r.color = self.border_color
+                self.system.add_node(r)
+                r.style = self.border_style
                 r.name = f"{self.id}-{side.name.capitalize()}Rect"
                 border.child = r
 
