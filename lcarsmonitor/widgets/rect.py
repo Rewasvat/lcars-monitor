@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from libasvat.imgui.math import Rectangle
 from libasvat.imgui.colors import Color
 from libasvat.imgui.nodes import input_property
@@ -39,7 +39,7 @@ class RectMixin:
         self._rounding: float = 0.0
         self._corners: RectCorners = RectCorners.NONE
 
-    @types.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def rounding(self):
         """Corner rounding value, used when any corner is rounded.
 
@@ -52,7 +52,7 @@ class RectMixin:
     def rounding(self, value: float):
         self._rounding = value
 
-    @types.enum_property()
+    @primitives.enum_property()
     def corners(self) -> RectCorners:
         """Which corners to round on this rect. [GET/SET]"""
         return self._corners

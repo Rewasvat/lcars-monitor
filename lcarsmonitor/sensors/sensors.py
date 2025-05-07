@@ -2,17 +2,17 @@ import math
 import click
 import itertools
 import libasvat.command_utils as cmd_utils
-import libasvat.imgui.type_editor as types
 from enum import Enum
 from dataclasses import dataclass
 from typing import Iterator, TYPE_CHECKING
 from imgui_bundle import imgui
-from libasvat.data import DataCache
 from lcarsmonitor.sensors.native_api import SensorType, ISensor, Computer
 from lcarsmonitor.sensors.test_sensor import TestIHardware, TestIComputer
+from libasvat.data import DataCache
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.general import drop_down
+from libasvat.imgui.editors import TypeDatabase, TypeEditor
 
 
 if TYPE_CHECKING:
@@ -447,8 +447,8 @@ class SensorID(str):
     """
 
 
-@types.TypeDatabase.register_editor_for_type(SensorID)
-class InternalSensorEditor(types.TypeEditor):
+@TypeDatabase.register_editor_for_type(SensorID)
+class InternalSensorEditor(TypeEditor):
     """Imgui TypeEditor for selecting a SensorID value."""
 
     def __init__(self, config: dict):

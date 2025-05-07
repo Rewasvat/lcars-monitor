@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.base import ContainerWidget, Slot
 from lcarsmonitor.widgets.corner import Corner, CornerType
 from lcarsmonitor.widgets.rect import Rect
@@ -72,7 +72,7 @@ class Panel(ContainerWidget):
             self._slots.append(border)
 
     # Editable Properties
-    @types.enum_property()
+    @primitives.enum_property()
     def borders_type(self) -> PanelBorders:
         """Which borders to enable on this panel. [GET/SET]"""
         return self._borders_type
@@ -81,7 +81,7 @@ class Panel(ContainerWidget):
     def borders_type(self, value: PanelBorders):
         self._borders_type = value
 
-    @types.float_property()
+    @primitives.float_property()
     def out_margin(self) -> float:
         """The margin of the borders/corners to the edges of our slot's available area."""
         return self._out_margin
@@ -90,7 +90,7 @@ class Panel(ContainerWidget):
     def out_margin(self, value: float):
         self._out_margin = value
 
-    @types.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def border_width_ratio(self):
         """The ratio of our available horizontal space that is used as the width for each of the LEFT/RIGHT borders. [GET/SET]
 
@@ -103,7 +103,7 @@ class Panel(ContainerWidget):
     def border_width_ratio(self, value: float):
         self._border_width_ratio = value
 
-    @types.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def border_height_ratio(self):
         """The ratio of our available vertical space that is used as the height for each of the TOP/BOTTOM borders. [GET/SET]
 
@@ -116,7 +116,7 @@ class Panel(ContainerWidget):
     def border_height_ratio(self, value: float):
         self._border_height_ratio = value
 
-    @types.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def corner_inner_radius_ratio(self) -> float:
         return self._corner_inner_radius_ratio
 
@@ -124,7 +124,7 @@ class Panel(ContainerWidget):
     def corner_inner_radius_ratio(self, value: float):
         self._corner_inner_radius_ratio = value
 
-    @types.bool_property()
+    @primitives.bool_property()
     def use_absolute_values(self):
         """If our border width/height ratios are absolute values instead of ratios to our area size. [GET/SET]"""
         return self._use_absolute_values
@@ -138,7 +138,7 @@ class Panel(ContainerWidget):
         """The color of the borders and corners. [GET/SET]"""
         return VisualStyle()
 
-    @types.bool_property()
+    @primitives.bool_property()
     def outline_borders(self) -> bool:
         """If a thin outline will be rendered, showing the area of the borders. [GET/SET]"""
         return self.borders[PanelBorders.TOP].draw_area_outline
@@ -305,7 +305,7 @@ class Panel(ContainerWidget):
         imgui.set_item_tooltip(self.fill_borders_with_rects.__doc__)
 
     # Dynamic Editor Updaters
-    def _update_border_width_ratio_editor(self, editor: types.FloatEditor):
+    def _update_border_width_ratio_editor(self, editor: primitives.FloatEditor):
         """Method automatically called by our ``border_width_ratio`` float-property editor in order to dynamically
         update its settings before editing."""
         if self._use_absolute_values:
@@ -313,7 +313,7 @@ class Panel(ContainerWidget):
         else:
             editor.max = 1.0
 
-    def _update_border_height_ratio_editor(self, editor: types.FloatEditor):
+    def _update_border_height_ratio_editor(self, editor: primitives.FloatEditor):
         """Method automatically called by our ``border_height_ratio`` float-property editor in order to dynamically
         update its settings before editing."""
         if self._use_absolute_values:
@@ -321,7 +321,7 @@ class Panel(ContainerWidget):
         else:
             editor.max = 1.0
 
-    def _update_corner_inner_radius_ratio_editor(self, editor: types.FloatEditor):
+    def _update_corner_inner_radius_ratio_editor(self, editor: primitives.FloatEditor):
         """Method automatically called by our ``corner_inner_radius_ratio`` float-property editor in order to dynamically
         update its settings before editing."""
         if self._use_absolute_values:

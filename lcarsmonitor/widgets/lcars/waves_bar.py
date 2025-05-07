@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.lcars import LCARSWidget
 from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.progressbar import ChainedBarObject, BarType, RectCorners
@@ -178,7 +178,7 @@ class WavesBar(LCARSWidget):
         """The color of the top bar fill. [GET/SET]"""
         return Color.from_hex("FFADD8E6", use_argb=True)
 
-    @types.bool_property()
+    @primitives.bool_property()
     def is_vertical(self):
         """Is this waves bar is oriented vertically or not (thus, horizontally).
 
@@ -192,7 +192,7 @@ class WavesBar(LCARSWidget):
         self._is_vertical = value
         self._build()
 
-    @types.bool_property()
+    @primitives.bool_property()
     def is_inverted(self):
         """Is this waves bar is filled inverted or not.
 

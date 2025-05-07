@@ -1,4 +1,3 @@
-import libasvat.imgui.type_editor as types
 from lcarsmonitor.widgets.lcars import LCARSWidget
 from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.lcars.alerts import XAMLPath

@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.base import BaseWidget, LeafWidget, ContainerWidget, Slot
 from libasvat.imgui.math import Vector2
 from imgui_bundle import imgui
@@ -14,7 +14,7 @@ class AxisListSlot(Slot):
         super().__init__(parent, name)
         self._slice = 1.0
 
-    @types.float_property(min=1, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(min=1, flags=imgui.SliderFlags_.always_clamp)
     def slice(self) -> float:
         """The 'slice' of this slot. [GET/SET]
 
@@ -53,7 +53,7 @@ class AxisList(ContainerWidget):
         self._margin: float = 0.0
         self._only_accept_leafs = False
 
-    @types.bool_property()
+    @primitives.bool_property()
     def only_accept_leafs(self) -> bool:
         """If this List only accepts LeafWidgets as children, otherwise accept any BaseWidget. Default is false. [GET/SET]"""
         return self._only_accept_leafs
@@ -67,7 +67,7 @@ class AxisList(ContainerWidget):
             else:
                 slot.accepted_child_types = [BaseWidget]
 
-    @types.float_property()
+    @primitives.float_property()
     def margin(self) -> float:
         """The space between each children, and between the children and our borders. Default is 0. [GET/SET]"""
         return self._margin
@@ -76,7 +76,7 @@ class AxisList(ContainerWidget):
     def margin(self, value: float):
         self._margin = value
 
-    @types.bool_property()
+    @primitives.bool_property()
     def is_horizontal(self) -> bool:
         """If this list orders its children horizontally. If not, it'll order them vertically. Default is vertical. [GET/SET]"""
         return self._is_horizontal

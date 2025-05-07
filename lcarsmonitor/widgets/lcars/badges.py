@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.lcars import LCARSWidget
 from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.label import TextObject, LCARSFont
@@ -28,7 +28,7 @@ class SFCM(LCARSWidget):
         self._black = Color.from_hex("ff221e1f", use_argb=True)
         self._build()
 
-    @types.float_property()
+    @primitives.float_property()
     def out_margin(self) -> float:
         """The margin of the borders/corners to the edges of our slot's available area."""
         return self._out_margin

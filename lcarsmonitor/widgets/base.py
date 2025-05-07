@@ -5,7 +5,9 @@ from libasvat.imgui.math import Vector2, Rectangle
 from libasvat.imgui.colors import Colors, Color
 from libasvat.imgui.general import not_user_creatable, menu_item
 from libasvat.imgui.nodes import Node, NodePin, NodeLink, PinKind, output_property
-import libasvat.imgui.type_editor as types
+from libasvat.imgui.editors.database import TypeDatabase
+from libasvat.imgui.editors.controller import render_all_properties
+import libasvat.imgui.editors.primitives as primitives
 import libasvat.imgui.nodes.node_config as node_config
 
 if TYPE_CHECKING:
@@ -93,7 +95,7 @@ class WidgetParentPin(NodePin):
 
 
 @not_user_creatable
-@types.TypeDatabase.register_noop_editor_for_this(WidgetColors.WidgetPin)
+@TypeDatabase.register_noop_editor_for_this(WidgetColors.WidgetPin)
 class BaseWidget(Node):
     """Abstract Base Widget Class.
 
@@ -143,7 +145,7 @@ class BaseWidget(Node):
         """Fixed ID of this widget. IDs are uniquely generated at creation, according to widget type and overall instance count."""
         return f"{type(self).__name__}"  # -{self.node_id.id()}
 
-    @types.string_property(imgui.InputTextFlags_.enter_returns_true)
+    @primitives.string_property(imgui.InputTextFlags_.enter_returns_true)
     def name(self) -> str:
         """Name of this widget. User can change this, but it should be unique amongst all existing widgets.
         By default it's ``str(hash(self))``. [GET/SET]"""
@@ -191,7 +193,7 @@ class BaseWidget(Node):
         """
         imgui.text(f"Widget {self.id}")
         imgui.set_item_tooltip(type(self).__doc__)
-        types.render_all_properties(self, self.edit_ignored_properties)
+        render_all_properties(self, self.edit_ignored_properties)
 
     def render_full_edit(self):
         """Renders the EDIT menu for the entire hierarchy of widgets this one belongs to.
@@ -356,7 +358,7 @@ class Slot(NodePin):
         The Open Slot Menu is the right-click menu in this slot's area when there is no child.
         """
 
-    @types.bool_property()
+    @primitives.bool_property()
     def draw_area_outline(self) -> bool:
         """If true, when this slot is rendered by its parent, a thin outline will be drawn showing the slots's area outline.
         Essentially showing the slots's slot position and size. [GET/SET]"""
@@ -366,7 +368,7 @@ class Slot(NodePin):
     def draw_area_outline(self, value: bool):
         self._draw_area_outline = value
 
-    @types.color_property()
+    @primitives.color_property()
     def area_outline_color(self):
         """The color of the area outline of this slot. See ``draw_area_outline``. [GET/SET]"""
         return self._area_outline_color
@@ -431,7 +433,7 @@ class Slot(NodePin):
 
         Subclasses may override this to add their own editing rendering logic or change the base one.
         """
-        types.render_all_properties(self, self.edit_ignored_properties)
+        render_all_properties(self, self.edit_ignored_properties)
 
     def draw_open_slot_menu(self):
         """Allows opening a context-menu popup with right-click in this (empty) slot.

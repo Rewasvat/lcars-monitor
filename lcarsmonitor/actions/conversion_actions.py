@@ -4,7 +4,7 @@ from libasvat.imgui.nodes import input_property, output_property
 from libasvat.imgui.general import not_user_creatable
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.math import Vector2, Rectangle
-from libasvat.imgui.type_editor import TypeDatabase
+from libasvat.imgui.editors.database import TypeDatabase
 
 
 @not_user_creatable

@@ -1,5 +1,5 @@
 import re
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
 from libasvat.imgui.colors import Colors, Color
 from libasvat.imgui.nodes import input_property
@@ -327,7 +327,7 @@ class TextMixin:
         """The text being displayed [GET/SET]"""
         return ""  # this is essentially the default value.
 
-    @types.bool_property()
+    @primitives.bool_property()
     def is_wrapped(self):
         """If the text will wrap around to not exceed our available width space [GET/SET]"""
         return self._text_internal.wrapped
@@ -336,7 +336,7 @@ class TextMixin:
     def is_wrapped(self, value: bool):
         self._text_internal.wrapped = value
 
-    @types.enum_property()
+    @primitives.enum_property()
     def align(self):
         """How the text is aligned to our area [GET/SET]"""
         return self._text_internal.align
@@ -365,7 +365,7 @@ class TextMixin:
         """
         return 1.0  # this is essentially the default value.
 
-    @types.enum_property()
+    @primitives.enum_property()
     def font(self) -> LCARSFont:
         """Font to use when rendering this text [GET/SET]"""
         return self._text_internal.font

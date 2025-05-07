@@ -1,8 +1,9 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from libasvat.imgui.colors import Color
 from libasvat.imgui.general import not_user_creatable
 from libasvat.imgui.nodes import PinKind, input_property, output_property
 from libasvat.imgui.nodes.nodes_data import DataPin, DataPinState, SyncedDataPropertyState
+from libasvat.imgui.editors.database import TypeDatabase
 from lcarsmonitor.system.system import UIManager, UISystem, SystemConfig
 from lcarsmonitor.widgets.base import LeafWidget, ContainerWidget, WidgetColors, Slot
 from lcarsmonitor.actions.actions import Action, ActionFlow
@@ -31,7 +32,7 @@ class UseSystem(ContainerWidget):
         self._system: UISystem = None
         self._system_pins: list[ActionFlow | DataPin] = []
 
-    @types.string_property()
+    @primitives.string_property()
     def system_name(self) -> str:
         """Name of UISystem Config to use."""
         return self._system.name if self._system is not None else ""
@@ -97,7 +98,7 @@ class UseSystem(ContainerWidget):
             pin.set_value(value)
         super().setup_from_config(data)
 
-    def _update_system_name_editor(self, editor: types.StringEditor):
+    def _update_system_name_editor(self, editor: primitives.StringEditor):
         """Method automatically called by our ``system_name`` enum-property editor in order to dynamically
         update its settings before editing."""
         manager = UIManager()
@@ -204,7 +205,7 @@ class SystemActionOutput(SystemAction):
 # Related classes to connect data-pins
 ###########################################
 # Create SystemAction subclasses for data input/output
-for cls in types.TypeDatabase().get_creatable_types():
+for cls in TypeDatabase().get_creatable_types():
     # Create SystemInput<T> node
     @output_property(value_type=cls, allow_sync=True)
     def value(self):

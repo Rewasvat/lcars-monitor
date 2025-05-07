@@ -1,5 +1,5 @@
 import math
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
 from lcarsmonitor.widgets.rect import RectCorners
 from lcarsmonitor.widgets.label import TextMixin
@@ -306,7 +306,7 @@ class ProgressBar(TextMixin, LeafWidget):
         st.normal_color = Colors.grey
         return st
 
-    @types.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def rounding(self):
         """Corner rounding value, used when any corner is rounded.
 
@@ -321,7 +321,7 @@ class ProgressBar(TextMixin, LeafWidget):
     def rounding(self, value: float):
         self._inner_bar.rounding = value
 
-    @types.enum_property()
+    @primitives.enum_property()
     def corners(self) -> RectCorners:
         """Which corners to round on this bar (only when rectangular type bar is used). [GET/SET]"""
         return self._inner_bar.corners
@@ -340,7 +340,7 @@ class ProgressBar(TextMixin, LeafWidget):
         """The color of the bar frame outline. [GET/SET]"""
         return Colors.white
 
-    @types.float_property()
+    @primitives.float_property()
     def frame_thickness(self) -> float:
         """The thickness, in pixels, of the bar's frame outline. [GET/SET]"""
         return self._inner_bar.frame_thickness
@@ -349,7 +349,7 @@ class ProgressBar(TextMixin, LeafWidget):
     def frame_thickness(self, value: float):
         self._inner_bar.frame_thickness = value
 
-    @types.enum_property()
+    @primitives.enum_property()
     def bar_type(self) -> BarType:
         """The type of this progress bar. [GET/SET]"""
         return self._inner_bar.bar_type
@@ -363,7 +363,7 @@ class ProgressBar(TextMixin, LeafWidget):
         """The current value of the bar, in the range [0,1] [GET/SET]"""
         return 0.0  # this is essentially the default value.
 
-    @types.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def inner_hole_ratio(self) -> float:
         """The ratio of the circle radius that will be a hole. [GET/SET]
 

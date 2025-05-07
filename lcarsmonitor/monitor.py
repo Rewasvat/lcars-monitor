@@ -4,9 +4,10 @@ import libasvat.command_utils as cmd_utils
 import libasvat.utils as utils
 import libasvat.imgui.windows as windows
 import libasvat.imgui.general as imgui_utils
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from libasvat.imgui.popups import button_with_confirmation, TextInputPopup
 from libasvat.imgui.colors import Colors
+from libasvat.imgui.editors.controller import render_all_properties
 from libasvat.data import DataCache
 from imgui_bundle import imgui, imgui_ctx
 
@@ -40,7 +41,7 @@ class MonitorAppData:
         computer = sensors.ComputerSystem()
         computer.update_time = self._update_time
 
-    @types.int_property(min=1, max=60, is_slider=True)
+    @primitives.int_property(min=1, max=60, is_slider=True)
     def sensor_polling_rate(self) -> int:
         """Number of times per second the sensors will be polled for new data, updating their values.
 
@@ -53,7 +54,7 @@ class MonitorAppData:
     def sensor_polling_rate(self, value: int):
         self.update_time = 1.0 / max(1, value)
 
-    @types.bool_property()
+    @primitives.bool_property()
     def use_borderless_display(self) -> bool:
         """If the DISPLAY mode window should be borderless.
 
@@ -72,7 +73,7 @@ class MonitorAppData:
     def use_borderless_display(self, value: bool):
         self._use_borderless_display = value
 
-    @types.int_property(min=1, max=30, is_slider=True)
+    @primitives.int_property(min=1, max=30, is_slider=True)
     def idle_fps(self) -> int:
         """FPS at which the window will run when the app is idle.
 
@@ -200,7 +201,7 @@ class SystemMonitorApp(windows.AppWindow):
 
     def draw_settings(self):
         """Draws the settings menu for the Monitor App."""
-        changed = types.render_all_properties(self.data)
+        changed = render_all_properties(self.data)
         if changed:
             if self.idle_fps != self.data.idle_fps:
                 self.idle_fps = self.data.idle_fps

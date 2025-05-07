@@ -1,5 +1,5 @@
-import libasvat.imgui.type_editor as types
 from lcarsmonitor.actions.actions import Action, ActionColors
+from libasvat.imgui.editors.primitives import StringEditor
 from libasvat.imgui.nodes import input_property, output_property
 from libasvat.imgui.general import not_user_creatable
 from lcarsmonitor.widgets.board import Board
@@ -37,7 +37,7 @@ class SetBoard(WidgetAction):
                 self.success = True
         self.trigger_flow()
 
-    def _update_slot_name_editor(self, editor: types.StringEditor):
+    def _update_slot_name_editor(self, editor: StringEditor):
         """Callback to update TypeEditor object from our ``name`` property."""
         if self.board:
             if editor.options is None:

@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
 from lcarsmonitor.widgets.style import VisualStyle
 from libasvat.imgui.colors import Colors
@@ -33,7 +33,7 @@ class Corner(LeafWidget):
         self._use_absolute_values: bool = False
         self.node_header_color = WidgetColors.Primitives
 
-    @types.enum_property()
+    @primitives.enum_property()
     def type(self) -> CornerType:
         """The type of this corner [GET/SET]"""
         return self._type
@@ -42,7 +42,7 @@ class Corner(LeafWidget):
     def type(self, value: CornerType):
         self._type = value
 
-    @types.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def width_ratio(self):
         """The ratio of our available horizontal space that is used as the corner column width. [GET/SET]
 
@@ -55,7 +55,7 @@ class Corner(LeafWidget):
     def width_ratio(self, value: float):
         self._width_ratio = value
 
-    @types.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def height_ratio(self):
         """The ratio of our available vertical space that is used as the corner bar height. [GET/SET]
 
@@ -68,7 +68,7 @@ class Corner(LeafWidget):
     def height_ratio(self, value: float):
         self._height_ratio = value
 
-    @types.bool_property()
+    @primitives.bool_property()
     def use_absolute_values(self):
         """If our width/height ratios are absolute values instead of ratios to our area size. [GET/SET]"""
         return self._use_absolute_values
@@ -215,7 +215,7 @@ class Corner(LeafWidget):
         """
         return Vector2(width+small, height+small)
 
-    def _update_width_ratio_editor(self, editor: types.FloatEditor):
+    def _update_width_ratio_editor(self, editor: primitives.FloatEditor):
         """Method automatically called by our ``width_ratio`` float-property editor in order to dynamically
         update its settings before editing."""
         if self._use_absolute_values:
@@ -223,7 +223,7 @@ class Corner(LeafWidget):
         else:
             editor.max = 1.0
 
-    def _update_height_ratio_editor(self, editor: types.FloatEditor):
+    def _update_height_ratio_editor(self, editor: primitives.FloatEditor):
         """Method automatically called by our ``height_ratio`` float-property editor in order to dynamically
         update its settings before editing."""
         if self._use_absolute_values:

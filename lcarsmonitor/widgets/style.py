@@ -1,11 +1,13 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.nodes import input_property, output_property
+from libasvat.imgui.editors.database import TypeDatabase
+from libasvat.imgui.editors.container import ObjectEditor
 from lcarsmonitor.actions.conversion_actions import ConversionAction
 from lcarsmonitor.widgets.base import BaseWidget
 
 
-@types.TypeDatabase.register_editor_class_for_this(types.ObjectEditor)
+@TypeDatabase.register_editor_class_for_this(ObjectEditor)
 class VisualStyle:
     """Represents the visual style (or "theme") of a widget.
 
@@ -22,7 +24,7 @@ class VisualStyle:
         self._disabled_color: Color = Colors.grey
         self._text_color: Color = Colors.white
 
-    @types.color_property()
+    @primitives.color_property()
     def normal_color(self) -> Color:
         """Normal color of this style. Used by default in the widget, when it doesn't match any other state."""
         return self._normal_color
@@ -31,7 +33,7 @@ class VisualStyle:
     def normal_color(self, value: Color):
         self._normal_color = value
 
-    @types.color_property()
+    @primitives.color_property()
     def hovered_color(self) -> Color:
         """Hovered color of this style. Used when the widget is hovered by the mouse."""
         return self._hovered_color
@@ -40,7 +42,7 @@ class VisualStyle:
     def hovered_color(self, value: Color):
         self._hovered_color = value
 
-    @types.color_property()
+    @primitives.color_property()
     def pressed_color(self) -> Color:
         """Pressed color of this style. Used when the widget is pressed by the mouse."""
         return self._pressed_color
@@ -49,7 +51,7 @@ class VisualStyle:
     def pressed_color(self, value: Color):
         self._pressed_color = value
 
-    @types.color_property()
+    @primitives.color_property()
     def disabled_color(self) -> Color:
         """Disabled color of this style. Used when the widget is disabled."""
         return self._disabled_color
@@ -58,7 +60,7 @@ class VisualStyle:
     def disabled_color(self, value: Color):
         self._disabled_color = value
 
-    @types.color_property()
+    @primitives.color_property()
     def text_color(self) -> Color:
         """Text color of this style. Used by the widget when it draws text."""
         return self._text_color

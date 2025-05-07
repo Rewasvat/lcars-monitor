@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.base import ContainerWidget, Slot
 from libasvat.imgui.math import Vector2
 from imgui_bundle import imgui
@@ -17,7 +17,7 @@ class CanvasSlot(Slot):
         self.pos_ratio: Vector2 = Vector2()
         self.size_ratio: Vector2 = Vector2(0.5, 0.5)
 
-    @types.string_property(imgui.InputTextFlags_.enter_returns_true)
+    @primitives.string_property(imgui.InputTextFlags_.enter_returns_true)
     def name(self) -> str:
         """Name of this slot. User can change this, but it should be unique amongst all slots of this container. [GET/SET]"""
         return self.pin_name
@@ -26,7 +26,7 @@ class CanvasSlot(Slot):
     def name(self, value):
         self.pin_name = value
 
-    @types.vector2_property(x_range=(0, 1), y_range=(0, 1), flags=imgui.SliderFlags_.always_clamp)
+    @primitives.vector2_property(x_range=(0, 1), y_range=(0, 1), flags=imgui.SliderFlags_.always_clamp)
     def position(self) -> Vector2:
         """The position of the slot, as a ratio of the canvas's size. [GET/SET]"""
         return self.pos_ratio
@@ -35,7 +35,7 @@ class CanvasSlot(Slot):
     def position(self, value: Vector2):
         self.pos_ratio = value
 
-    @types.vector2_property(x_range=(0, 1), y_range=(0, 1), flags=imgui.SliderFlags_.always_clamp)
+    @primitives.vector2_property(x_range=(0, 1), y_range=(0, 1), flags=imgui.SliderFlags_.always_clamp)
     def size(self) -> Vector2:
         """The size of the slot, as a ratio of the canvas's size. [GET/SET]"""
         return self.size_ratio

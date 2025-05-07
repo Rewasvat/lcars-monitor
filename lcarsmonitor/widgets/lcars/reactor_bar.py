@@ -1,4 +1,4 @@
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.lcars import LCARSWidget
 from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.progressbar import ChainedBarObject, BarType, RectCorners
@@ -248,7 +248,7 @@ class ReactorBar(LCARSWidget):
         """The color of the bottom bar fill. [GET/SET]"""
         return Color.from_hex("FFADD8E6", use_argb=True)
 
-    @types.bool_property()
+    @primitives.bool_property()
     def is_vertical(self):
         """Is this Reactor bar is oriented vertically or not (thus, horizontally).
 

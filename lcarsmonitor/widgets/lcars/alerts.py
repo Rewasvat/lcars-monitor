@@ -1,5 +1,5 @@
 import re
-import libasvat.imgui.type_editor as types
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.lcars import LCARSWidget
 from lcarsmonitor.widgets.base import WidgetColors
 from lcarsmonitor.widgets.label import TextObject, LCARSFont, TextAlignment
@@ -44,7 +44,7 @@ class Alert(LCARSWidget):
         self._setup_fixed_paths()
         self.alert_type = AlertType.RED  # this will update colors, text and setup_bar_data().
 
-    @types.float_property()
+    @primitives.float_property()
     def out_margin(self) -> float:
         """The margin of the borders/corners to the edges of our slot's available area."""
         return self._out_margin
@@ -53,7 +53,7 @@ class Alert(LCARSWidget):
     def out_margin(self, value: float):
         self._out_margin = value
 
-    @types.enum_property()
+    @primitives.enum_property()
     def alert_type(self):
         """Type of this alert [GET/SET]"""
         return self._alert_type
