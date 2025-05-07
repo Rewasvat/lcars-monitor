@@ -80,6 +80,14 @@ class WidgetParentPin(NodePin):
     def draw_node_pin_contents(self):
         draw_widget_pin_icon(self.is_linked_to_any())
 
+    def can_link_to(self, pin: NodePin) -> tuple[bool, str]:
+        ok, why_not = super().can_link_to(pin)
+        if not ok:
+            return ok, why_not
+        if not isinstance(pin, Slot):
+            return False, "Can only link to a Widget's Slot."
+        return True, "success"
+
     def __str__(self):
         return f"{self.parent_node} Parent Slot"
 
@@ -96,11 +104,7 @@ class BaseWidget(Node):
         super().__init__()
         # Re-defining our `system` attribute to re-type it as a UISystem and changing the docstring.
         self.system: 'UISystem' = self.system
-        """Root System managing this widget.
-
-        This follows our parent hierarchy until it reaches the root node in order to find the owning System.
-        As such, this might return None in cases where the widget is "root-less" (no connection to the root).
-        """
+        """Root System managing this widget."""
         #####
         self._name: str = ""
         self.slot: Slot = None
@@ -111,8 +115,8 @@ class BaseWidget(Node):
         Prefer to use ``self.area`` instead of this private attribute!
 
         All widgets keep their own area object instead of using their parent slot's area since there can be valid
-        rendering widgets without a parent slot (like the root widget in a graph). This internal area is updated
-        every frame by our parent slot or by whoever is handling this slot-less widget.
+        rendering widgets without a parent slot. This internal area is updated every frame by our parent slot or
+        by whoever is handling this slot-less widget.
         """
         self.editable = True
         """If this widget is editable by the user during runtime. Depends on our UISystem having edit enabled."""
@@ -229,8 +233,8 @@ class BaseWidget(Node):
 
     def delete(self):
         """Deletes this widget, removing it from its parent (if any), and deregistering it from our root UISystem."""
-        super().delete()
         self.reparent_to(None)
+        super().delete()
 
     def reparent_to(self, slot: 'Slot' = None):
         """Changes our ``parent`` to the given value.
@@ -239,7 +243,7 @@ class BaseWidget(Node):
 
         Args:
             new_parent (Slot): the new parent slot to set. Might be None.
-            If None, the widget will be left parentless. It wont be rendered until it has a parent.
+                If None, the widget will be left parentless. It wont be rendered until it has a parent.
         """
         if self.slot is not None:
             self.slot._child = None
@@ -286,9 +290,9 @@ class BaseWidget(Node):
 
         Args:
             pos (Vector2, optional): The absolute position of the widget. If None, will get imgui's current cursor position.
-            Defaults to None.
+                Defaults to None.
             size (Vector2, optional): The size of the widget. If None, will get imgui's current available region size.
-            Defaults to None.
+                Defaults to None.
         """
         if pos is None:
             pos = Vector2(*imgui.get_cursor_screen_pos())
@@ -321,11 +325,13 @@ class Slot(NodePin):
     widget to fill a empty slot, limiting which types of widgets can be attached to the slot, and more.
 
     Containers can define which type of Slot they use, and thus they can define their own Slot classes with added logic
-    for that container."""
+    for that container.
+    """
 
     def __init__(self, parent: 'ContainerWidget', name: str):
         super().__init__(parent, PinKind.output, name if name else f"#{parent.slot_counter}")
         self.parent_node: 'ContainerWidget' = parent  # fixing to proper type-hint.
+        # NOTE: The Root widget pin in a system is also a Slot! Thus it is a Slot that its parent-node is NOT a ContainerWidget!
         self._child: BaseWidget = None
         self.area = Rectangle((0, 0), (1, 1))
         """The area of this slot. It's inside this area, as a imgui ChildRegion, that our child widget will be drawn.
@@ -345,6 +351,10 @@ class Slot(NodePin):
         default ``self.render_edit_details()`` implementation."""
         self.default_link_color = WidgetColors.WidgetPin
         self.can_be_deleted = True
+        self.no_parent_in_open_slot_menu: bool = False
+        """If true, the Open Slot Menu will not render our parent-node's details.
+        The Open Slot Menu is the right-click menu in this slot's area when there is no child.
+        """
 
     @types.bool_property()
     def draw_area_outline(self) -> bool:
@@ -434,8 +444,9 @@ class Slot(NodePin):
         imgui.invisible_button(f"{self}OpenSlotMenu", self.area.size)
         if not imgui.begin_popup_context_item("CreateNewWidgetMenu"):
             return
-        self.parent_node.render_full_edit()
-        imgui.separator()
+        if not self.no_parent_in_open_slot_menu:
+            self.parent_node.render_full_edit()
+            imgui.separator()
         imgui.text(f"{self} - create new widget:")
         if self.parent_node.system:
             new_child = self.parent_node.system.render_create_widget_menu(self.accepted_child_types)

@@ -3,7 +3,8 @@ import lcarsmonitor.actions as actions
 import libasvat.command_utils as cmd_utils
 from imgui_bundle import imgui, imgui_node_editor  # type: ignore
 from libasvat.imgui.general import object_creation_menu, menu_item
-from libasvat.imgui.nodes import Node, NodePin, NodeLink, NodeSystem, PinKind, output_property
+from libasvat.imgui.math import Vector2
+from libasvat.imgui.nodes import Node, NodeSystem, PinKind, output_property
 from libasvat.imgui.nodes.node_config import SystemConfig
 from libasvat.imgui.colors import Colors, Color
 from lcarsmonitor.widgets.base import BaseWidget, Slot, WidgetParentPin, draw_widget_pin_icon
@@ -12,56 +13,28 @@ from lcarsmonitor.sensors.sensor_node import Sensor
 from libasvat.data import DataCache
 
 
-class SystemRootPin(NodePin):
-    """Widget Root Pin for a UISystem's Root node."""
+class RootSlot(Slot):
+    """Specialized Slot to be used as the Root slot of all widgets in a graph.
+
+    This is the slot in a UISystem's Root node that starts a widget hierarchy.
+    """
 
     def __init__(self, parent: 'SystemRootNode'):
-        super().__init__(parent, PinKind.output, "Root")
-        self.parent_node: SystemRootNode = parent
-        self._child: BaseWidget = None
-        self.default_link_color = Colors.green  # same color used in draw_widget_pin_icon
+        super().__init__(parent, "Root")
+        self.can_be_deleted = False
+        self.no_parent_in_open_slot_menu = True
 
-    @property
-    def child(self):
-        """Gets the widget that is set as the root of our UISystem. [GET/SET]"""
-        return self._child
-
-    @child.setter
-    def child(self, value: BaseWidget):
-        if self._child == value:
-            return
-        if self._child and self.is_linked_to(self._child.parent_pin):
-            self.delete_link_to(self._child.parent_pin)
-        self._child = value
-        if value:
-            value.reparent_to(None)  # root widgets have no Slot parent.
-            if not self.is_linked_to(value.parent_pin):
-                self.link_to(value.parent_pin)
-
-    def draw_node_pin_contents(self):
-        draw_widget_pin_icon(self.is_linked_to_any())
-
-    def can_link_to(self, pin: NodePin) -> tuple[bool, str]:
-        ok, msg = super().can_link_to(pin)
-        if not ok:
-            return ok, msg
-        if not isinstance(pin, WidgetParentPin):
-            return False, "Can only link to a Widget's Parent pin."
-        return True, "success"
-
-    def on_new_link_added(self, link: NodeLink):
-        # kinda the same as in the Slot class
-        self.child = link.end_pin.parent_node
-
-    def on_link_removed(self, link: NodeLink):
-        self.child = None
+    def render(self):
+        self.area.position = Vector2.from_cursor_screen_pos()
+        self.area.size = Vector2.from_available_content_region()
+        return super().render()
 
 
 class SystemRootNode(Node):
     """Root Node for a UISystem.
 
     Provides base output pins from which the system may be defined:
-    * A root widget pin to create the widget hierarchy.
+    * A root widget slot to create the widget hierarchy.
     * System level ActionFlows for logic triggering.
     * System level DataPins providing basic system data for the graph.
     """
@@ -72,7 +45,7 @@ class SystemRootNode(Node):
         self.node_bg_color = Color(0.12, 0.22, 0.1, 0.75)
         self.node_header_color = Color(0.32, 0.6, 0.04, 0.6)
         self.can_be_deleted = False
-        self.widget_root = SystemRootPin(self)
+        self.widget_root = RootSlot(self)
         self.on_update = actions.ActionFlow(self, PinKind.output, "On Update")
         self.add_pin(self.widget_root)
         self.add_pin(self.on_update)
@@ -81,6 +54,7 @@ class SystemRootNode(Node):
     @property
     def system(self) -> 'UISystem':
         """Gets the UISystem that owns this root-node."""
+        # This overrides base Node.system attribute, so that we can have the getter/setter methods.
         return self._system
 
     @system.setter
@@ -96,7 +70,7 @@ class SystemRootNode(Node):
 
     def render_edit_details(self):
         if menu_item("Reposition Nodes"):
-            self.reposition_nodes([actions.ActionFlow, Slot, SystemRootPin])
+            self.reposition_nodes([actions.ActionFlow, Slot])
         imgui.set_item_tooltip("Rearranges all nodes following this one according to depth in the graph.")
         if menu_item("Save"):
             self.system.save_config()
@@ -129,7 +103,12 @@ class UISystem(NodeSystem):
             imgui_node_editor.set_node_position(self._root_node.node_id, (0, 0))
             self.add_node(self._root_node)
         else:
-            self._root_node: SystemRootNode = nodes[0]
+            # The Root Node should be the first in the list.
+            # However doing this is safer.
+            for node in nodes:
+                if isinstance(node, SystemRootNode):
+                    self._root_node: SystemRootNode = node
+                    break
 
     @property
     def root_widget(self) -> BaseWidget:
@@ -155,15 +134,7 @@ class UISystem(NodeSystem):
         size = imgui.get_content_region_avail()
         imgui.get_window_draw_list().add_rect_filled(pos, pos + size, Colors.background.u32)
         # Render widget tree hierarchy by starting with the root widget.
-        if self.root_widget is not None:
-            self.root_widget._set_pos_and_size()
-            self.root_widget.render()
-        else:
-            # If no root, check and render "create root widget context" menu
-            if self.edit_enabled and imgui.begin_popup_context_window(f"{repr(self)}CreateRootWidgetMenu"):
-                imgui.text("Create Root Widget:")
-                self.render_create_widget_menu()
-                imgui.end_popup()
+        self._root_node.widget_root.render()
         imgui.end_child()
 
     def render_system(self):
