@@ -74,7 +74,7 @@ class SystemRootNode(Node):
         imgui.set_item_tooltip("Rearranges all nodes following this one according to depth in the graph.")
         if menu_item("Save"):
             self.system.save_config()
-        imgui.set_item_tooltip("Saves the configuration of this UISystem to disk. This config can be later used to recreate/reuse this UISystem.")
+        imgui.set_item_tooltip(self.system.save_config.__doc__)
 
 
 # TODO: talvez de pra separar o "UISystem" em classes diferentes. Uma basica que seria só widgets, outra com widgets+actions,
@@ -147,7 +147,10 @@ class UISystem(NodeSystem):
         return super().render_system()
 
     def save_config(self):
-        """Saves this UISystem's config to the UIManager singleton, thus persisting its data for future use."""
+        """Saves the configuration of this UISystem to disk (Shortcut: CTRL+S).
+
+        This config can be later used to recreate/reuse this UISystem.
+        """
         manager = UIManager()
         manager.update_system(self)
 
