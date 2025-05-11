@@ -1,13 +1,13 @@
 import re
 import lcarsmonitor.actions as actions
 import libasvat.command_utils as cmd_utils
-from imgui_bundle import imgui, imgui_node_editor  # type: ignore
+from imgui_bundle import imgui
 from libasvat.imgui.general import object_creation_menu, menu_item
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.nodes import Node, NodeSystem, PinKind, output_property
 from libasvat.imgui.nodes.node_config import SystemConfig
 from libasvat.imgui.colors import Colors, Color
-from lcarsmonitor.widgets.base import BaseWidget, Slot, WidgetParentPin, draw_widget_pin_icon
+from lcarsmonitor.widgets.base import BaseWidget, Slot
 from lcarsmonitor.sensors.sensors import Hardware, ComputerSystem
 from lcarsmonitor.sensors.sensor_node import Sensor
 from libasvat.data import DataCache
@@ -19,7 +19,7 @@ class RootSlot(Slot):
     This is the slot in a UISystem's Root node that starts a widget hierarchy.
     """
 
-    def __init__(self, parent: 'SystemRootNode'):
+    def __init__(self, parent: 'SystemRootNode', name=None):
         super().__init__(parent, "Root")
         self.can_be_deleted = False
         self.no_parent_in_open_slot_menu = True
@@ -98,26 +98,30 @@ class UISystem(NodeSystem):
         super().__init__(name, nodes)
         self.edit_enabled: bool = True
         """If editing the graph is enabled in this system."""
-        if nodes is None:
+        self._root_node: SystemRootNode = None
+        if self.root_node is None:
             self._root_node = SystemRootNode()
-            imgui_node_editor.set_node_position(self._root_node.node_id, (0, 0))
+            self._root_node.set_position((0, 0))
             self.add_node(self._root_node)
-        else:
-            # The Root Node should be the first in the list.
-            # However doing this is safer.
-            for node in nodes:
+
+    @property
+    def root_node(self):
+        """Gets the root node of this system."""
+        if self._root_node is None:
+            for node in self.nodes:
                 if isinstance(node, SystemRootNode):
-                    self._root_node: SystemRootNode = node
+                    self._root_node = node
                     break
+        return self._root_node
 
     @property
     def root_widget(self) -> BaseWidget:
         """Gets the root widget of this system."""
-        return self._root_node.widget_root.child
+        return self.root_node.widget_root.child
 
     @root_widget.setter
     def root_widget(self, root: BaseWidget):
-        self._root_node.widget_root.child = root
+        self.root_node.widget_root.child = root
 
     def render(self):
         """Renders this UISystem in the current region.
@@ -125,7 +129,7 @@ class UISystem(NodeSystem):
         This updates the Root Widget to the current region area, and renders it. Consequently, this renders the entire widget hierarchy,
         updating all widgets, triggering actions and so on.
         """
-        self._root_node.on_update.trigger()
+        self.root_node.on_update.trigger()
 
         window_flags = imgui.WindowFlags_.no_scrollbar | imgui.WindowFlags_.no_scroll_with_mouse
         imgui.begin_child(f"{repr(self)}AppRootWidget", window_flags=window_flags)
@@ -134,7 +138,7 @@ class UISystem(NodeSystem):
         size = imgui.get_content_region_avail()
         imgui.get_window_draw_list().add_rect_filled(pos, pos + size, Colors.background.u32)
         # Render widget tree hierarchy by starting with the root widget.
-        self._root_node.widget_root.render()
+        self.root_node.widget_root.render()
         imgui.end_child()
 
     def render_system(self):
@@ -238,6 +242,10 @@ class UISystem(NodeSystem):
             new_action = self.render_create_action_menu()
             new_sensor = self.render_create_sensor_menu()
             return new_widget or new_action or new_sensor
+
+    def _apply_saved_state(self, state):
+        self._root_node = None
+        return super()._apply_saved_state(state)
 
     def __str__(self):
         return f"Widget System: {self.name}"
