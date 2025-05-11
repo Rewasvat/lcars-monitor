@@ -186,7 +186,7 @@ class BaseWidget(Node):
 
         The BaseWidget default implementation does the following:
         * Displays the widget's ID for identification. The ID's text tooltip show the widget class's docstring.
-        * Calls ``imgui_utils.render_all_properties(self)`` to automatically render the key:value editor for all imgui properties in the
+        * Calls ``render_all_properties(self)`` to automatically render the key:value editor for all imgui properties in the
         widget class. The editable properties of the base widget classes are implemented as imgui-properties.
 
         Subclasses may override this to add their own editing rendering logic or change the base one.
@@ -349,7 +349,7 @@ class Slot(NodePin):
         self.enabled = True
         """If this slot is enabled. Disabled slots are not rendered."""
         self.edit_ignored_properties: set[str] = set()
-        """Set of imgui-property names that shall be ignored when rendering this widget's imgui-properties through the
+        """Set of imgui-property names that shall be ignored when rendering this slot's imgui-properties through the
         default ``self.render_edit_details()`` implementation."""
         self.default_link_color = WidgetColors.WidgetPin
         self.can_be_deleted = True
@@ -425,7 +425,7 @@ class Slot(NodePin):
     def render_edit_details(self):
         """Renders the imgui controls to allow user editing of this Slot.
 
-        The Slot default implementation only calls ``imgui_utils.render_all_properties(self)`` to automatically render the key:value editor
+        The Slot default implementation only calls ``render_all_properties(self)`` to automatically render the key:value editor
         for all imgui properties in this Slot's class.
 
         The slot's edit-rendering is handled by its parent ContainerWidget, in the widget's edit-rendering. The parent handles extra logic
@@ -465,8 +465,9 @@ class Slot(NodePin):
         Besides clearing and removing this slot from its parent container, this will also remove our attached child widget (if any)."""
         if self._child:
             self._child.reparent_to()
-        self.parent_node._slots.remove(self)
-        self.parent_node.on_slots_changed()
+        if isinstance(self.parent_node, ContainerWidget):
+            self.parent_node._slots.remove(self)
+            self.parent_node.on_slots_changed()
         super().delete()
 
     def accepts_widget(self, widget: BaseWidget):
@@ -628,10 +629,10 @@ class ContainerWidget(BaseWidget):
 
         Args:
             slot (Slot, optional): The slot instance to add. If its None, a new slot instance will be created with
-            ``self._slot_class(self, name)``.
+                ``self._slot_class(self, name)``.
             name (str, optional): Optional name to give to the slot, if a slot is being created with this method (arg ``slot`` is None).
-            If no name is given, the slot'll have a default ``#N`` name, where ``N`` is our ``self.slot_counter`` value, which is
-            incremented with this method.
+                If no name is given, the slot'll have a default ``#N`` name, where ``N`` is our ``self.slot_counter`` value, which is
+                incremented with this method.
 
         Returns:
             Slot: the slot object that was added to this container.
