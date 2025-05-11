@@ -273,13 +273,14 @@ class Panel(ContainerWidget):
 
         These rects will have our border style.
         """
-        for side, border in self.borders.items():
-            if border.child is None:
-                r = Rect()
-                self.system.add_node(r)
-                r.style = self.border_style
-                r.name = f"{self.id}-{side.name.capitalize()}Rect"
-                border.child = r
+        with self._block_state():
+            for side, border in self.borders.items():
+                if border.child is None:
+                    r = Rect()
+                    self.system.add_node(r)
+                    r.style = self.border_style
+                    r.name = f"{self.id}-{side.name.capitalize()}Rect"
+                    border.child = r
 
     # Method Overrides
     def update_slots(self):
