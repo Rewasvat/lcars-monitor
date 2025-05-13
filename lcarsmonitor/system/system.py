@@ -77,8 +77,6 @@ class SystemRootNode(Node):
         imgui.set_item_tooltip(self.system.save_config.__doc__)
 
 
-# TODO: talvez de pra separar o "UISystem" em classes diferentes. Uma basica que seria só widgets, outra com widgets+actions,
-#       e finalmente uma com widget+actions+sensores
 # TODO: widget novo: imagem. Scala a imagem para a area do slot. Pode escolher UV-coords usadas (sub-frames). Escolher imagem por path anywhere?
 # TODO: widget novo: polygon. Tipo o XAMLPath. User pode configurar vários shapes em runtime.
 #   - pra cada shape, user vai configurando segmentos, fill color, stroke color, stroke thickness, etc.
@@ -183,7 +181,7 @@ class UISystem(NodeSystem):
         """
         new_child = None
         for cls in accepted_bases:
-            new_child = object_creation_menu(cls, lambda cls: cls.__name__.replace("Widget", ""))
+            new_child = object_creation_menu(cls, lambda cls: cls.__name__.replace("Widget", ""), filter=self.node_creation_menu_filter)
             if new_child is not None:
                 break
         return new_child
@@ -197,7 +195,7 @@ class UISystem(NodeSystem):
         def name_getter(cls: type):
             return re.sub(r"([a-z])([A-Z])", r"\1 \2", cls.__name__)
 
-        return object_creation_menu(actions.Action, name_getter)
+        return object_creation_menu(actions.Action, name_getter, filter=self.node_creation_menu_filter)
 
     def render_create_sensor_menu(self) -> Sensor | None:
         """Renders the contents for a menu that allows the user to create a Sensor node.
@@ -207,8 +205,26 @@ class UISystem(NodeSystem):
         Returns:
             Sensor: the sensor object from the MonitorManager singleton.
         """
+        def filter(name: str):
+            """Checks if the given sensor name matches our filter and thus can be displayed."""
+            if not self._node_creation_filter:
+                return True
+            return self._node_creation_filter.lower() in name.lower()
+
+        def check_hw(hw: Hardware) -> bool:
+            """Checks if any sensor in the given hardware (or its children hardware) can be displayed."""
+            for sub_hw in hw.children:
+                if check_hw(sub_hw):
+                    return True
+            for isensor in hw.isensors:
+                if filter(isensor.name):
+                    return True
+            return False
+
         def render_hw(hw: Hardware) -> Sensor:
             ret = None
+            if not check_hw(hw):
+                return ret
             opened = imgui.begin_menu(hw.name)
             imgui.set_item_tooltip(f"ID: {hw.id}\nTYPE: {hw.type}\n\n{hw.__doc__}")
             if opened:
@@ -217,28 +233,37 @@ class UISystem(NodeSystem):
                     if sub_ret:
                         ret = sub_ret
                 for isensor in hw.isensors:
-                    if menu_item(f"{isensor.name} ({isensor.type}: {isensor.unit})"):
-                        ret = isensor.create()
-                    imgui.set_item_tooltip(f"{isensor.info}\n\n{Sensor.__doc__}")
+                    if filter(isensor.name):
+                        imgui.push_id(repr(isensor))
+                        if menu_item(f"{isensor.name} ({isensor.type}: {isensor.unit})"):
+                            ret = isensor.create()
+                        imgui.set_item_tooltip(f"{isensor.info}\n\n{Sensor.__doc__}")
+                        imgui.pop_id()
                 imgui.end_menu()
             return ret
 
         new_sensor = None
-        opened = imgui.begin_menu("Sensors:")
-        imgui.set_item_tooltip("Select a sensor to create.\n\nA 'empty' sensor or one already set can be created directly.")
-        if opened:
-            for hardware in ComputerSystem():
-                ret = render_hw(hardware)
-                if ret:
-                    new_sensor = ret
-            imgui.end_menu()
-
+        # Check which of the root hardware objects of the Computer can be displayed
+        checked_hardware: list[Hardware] = []
+        for hardware in ComputerSystem():
+            if check_hw(hardware):
+                checked_hardware.append(hardware)
+        if len(checked_hardware) > 0:
+            # Only display the Sensor menu if we have at least one hardware to display.
+            opened = imgui.begin_menu("Sensors:")
+            imgui.set_item_tooltip("Select a sensor to create.\n\nA 'empty' sensor or one already set can be created directly.")
+            if opened:
+                for hardware in checked_hardware:
+                    ret = render_hw(hardware)
+                    if ret:
+                        new_sensor = ret
+                imgui.end_menu()
         return new_sensor
 
     def draw_background_context_menu(self, linked_to_pin):
         if isinstance(linked_to_pin, Slot):
             return self.render_create_widget_menu(linked_to_pin.accepted_child_types)
-        if isinstance(linked_to_pin, actions.ActionFlow):
+        elif isinstance(linked_to_pin, actions.ActionFlow):
             return self.render_create_action_menu()
         else:
             new_widget = self.render_create_widget_menu()
