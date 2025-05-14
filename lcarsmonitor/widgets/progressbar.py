@@ -117,6 +117,8 @@ class BarObject:
 
         draw.add_circle_filled(center, radius, self.color.u32)
 
+        # Each half value below is relative to 0.5 (half of max) of our value, then normalized to be a [0,1] number.
+        # So if our value is 0.6:  first_half will be 0.5 (normalized: 1), and secnd_half will be 0.1 (normalized: 0.2)
         first_half = min(0.5, self.value) / 0.5
         secnd_half = max(0, self.value - 0.5) / 0.5
 
@@ -131,14 +133,20 @@ class BarObject:
         draw.path_fill_convex(self.bar_color.u32)
 
         if secnd_half > 0:
+            # For the second half of the circle, we use a center position with a 1-pixel offset, shifting the second
+            # bar 1-pixel "inside" the first half. This prevents a visual artifact where a thin "void" is visible between
+            # both halfs, which gives the impression they "dont connect" and thus looks ugly. This also has no other
+            # negative effect (considering inner-hole, frame, etc), so its a good solution.
             if is_clockwise:
-                draw.path_line_to(center + (0, radius))
-                draw.path_arc_to(center, radius, math.pi*0.5, (0.5 + secnd_half) * math.pi)
+                secnd_center = center + (1, 0)
+                draw.path_line_to(secnd_center + (0, radius))
+                draw.path_arc_to(secnd_center, radius, math.pi*0.5, (0.5 + secnd_half) * math.pi)
             else:
+                secnd_center = center - (1, 0)
                 angle = math.pi * 0.5 - secnd_half * math.pi
-                draw.path_line_to(center + Vector2.from_angle(angle) * radius)
-                draw.path_arc_to(center, radius, angle, math.pi*0.5)
-            draw.path_line_to(center)
+                draw.path_line_to(secnd_center + Vector2.from_angle(angle) * radius)
+                draw.path_arc_to(secnd_center, radius, angle, math.pi*0.5)
+            draw.path_line_to(secnd_center)
             draw.path_fill_convex(self.bar_color.u32)
 
         if self.inner_hole_ratio > 0:
@@ -279,7 +287,6 @@ class ChainedBarObject:
         return iter(zip(self._bars, self._bar_areas))
 
 
-# TODO: circle bars fica com uma pequena fresta entre as duas metades da barra...
 class ProgressBar(TextMixin, LeafWidget):
     """A Progress Bar widget.
 
