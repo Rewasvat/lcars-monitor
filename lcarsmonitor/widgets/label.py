@@ -88,6 +88,28 @@ class TextAlignment(Enum):
     LEFT = "LEFT"
     CENTER = "CENTER"
 
+    def get_dir(self):
+        """Returns a vector indicating the direction of this text-alignment in the 2D plane,
+        considering center as the (0, 0) center of the area.
+
+        Returns:
+            Vector2: vector of the alignment direction. This is NOT a normalized vector!
+            Its a "factor" or "multiplier": each component has value of 1 or -1 to indicate going in that direction.
+            If required, user can normalize the vector himself.
+        """
+        dirs = {
+            self.TOP_LEFT: Vector2(-1, -1),
+            self.TOP: Vector2(0, -1),
+            self.TOP_RIGHT: Vector2(1, -1),
+            self.RIGHT: Vector2(1, 0),
+            self.BOTTOM_RIGHT: Vector2(1, 1),
+            self.BOTTOM: Vector2(0, 1),
+            self.BOTTOM_LEFT: Vector2(-1, 1),
+            self.LEFT: Vector2(-1, 0),
+            self.CENTER: Vector2(),
+        }
+        return dirs[self]
+
 
 class TextObject:
     """Low-level text rendering object in LCARSMonitor's Widgets system.
@@ -123,6 +145,8 @@ class TextObject:
         self.font_size_counter: int = 0
         self.font: LCARSFont = LCARSFont.LCARS
         """Which font to use. Default to LCARS."""
+        self.margin: float = 0.0
+        """Spacing between the text and our area's borders. Does not apply when using CENTER text-alignment."""
         self.debug_draw_boxes = False
         """Used for debugging. Draws some thin rects to display internal text sizes."""
         self._text_rect = Rectangle()
@@ -293,8 +317,6 @@ class TextObject:
         Returns the offset in absolute coords.
         """
         pos = Vector2()
-        if self.align == TextAlignment.TOP_LEFT:
-            return pos
 
         # Update Pos X
         if self.align in (TextAlignment.TOP_RIGHT, TextAlignment.RIGHT, TextAlignment.BOTTOM_RIGHT):
@@ -308,10 +330,13 @@ class TextObject:
         elif self.align in (TextAlignment.LEFT, TextAlignment.CENTER, TextAlignment.RIGHT):
             pos.y += self.area.size.y * 0.5 - text_size.y * 0.5
 
+        # Add margin
+        align_dir = self.align.get_dir()
+        pos = pos + (align_dir * -self.margin)
+
         return pos
 
 
-# TODO: implementar margin pra renderizar texto pouco mais longe das bordas qdo não no CENTER
 class TextMixin:
     """Provides text rendering for a widget using an internal TextObject instance.
 
@@ -344,6 +369,30 @@ class TextMixin:
     @align.setter
     def align(self, value: TextAlignment):
         self._text_internal.align = value
+
+    @property
+    def max_text_margin(self):
+        """Maximum text margin possible.
+
+        Corresponds to the lesser component of `Area Size - Text Size`. This way, with this margin the text
+        will usually be touching the opposite border of its text-alignment corner.
+        """
+        empty_space = self._text_internal.area.size - self._text_internal.text_area.size
+        return max(1, empty_space.min_component())
+
+    @primitives.float_property(min=0, max=1, is_slider=True)
+    def text_margin(self):
+        """Spacing between the text and our area's borders. Does not apply when using CENTER text-alignment.
+
+        This is a value in the range [0,1]. It is a relative percentage of the minimum (no margin, or 0) value and
+        the maximum margin possible (so the text touches the opposite border).
+        """
+        return self._text_internal.margin / self.max_text_margin
+
+    @text_margin.setter
+    def text_margin(self, value: float):
+        value = max(0, min(1, value))
+        self._text_internal.margin = value * self.max_text_margin
 
     @input_property(min=0.0, max=2.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def scale(self) -> float:
