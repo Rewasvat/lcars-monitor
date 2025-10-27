@@ -2,7 +2,7 @@ import re
 import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.widgets.lcars import LCARSWidget
 from lcarsmonitor.widgets.base import WidgetColors
-from lcarsmonitor.widgets.label import TextObject, LCARSFont, TextAlignment
+from lcarsmonitor.widgets.label import TextObject, LCARSFont, Alignment
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.nodes import input_property
 from libasvat.imgui.math import Vector2, multiple_lerp_with_weigths
@@ -34,11 +34,11 @@ class Alert(LCARSWidget):
         self._large_text = TextObject("ALERT")
         self._large_text.scale = 2.0
         self._large_text.font = LCARSFont.LCARS_WIDE
-        self._large_text.align = TextAlignment.TOP
+        self._large_text.align = Alignment.TOP
         self._small_text = TextObject("CONDITION: WHAT")
         self._small_text.scale = 2.0
         self._small_text.font = LCARSFont.LCARS_WIDE
-        self._small_text.align = TextAlignment.BOTTOM
+        self._small_text.align = Alignment.BOTTOM
         self._xaml_scale = Vector2(1/734.305, 1/582.540)
         self.bar_data: list[tuple[Color, Animation]] = []
         self._setup_fixed_paths()

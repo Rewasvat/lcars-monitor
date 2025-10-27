@@ -76,8 +76,8 @@ def setup_lcars_fonts():
     font_db.default_font = LCARSFont.LCARS
 
 
-class TextAlignment(Enum):
-    """How to align a label to its parent slot."""
+class Alignment(Enum):
+    """How to align a visual element to its parent area."""
     TOP_LEFT = "TOP_LEFT"
     TOP = "TOP"
     TOP_RIGHT = "TOP_RIGHT"
@@ -89,7 +89,7 @@ class TextAlignment(Enum):
     CENTER = "CENTER"
 
     def get_dir(self):
-        """Returns a vector indicating the direction of this text-alignment in the 2D plane,
+        """Returns a vector indicating the direction of this Alignment in the 2D plane,
         considering center as the (0, 0) center of the area.
 
         Returns:
@@ -110,6 +110,38 @@ class TextAlignment(Enum):
         }
         return dirs[self]
 
+    def get_pos_offset(self, area_size: Vector2, obj_size: Vector2, margin=0.0):
+        """Calculates the position offset (top-left corner) of a OBJECT for drawing it in a AREA,
+        given the AREA and OBJ sizes and this Alignment setting.
+
+        Args:
+            area_size (Vector2): The size of the area containing the object.
+            obj_size (Vector2): The size of the object itself.
+            margin (float, optional): Optional margin to consider between the object and the area's borders. Defaults to 0.0.
+
+        Returns:
+            Vector2: top-left position offset in absolute coords.
+        """
+        pos = Vector2()
+
+        # Update Pos X
+        if self in (Alignment.TOP_RIGHT, Alignment.RIGHT, Alignment.BOTTOM_RIGHT):
+            pos.x += area_size.x - obj_size.x
+        elif self in (Alignment.TOP, Alignment.CENTER, Alignment.BOTTOM):
+            pos.x += area_size.x * 0.5 - obj_size.x * 0.5
+
+        # Update Pos Y
+        if self in (Alignment.BOTTOM_LEFT, Alignment.BOTTOM, Alignment.BOTTOM_RIGHT):
+            pos.y += area_size.y - obj_size.y - 1
+        elif self in (Alignment.LEFT, Alignment.CENTER, Alignment.RIGHT):
+            pos.y += area_size.y * 0.5 - obj_size.y * 0.5
+
+        # Add margin
+        align_dir = self.get_dir()
+        pos = pos + (align_dir * -margin)
+
+        return pos
+
 
 class TextObject:
     """Low-level text rendering object in LCARSMonitor's Widgets system.
@@ -126,7 +158,7 @@ class TextObject:
 
     def __init__(self, text=""):
         self.text: str = text
-        self.align: TextAlignment = TextAlignment.CENTER
+        self.align: Alignment = Alignment.CENTER
         self.area: Rectangle = Rectangle()
         """Position and size of area where to draw this text."""
         self.wrapped: bool = False
@@ -316,25 +348,7 @@ class TextObject:
 
         Returns the offset in absolute coords.
         """
-        pos = Vector2()
-
-        # Update Pos X
-        if self.align in (TextAlignment.TOP_RIGHT, TextAlignment.RIGHT, TextAlignment.BOTTOM_RIGHT):
-            pos.x += self.area.size.x - text_size.x
-        elif self.align in (TextAlignment.TOP, TextAlignment.CENTER, TextAlignment.BOTTOM):
-            pos.x += self.area.size.x * 0.5 - text_size.x * 0.5
-
-        # Update Pos Y
-        if self.align in (TextAlignment.BOTTOM_LEFT, TextAlignment.BOTTOM, TextAlignment.BOTTOM_RIGHT):
-            pos.y += self.area.size.y - text_size.y - 1
-        elif self.align in (TextAlignment.LEFT, TextAlignment.CENTER, TextAlignment.RIGHT):
-            pos.y += self.area.size.y * 0.5 - text_size.y * 0.5
-
-        # Add margin
-        align_dir = self.align.get_dir()
-        pos = pos + (align_dir * -self.margin)
-
-        return pos
+        return self.align.get_pos_offset(self.area.size, text_size, self.margin)
 
 
 class TextMixin:
@@ -367,7 +381,7 @@ class TextMixin:
         return self._text_internal.align
 
     @align.setter
-    def align(self, value: TextAlignment):
+    def align(self, value: Alignment):
         self._text_internal.align = value
 
     @property
