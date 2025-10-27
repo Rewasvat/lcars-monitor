@@ -204,7 +204,7 @@ class BaseWidget(Node):
 
         Subclasses should not override this.
         """
-        if self.slot is not None and self.slot.parent_node is not None:
+        if self.slot is not None and self.slot.has_valid_parent and self.slot.parent_node is not None:
             self.slot.parent_node.render_full_edit()
         if not self.editable:
             return
@@ -358,6 +358,13 @@ class Slot(NodePin):
         The Open Slot Menu is the right-click menu in this slot's area when there is no child.
         """
 
+    @property
+    def has_valid_parent(self):
+        """Indicates if this slot has a valid parent.
+        That is, if the slot's parent-node is of the expected type (ContainerWidget).
+        """
+        return isinstance(self.parent_node, ContainerWidget)
+
     @primitives.bool_property()
     def draw_area_outline(self) -> bool:
         """If true, when this slot is rendered by its parent, a thin outline will be drawn showing the slots's area outline.
@@ -465,7 +472,7 @@ class Slot(NodePin):
         Besides clearing and removing this slot from its parent container, this will also remove our attached child widget (if any)."""
         if self._child:
             self._child.reparent_to()
-        if isinstance(self.parent_node, ContainerWidget):
+        if self.has_valid_parent:
             self.parent_node._slots.remove(self)
             self.parent_node.on_slots_changed()
         super().delete()
