@@ -64,7 +64,7 @@ class Image(RectMixin, LeafWidget):
         return ""
 
     @input_property()
-    def image_style(self) -> VisualStyle:
+    def style(self) -> VisualStyle:
         """Visual style of this image. [GET/SET]"""
         return VisualStyle()
 
@@ -102,7 +102,7 @@ class Image(RectMixin, LeafWidget):
 
     def render(self):
         self._handle_interaction()
-        self._draw_image(self.image_style.normal_color)
+        self._draw_image(self.style.normal_color)
 
 
 class ImageButton(TextMixin, Image):
@@ -124,8 +124,8 @@ class ImageButton(TextMixin, Image):
     def render(self):
         if self._handle_interaction():
             self._on_clicked.trigger()
-        self._draw_image(self.image_style.get_current_color(self))
-        self._draw_text(self.image_style.text_color)
+        self._draw_image(self.style.get_current_color(self))
+        self._draw_text(self.style.text_color)
 
     def _format_text(self, text):
         if self.image is None:
