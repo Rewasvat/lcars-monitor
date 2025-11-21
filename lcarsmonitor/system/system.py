@@ -77,10 +77,6 @@ class SystemRootNode(Node):
         imgui.set_item_tooltip(self.system.save_config.__doc__)
 
 
-# TODO: widget novo: imagem. Scala a imagem para a area do slot. Pode escolher UV-coords usadas (sub-frames). Escolher imagem por path anywhere?
-# TODO: widget novo: polygon. Tipo o XAMLPath. User pode configurar vários shapes em runtime.
-#   - pra cada shape, user vai configurando segmentos, fill color, stroke color, stroke thickness, etc.
-#   - poder setar o aspect-ratio: se tamanho é relativo à widget area, ou relativo a um ratio fixo
 class UISystem(NodeSystem):
     """Represents a complete user-configurable UI and logic system.
 
