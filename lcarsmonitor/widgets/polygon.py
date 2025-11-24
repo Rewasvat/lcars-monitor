@@ -1,10 +1,13 @@
+import math
 import click
 import lcarsmonitor.actions as actions
 import libasvat.imgui.editors.primitives as primitives
+import libasvat.imgui.editors.container as containers
 from libasvat.imgui.math import Vector2, Rectangle
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.assets import ImageInfo, AssetPath
 from libasvat.imgui.nodes import input_property, PinKind
+from libasvat.imgui.general import not_user_creatable
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
 from lcarsmonitor.widgets.rect import RectMixin
 from lcarsmonitor.widgets.label import TextMixin, Alignment
@@ -175,24 +178,281 @@ class Polygon(BasePolygonAttributes, LeafWidget):
         self._draw_polygon(self.style.get_current_color(self))
 
 
-class Shape:
+class Shape(BasePolygonAttributes, LeafWidget):
     """Path-based generic shape drawing widget.
 
     Allows the definition of a path, built using lines and curves, in order to create a generic shape.
+
+    The points/segments in the path should be in clockwise winding order for the shape to be properly drawn.
     """
-    # draw.path_fill_concave(color)
-    # draw.path_fill_convex(color)
-    # draw.path_stroke(color, thickness=thick)
-    # #
-    # draw.path_arc_to(center, radius, angleMin, angleMax)
-    # draw.path_arc_to_fast(center, radius, angleMinOf12, angleMaxOf12)
-    # draw.path_elliptical_arc_to(center, radius, rotation, angleMin, angleMax)
 
-    # draw.path_bezier_cubic_curve_to(c1, c2, end)
-    # draw.path_bezier_quadratic_curve_to(c1?, end?)  [eh: p2,p3]
+    def __init__(self):
+        LeafWidget.__init__(self)
+        BasePolygonAttributes.__init__(self)
+        self.node_header_color = WidgetColors.Primitives
+        self._on_clicked = actions.ActionFlow(self, PinKind.output, "On Click")
+        self.add_pin(self._on_clicked)
+        self._segments: list[ShapeSegment] = []
 
-    # draw.path_line_to(position)
-    # draw.path_line_to_merge_duplicate(position)
-    # draw.path_rect(rectMin, rectMax, rounding, drawFlags)
+    @input_property(x_range=(0, 1), y_range=(0, 1))
+    def starting_point(self) -> Vector2:
+        """The starting (or initial) point of the path to draw this shape.
 
-    # draw.path_clear()
+        The point is a relative position inside our "inner polygon area", with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+
+        The "inner polygon area" is the rect area where the polygon will be drawn. This is the maximum possible rect
+        with our `ratio` contained within our slot's area. The `ratio` is the aspect-ratio of this inner area rect.
+        See the `ratio` and `use_area_ratio` attributes.
+
+        The path segments are then drawn in order from this point in order to complete the shape.
+        This acts as the root/initial "previous end-point" to which the following segments use.
+        """
+        return Vector2()
+
+    @containers.list_property()
+    def segments(self) -> list['ShapeSegment']:
+        """Ordered list of path-segments that make up this shape. [GET/SET]"""
+        return self._segments
+
+    @segments.setter
+    def segments(self, value: list['ShapeSegment']):
+        self._segments = value
+
+    def _draw_shape(self, color: Color):
+        """Draws this path-based shape, by orderly drawing all our path segments."""
+        draw = imgui.get_window_draw_list()
+        inner_area = self.get_inner_area(self.area)
+
+        # Start drawing shape by its initial point.
+        if len(self.segments) < 1:
+            # no point trying to draw shape without any segments.
+            return
+        draw.path_line_to(inner_area.get_inner_point(self.starting_point))
+
+        # Then draw each segment in order.
+        prev_point = self.starting_point
+        for segment in self.segments:
+            segment.update(inner_area, prev_point)
+            segment.draw(inner_area)
+            prev_point = segment.get_endpoint()
+
+        # Finish the shape with fill or stroke color.
+        if self.fill_mode is PolygonFillMode.CONCAVE_FILL:
+            draw.path_fill_concave(color.u32)
+        elif self.fill_mode is PolygonFillMode.CONVEX_FILL:
+            draw.path_fill_convex(color.u32)
+        else:
+            draw.path_stroke(color.u32, thickness=self.thickness)
+
+    def render(self):
+        if self._handle_interaction():
+            self._on_clicked.trigger()
+        self._draw_shape(self.style.get_current_color(self))
+
+
+@not_user_creatable
+class ShapeSegment:
+    """Base segment class to define the path-segments in a Shape widget.
+
+    Subclasses of this represent the possible segments to use in a shape.
+    """
+
+    def __init__(self):
+        self._area: Rectangle = None
+        self._starting_point: Vector2 = None
+
+    @property
+    def area(self):
+        """The area in which the shape, and thus this segment, is being drawn.
+
+        It is recommended that Segment subclasses always work with relative positions (points in [0,1])
+        and use `area.get_inner_point(p)` to get the appropriate absolute point in the draw area for drawing.
+
+        This value is updated each frame by our parent Shape object, before calling `draw()`.
+        """
+        return self._area
+
+    @property
+    def starting_point(self):
+        """The starting-point of this segment, in relative coords.
+
+        This is never set directly by this segment - it matches the end-point (see `get_endpoint()`) of
+        the previous segment. As such this is updated each frame by our parent Shape object, before calling `draw()`.
+
+        While this value is thus always available for the segment implementations to use, it is mostly here to allow
+        segments to use it for internal calculations that require knowledge of the starting point. All imgui drawlists
+        path-methods use the starting point internally based on previous path calls.
+        """
+        return self._starting_point
+
+    def update(self, area: Rectangle, prev_point: Vector2):
+        """Updates our internal area and starting-point attributes to the given values."""
+        self._area = area
+        self._starting_point = prev_point
+
+    def draw(self):
+        """Draws this shape segment using IMGUI DrawLists path_* methods, according
+        to the segment's logic.
+
+        Note this is a abstract method: ShapeSegment subclasses should override this with their logic.
+        """
+        raise NotImplementedError(f"ShapeSegment subclass '{type(self).__name__}' missing `draw()` implementation.")
+
+    def get_endpoint(self) -> Vector2:
+        """Gets this segment's endpoint, in area relative coords.
+
+        This point is used as the starting point for the next segment in the shape.
+
+        Note this is a abstract method: ShapeSegment subclasses should override this with the logic.
+
+        Returns:
+            Vector2: the segment's endpoint, in relative coords.
+        """
+        raise NotImplementedError(f"ShapeSegment subclass '{type(self).__name__}' missing `get_endpoint()` implementation.")
+
+
+class ShapeLineSegment(ShapeSegment):
+    """Line segment for a Shape.
+
+    Draws a line from the previous end-point to a point specified in this segment.
+    """
+
+    @input_property(x_range=(0, 1), y_range=(0, 1))
+    def end_point(self) -> Vector2:
+        """The endpoint of this line segment.
+
+        The line drawn by this segment will be from the previous end-point to this point.
+        This point will then be the end-point for the next segment in the shape.
+
+        The point is a relative position inside our shape's area, with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+        """
+        return Vector2()
+
+    def draw(self):
+        draw = imgui.get_window_draw_list()
+        draw.path_line_to(self.area.get_inner_point(self.end_point))
+        # draw.path_line_to_merge_duplicate(position)
+
+    def get_endpoint(self):
+        return self.end_point
+
+
+class ShapeArcSegment(ShapeSegment):
+    """Arc segment for a shape.
+
+    Draws a circle arc from the previous end-point and starting angle to a ending angle, which
+    will be the arc's endpoint.
+    """
+
+    @input_property(min=0, max=1, is_slider=True)
+    def radius(self) -> float:
+        """The radius of the arc's curve from its center point.
+
+        This value (in [0,1] range) is normalized to the minimum component/axis of the area we're being drawn to.
+        Which means when at max radius (value=1), the curve will go from one side of the area to the other.
+        """
+        return 0.05
+
+    @input_property(min=0, max=360, is_slider=True)
+    def angle_start(self) -> float:
+        """The starting angle of the arc, in degrees.
+
+        0 degrees points to the right (+X axis).
+
+        This angle, along with the previous end-point, are used to determine the Arc's center-point.
+        """
+        return 270.0
+
+    @input_property(min=0, max=360, is_slider=True)
+    def angle_end(self) -> float:
+        """The ending angle of the arc, in degrees.
+
+        0 degrees points to the right (+X axis).
+
+        The arc is drawn from `angle_start` to `angle_end` in a clockwise direction.
+        The point in the the arc defined by this angle is this arc's end-point for the next segment.
+        """
+        return 270.0
+
+    @property
+    def center(self):
+        """Gets the center point of this arc, based on the segment's starting-point and the arc's
+        starting angle."""
+        # offset = vector from center to starting point
+        angle_rads = math.radians(self.angle_start)
+        offset = Vector2.from_angle(angle_rads) * self.radius
+        return self.starting_point - offset
+
+    def draw(self):
+        draw = imgui.get_window_draw_list()
+        angle_min = math.radians(self.angle_start)
+        angle_max = math.radians(self.angle_end)
+        draw.path_arc_to(self.center, self.radius, angle_min, angle_max)
+        # draw.path_arc_to_fast(center, radius, angleMinOf12, angleMaxOf12)
+        # draw.path_elliptical_arc_to(center, radius, rotation, angleMin, angleMax)
+
+    def get_endpoint(self):
+        angle_rads = math.radians(self.angle_end)
+        # offset is vector from center to endpoint.
+        offset = Vector2.from_angle(angle_rads) * self.radius
+        return self.center + offset
+
+
+class ShapeCurveSegment(ShapeSegment):
+    """Bezier-curve segment for a Shape.
+
+    Draws a bezier-curve from the previous end-point to a point specified in this segment.
+    """
+
+    @input_property(x_range=(0, 1), y_range=(0, 1))
+    def control_point1(self) -> Vector2:
+        """The first control-point for this bezier-curve.
+
+        The point is a relative position inside our shape's area, with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+        """
+        return Vector2()
+
+    @input_property(x_range=(0, 1), y_range=(0, 1))
+    def control_point2(self) -> Vector2:
+        """The second control-point for this bezier-curve.
+
+        This is only used if this is a cubic bezier-curve (see `use_cubic_curve` property).
+
+        The point is a relative position inside our shape's area, with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+        """
+        return Vector2()
+
+    @input_property(x_range=(0, 1), y_range=(0, 1))
+    def end_point(self) -> Vector2:
+        """The endpoint of this curve segment.
+
+        The curve drawn by this segment will be from the previous end-point to this point,
+        bending according to our control points.
+        This point will then be the end-point for the next segment in the shape.
+
+        The point is a relative position inside our shape's area, with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+        """
+        return Vector2()
+
+    @input_property()
+    def use_cubic_curve(self) -> bool:
+        """If this segment will use a CUBIC bezier-curve instead of the default QUADRATIC curve."""
+        return False
+
+    def draw(self):
+        draw = imgui.get_window_draw_list()
+        c1 = self.area.get_inner_point(self.control_point1)
+        endpoint = self.area.get_inner_point(self.end_point)
+        if self.use_cubic_curve:
+            c2 = self.area.get_inner_point(self.control_point2)
+            draw.path_bezier_cubic_curve_to(c1, c2, endpoint)
+        else:
+            draw.path_bezier_quadratic_curve_to(c1, endpoint)
+
+    def get_endpoint(self):
+        return self.end_point

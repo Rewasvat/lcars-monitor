@@ -280,6 +280,7 @@ class Alert(LCARSWidget):
         self._setup_bar_data()
 
 
+# TODO: refactor this class, or its usage, to use the new Shape widget.
 class XAMLPath:
     """IMGUI Control to render the generic polygon from the Path directive of a C#'s XAML file.
 
