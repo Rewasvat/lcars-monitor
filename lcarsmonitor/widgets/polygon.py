@@ -34,41 +34,12 @@ class PolygonFillMode(Enum):
     with the given color and thickness."""
 
 
-# NOTE: Important: filled shapes must always use clockwise winding order! The anti-aliasing fringe depends on it.
-#       Counter-clockwise shapes will have "inward" anti-aliasing.
-###
-# TODO: botao pra abrir algum tipo de UI pra desenhar os pontos in-game pra config local (em vez de setar pontos na lista manualmente).
-class Polygon(LeafWidget):
-    """Generic polygon drawing widget.
-
-    Allows the definition and drawing of a polygonal shape from a list of points in relative-coords.
-
-    For more advanced generic shape drawing, see the `Shape` widget.
-    """
+class BasePolygonAttributes:
+    """Mixin of common attributes/properties for polygon-related widgets."""
 
     def __init__(self):
-        super().__init__()
-        self.node_header_color = WidgetColors.Primitives
         self._fill_mode: PolygonFillMode = PolygonFillMode.STROKE
         self._out_margin = 5
-        self._on_clicked = actions.ActionFlow(self, PinKind.output, "On Click")
-        self.add_pin(self._on_clicked)
-
-    @input_property(dynamic_input_pins=True, item_config={"x_range": (0, 1), "y_range": (0, 1)})
-    def points(self) -> list[Vector2]:
-        """The list of points (vertices) of the polygon.
-
-        Each point is a relative position inside our "inner polygon area", with (0,0) being top-left and
-        (1,1) being bottom-right of the area, and the minimum/maximum points.
-
-        The "inner polygon area" is the rect area where the polygon will be drawn. This is the maximum possible rect
-        with our `ratio` contained within our slot's area. The `ratio` is the aspect-ratio of this inner area rect.
-        See the `ratio` and `use_area_ratio` attributes.
-
-        At least 3 points are required to draw a polygon. The points in this list should be in clockwise winding order
-        for the polygon to be properly drawn.
-        """
-        return []
 
     @primitives.enum_property()
     def fill_mode(self):
@@ -117,6 +88,59 @@ class Polygon(LeafWidget):
         """Thickness of this polygon's lines, when using fill-mode STROKE. [GET/SET]"""
         return 5
 
+    def get_inner_area(self, area: Rectangle):
+        """Gets the inner area to draw this polygon inside the given area rectangle,
+        respecting our aspect-ratio and margin properties.
+
+        Args:
+            area (Rectangle): parent area in which the polygon will be drawn.
+
+        Returns:
+            Rectangle: inner area inside the parent area to draw to polygon in.
+        """
+        if self.use_area_ratio:
+            ratio = area.size.aspect_ratio()
+        else:
+            ratio = self.ratio
+        return area.get_inner_rect(ratio, self.out_margin)
+
+
+# NOTE: Important: filled shapes must always use clockwise winding order! The anti-aliasing fringe depends on it.
+#       Counter-clockwise shapes will have "inward" anti-aliasing.
+###
+# TODO: botao pra abrir algum tipo de UI pra desenhar os pontos in-game pra config local (em vez de setar pontos na lista manualmente).
+class Polygon(BasePolygonAttributes, LeafWidget):
+    """Generic polygon drawing widget.
+
+    Allows the definition and drawing of a polygonal shape from a list of points in relative-coords.
+    The points in this list should be in clockwise winding order for the polygon to be properly drawn.
+
+    For more advanced generic shape drawing, see the `Shape` widget.
+    """
+
+    def __init__(self):
+        LeafWidget.__init__(self)
+        BasePolygonAttributes.__init__(self)
+        self.node_header_color = WidgetColors.Primitives
+        self._on_clicked = actions.ActionFlow(self, PinKind.output, "On Click")
+        self.add_pin(self._on_clicked)
+
+    @input_property(dynamic_input_pins=True, item_config={"x_range": (0, 1), "y_range": (0, 1)})
+    def points(self) -> list[Vector2]:
+        """The list of points (vertices) of the polygon.
+
+        Each point is a relative position inside our "inner polygon area", with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+
+        The "inner polygon area" is the rect area where the polygon will be drawn. This is the maximum possible rect
+        with our `ratio` contained within our slot's area. The `ratio` is the aspect-ratio of this inner area rect.
+        See the `ratio` and `use_area_ratio` attributes.
+
+        At least 3 points are required to draw a polygon. The points in this list should be in clockwise winding order
+        for the polygon to be properly drawn.
+        """
+        return []
+
     def _draw_polygon(self, color: Color):
         """Draws this polygon using simple imgui draw-list add-poly commands."""
         if len(self.points) < 3:
@@ -124,11 +148,7 @@ class Polygon(LeafWidget):
 
         draw = imgui.get_window_draw_list()
         color_val = color.u32
-        if self.use_area_ratio:
-            ratio = self.area.size.aspect_ratio()
-        else:
-            ratio = self.ratio
-        inner_area = self.area.get_inner_rect(ratio, self.out_margin)
+        inner_area = self.get_inner_area(self.area)
 
         absolute_points = []
         for point in self.points:
