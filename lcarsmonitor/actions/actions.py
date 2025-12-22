@@ -74,7 +74,7 @@ class ActionFlow(NodePin):
                     self.parent_node.execute()
             except Exception:
                 # TODO: melhorar msg pra ser mais fácil identificar qual action node que falhou.
-                click.secho(f"Error while executing action {self.parent_node}:\n{traceback.format_exc()}", fg="red")
+                click.secho(f"Error while executing action {self.parent_node}/{self}:\n{traceback.format_exc()}", fg="red")
         else:
             # If we are a output flow pin, we trigger all input pins we're connected to.
             # Since flow pins only connect to flow pins, they'll have this trigger() method.

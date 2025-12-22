@@ -3,11 +3,13 @@ import click
 import lcarsmonitor.actions as actions
 import libasvat.imgui.editors.primitives as primitives
 import libasvat.imgui.editors.container as containers
+import libasvat.imgui.nodes.node_config as node_config
 from libasvat.imgui.math import Vector2, Rectangle
 from libasvat.imgui.colors import Color, Colors
 from libasvat.imgui.assets import ImageInfo, AssetPath
 from libasvat.imgui.nodes import input_property, PinKind
 from libasvat.imgui.general import not_user_creatable
+from libasvat.imgui.editors.database import TypeDatabase
 from lcarsmonitor.widgets.base import LeafWidget, WidgetColors
 from lcarsmonitor.widgets.rect import RectMixin
 from lcarsmonitor.widgets.label import TextMixin, Alignment
@@ -178,80 +180,8 @@ class Polygon(BasePolygonAttributes, LeafWidget):
         self._draw_polygon(self.style.get_current_color(self))
 
 
-class Shape(BasePolygonAttributes, LeafWidget):
-    """Path-based generic shape drawing widget.
-
-    Allows the definition of a path, built using lines and curves, in order to create a generic shape.
-
-    The points/segments in the path should be in clockwise winding order for the shape to be properly drawn.
-    """
-
-    def __init__(self):
-        LeafWidget.__init__(self)
-        BasePolygonAttributes.__init__(self)
-        self.node_header_color = WidgetColors.Primitives
-        self._on_clicked = actions.ActionFlow(self, PinKind.output, "On Click")
-        self.add_pin(self._on_clicked)
-        self._segments: list[ShapeSegment] = []
-
-    @input_property(x_range=(0, 1), y_range=(0, 1))
-    def starting_point(self) -> Vector2:
-        """The starting (or initial) point of the path to draw this shape.
-
-        The point is a relative position inside our "inner polygon area", with (0,0) being top-left and
-        (1,1) being bottom-right of the area, and the minimum/maximum points.
-
-        The "inner polygon area" is the rect area where the polygon will be drawn. This is the maximum possible rect
-        with our `ratio` contained within our slot's area. The `ratio` is the aspect-ratio of this inner area rect.
-        See the `ratio` and `use_area_ratio` attributes.
-
-        The path segments are then drawn in order from this point in order to complete the shape.
-        This acts as the root/initial "previous end-point" to which the following segments use.
-        """
-        return Vector2()
-
-    @containers.list_property()
-    def segments(self) -> list['ShapeSegment']:
-        """Ordered list of path-segments that make up this shape. [GET/SET]"""
-        return self._segments
-
-    @segments.setter
-    def segments(self, value: list['ShapeSegment']):
-        self._segments = value
-
-    def _draw_shape(self, color: Color):
-        """Draws this path-based shape, by orderly drawing all our path segments."""
-        draw = imgui.get_window_draw_list()
-        inner_area = self.get_inner_area(self.area)
-
-        # Start drawing shape by its initial point.
-        if len(self.segments) < 1:
-            # no point trying to draw shape without any segments.
-            return
-        draw.path_line_to(inner_area.get_inner_point(self.starting_point))
-
-        # Then draw each segment in order.
-        prev_point = self.starting_point
-        for segment in self.segments:
-            segment.update(inner_area, prev_point)
-            segment.draw(inner_area)
-            prev_point = segment.get_endpoint()
-
-        # Finish the shape with fill or stroke color.
-        if self.fill_mode is PolygonFillMode.CONCAVE_FILL:
-            draw.path_fill_concave(color.u32)
-        elif self.fill_mode is PolygonFillMode.CONVEX_FILL:
-            draw.path_fill_convex(color.u32)
-        else:
-            draw.path_stroke(color.u32, thickness=self.thickness)
-
-    def render(self):
-        if self._handle_interaction():
-            self._on_clicked.trigger()
-        self._draw_shape(self.style.get_current_color(self))
-
-
 @not_user_creatable
+@TypeDatabase.register_editor_class_for_this(containers.ObjectEditor)
 class ShapeSegment:
     """Base segment class to define the path-segments in a Shape widget.
 
@@ -311,6 +241,9 @@ class ShapeSegment:
         """
         raise NotImplementedError(f"ShapeSegment subclass '{type(self).__name__}' missing `get_endpoint()` implementation.")
 
+    def __str__(self):
+        return type(self).__name__.replace("Shape", "")
+
 
 class ShapeLineSegment(ShapeSegment):
     """Line segment for a Shape.
@@ -355,6 +288,11 @@ class ShapeArcSegment(ShapeSegment):
         """
         return 0.05
 
+    @property
+    def actual_radius(self):
+        """The actual radius of this arc, based on our relative radius (`self.radius`) and our inner area."""
+        return self.radius * self.area.size.min_component()
+
     @input_property(min=0, max=360, is_slider=True)
     def angle_start(self) -> float:
         """The starting angle of the arc, in degrees.
@@ -389,7 +327,10 @@ class ShapeArcSegment(ShapeSegment):
         draw = imgui.get_window_draw_list()
         angle_min = math.radians(self.angle_start)
         angle_max = math.radians(self.angle_end)
-        draw.path_arc_to(self.center, self.radius, angle_min, angle_max)
+        actual_center = self.area.get_inner_point(self.center)
+        # TODO: arrumar isso. angleMin ~= 270 faz coisas estranhas acontecerem... Parece que o center se move pra um lugar que não devia,
+        #   ai o starting-point não bate com o endpoint anterior.
+        draw.path_arc_to(actual_center, self.actual_radius, angle_min, angle_min + angle_max)
         # draw.path_arc_to_fast(center, radius, angleMinOf12, angleMaxOf12)
         # draw.path_elliptical_arc_to(center, radius, rotation, angleMin, angleMax)
 
@@ -456,3 +397,91 @@ class ShapeCurveSegment(ShapeSegment):
 
     def get_endpoint(self):
         return self.end_point
+
+
+class Shape(BasePolygonAttributes, LeafWidget):
+    """Path-based generic shape drawing widget.
+
+    Allows the definition of a path, built using lines and curves, in order to create a generic shape.
+
+    The points/segments in the path should be in clockwise winding order for the shape to be properly drawn.
+    """
+
+    def __init__(self):
+        LeafWidget.__init__(self)
+        BasePolygonAttributes.__init__(self)
+        self.node_header_color = WidgetColors.Primitives
+        self._on_clicked = actions.ActionFlow(self, PinKind.output, "On Click")
+        self.add_pin(self._on_clicked)
+        self._segments: list[ShapeSegment] = []
+
+    @input_property(x_range=(0, 1), y_range=(0, 1))
+    def starting_point(self) -> Vector2:
+        """The starting (or initial) point of the path to draw this shape.
+
+        The point is a relative position inside our "inner polygon area", with (0,0) being top-left and
+        (1,1) being bottom-right of the area, and the minimum/maximum points.
+
+        The "inner polygon area" is the rect area where the polygon will be drawn. This is the maximum possible rect
+        with our `ratio` contained within our slot's area. The `ratio` is the aspect-ratio of this inner area rect.
+        See the `ratio` and `use_area_ratio` attributes.
+
+        The path segments are then drawn in order from this point in order to complete the shape.
+        This acts as the root/initial "previous end-point" to which the following segments use.
+        """
+        return Vector2()
+
+    @containers.list_property(use_item_subclasses=True)
+    def segments(self) -> list[ShapeSegment]:
+        """Ordered list of path-segments that make up this shape. [GET/SET]"""
+        return self._segments
+
+    @segments.setter
+    def segments(self, value: list[ShapeSegment]):
+        self._segments = value
+
+    def _draw_shape(self, color: Color):
+        """Draws this path-based shape, by orderly drawing all our path segments."""
+        draw = imgui.get_window_draw_list()
+        inner_area = self.get_inner_area(self.area)
+
+        # Start drawing shape by its initial point.
+        if len(self.segments) < 1:
+            # no point trying to draw shape without any segments.
+            return
+        draw.path_line_to(inner_area.get_inner_point(self.starting_point))
+
+        # Then draw each segment in order.
+        prev_point = self.starting_point
+        for segment in self.segments:
+            segment.update(inner_area, prev_point)
+            segment.draw()
+            prev_point = segment.get_endpoint()
+
+        # Finish the shape with fill or stroke color.
+        if self.fill_mode is PolygonFillMode.CONCAVE_FILL:
+            draw.path_fill_concave(color.u32)
+        elif self.fill_mode is PolygonFillMode.CONVEX_FILL:
+            draw.path_fill_convex(color.u32)
+        else:
+            draw.path_line_to(inner_area.get_inner_point(self.starting_point))
+            draw.path_stroke(color.u32, thickness=self.thickness)
+
+    def render(self):
+        if self._handle_interaction():
+            self._on_clicked.trigger()
+        self._draw_shape(self.style.get_current_color(self))
+
+    def get_custom_config_data(self):
+        data = super().get_custom_config_data()
+        data["segments"] = [node_config.get_all_prop_values_for_storage(segment) for segment in self.segments]
+        return data
+
+    def setup_from_config_post_props(self, data):
+        # Our segments property isn't automatically saved properly since its a list of complex objects.
+        # Each segment is saved, but not its properties. So we do that ourselves here.
+        # TODO: seria bom arrumar isso, pro get_all/restore_prop_values funcionar recursivamente com containers de objetos complexos.
+        #   Talvez afete a necessidade desses setup_from_config nos Nodes.
+        for i, segment_data in enumerate(data.get("segments", [])):
+            node_config.restore_prop_values_to_object(self.segments[i], segment_data)
+        return super().setup_from_config_post_props(data)

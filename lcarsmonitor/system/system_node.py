@@ -87,6 +87,7 @@ class UseSystem(ContainerWidget):
         # NodeConfig logic would set the system-name value automatically, since `self.system_name` is a Data Property.
         # However, that would happend AFTER this method, and we need it at this point in order to instantiate the UISystem now,
         # so we can properly restore its input values.
+        # TODO: deve dar pra arrumar isso agora usando self.setup_from_config_post_props()
         self.system_name = system_name
 
         # Load the subsystem's input data.
