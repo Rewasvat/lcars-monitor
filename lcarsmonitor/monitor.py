@@ -23,6 +23,7 @@ class MonitorAppData:
         self._update_time: float = 1.0
         self._use_borderless_display: bool = False
         self._idle_fps: int = 1
+        self._window_fps: int = 60
 
     @property
     def update_time(self) -> float:
@@ -58,11 +59,11 @@ class MonitorAppData:
     def use_borderless_display(self) -> bool:
         """If the DISPLAY mode window should be borderless.
 
-        Borderless windows have larger areas since they have no borders or title bars, but can still be moved aroundm resized and closed as usual.
+        Borderless windows have larger areas since they have no borders or title bars, but can still be moved around, resized and closed as usual.
 
-        The window has a "dummy" title bar that appears when the mouse hovers over the top-region of the window. Clicking and dragging it allows
-        moving the window, and clicking the "X" button closes it. When the lower-right corner is hovered, a "resize" widget appears, allowing
-        clicking&dragging to resize the window.
+        The borderless window has a "dummy" title bar that appears when the mouse hovers over the top-region of the window. Clicking & dragging
+        it allows moving the window, and clicking the "X" button closes it. When the lower-right corner is hovered, a "resize" widget appears,
+        allowing click & drag to resize the window.
 
         The downside is that the window can't be maximized as usual, and its selected size/position in your desktop isn't always properly saved
         at the moment.
@@ -92,6 +93,31 @@ class MonitorAppData:
     @idle_fps.setter
     def idle_fps(self, value: int):
         self._idle_fps = value
+
+    @primitives.int_property(min=0, max=240, is_slider=True)
+    def window_fps(self) -> int:
+        """FPS at which the window will run when the app is NOT IDLE.
+
+        The app is considered not-idle when user interaction is detected, or if idling is disabled.
+        When running (non-idling), the window tries to run at the maximum FPS the system performance allows it.
+        This setting can then cap the maximum FPS of the window to this value. If this value is 0, the FPS will be uncapped.
+
+        If idling is enabled and no user interaction is detected after a little while, the window will change into the idle mode,
+        using the ``idle_fps`` cap.
+
+        Note that this is just the "target" FPS cap. The actual FPS when running may be lower depending on the system performance,
+        and even without a FPS cap, the monitor's refresh rate might be the window's upper limit for frame rate.
+
+        It is recommended to set this to a value that allows smooth interactions with the GUI, like something between 30 and 60 FPS,
+        even if your PC can run it higher like 120 or more. That's because running the Monitor GUI in a higher refresh rate will have
+        little visual/UX benefit, while consuming more CPU/GPU resources.
+        And while gaming, for example, the monitor will most likely be in a IDLE state anyway.
+        """
+        return self._window_fps
+
+    @window_fps.setter
+    def window_fps(self, value: int):
+        self._window_fps = value
 
     def save(self):
         """Saves the MonitorAppData to LCARSMonitor's DataCache for persistence."""
@@ -158,6 +184,7 @@ class SystemMonitorApp(windows.AppWindow):
         in_edit_mode = self.data.in_edit_mode
         self.mode = windows.RunnableAppMode.DOCK if in_edit_mode else windows.RunnableAppMode.SIMPLE
         self.idle_fps = self.data.idle_fps
+        self.window_fps_cap = self.data.window_fps
         self.show_app_menu = in_edit_mode
         self.show_menu_bar = in_edit_mode
         self.show_status_bar = in_edit_mode
@@ -205,6 +232,8 @@ class SystemMonitorApp(windows.AppWindow):
         if changed:
             if self.idle_fps != self.data.idle_fps:
                 self.idle_fps = self.data.idle_fps
+            if self.window_fps_cap != self.data.window_fps:
+                self.window_fps_cap = self.data.window_fps
 
     def _render_display_mode_context_menu(self):
         menu_title = "MonitorDisplayModeMenu"
