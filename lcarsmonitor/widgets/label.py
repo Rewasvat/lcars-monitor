@@ -189,6 +189,16 @@ class TextObject:
         this rect should be fully contained in it. This is updated everytime ``self.draw()`` is called."""
         return self._text_rect
 
+    @property
+    def max_text_margin(self):
+        """Maximum text margin possible.
+
+        Corresponds to the lesser component of `Area Size - Text Size`. This way, with this margin the text
+        will usually be touching the opposite border of its text-alignment corner.
+        """
+        empty_space = self.area.size - self.text_area.size
+        return max(1, empty_space.min_component())
+
     def draw(self):
         """Draws this text object to IMGUI.
 
@@ -360,6 +370,7 @@ class TextMixin:
     def __init__(self, text: str = ""):
         self._text_internal = TextObject()
         self.text = text
+        self._text_margin: float = 0.0
 
     @input_property(multiline=True)
     def text(self) -> str:
@@ -384,29 +395,19 @@ class TextMixin:
     def align(self, value: Alignment):
         self._text_internal.align = value
 
-    @property
-    def max_text_margin(self):
-        """Maximum text margin possible.
-
-        Corresponds to the lesser component of `Area Size - Text Size`. This way, with this margin the text
-        will usually be touching the opposite border of its text-alignment corner.
-        """
-        empty_space = self._text_internal.area.size - self._text_internal.text_area.size
-        return max(1, empty_space.min_component())
-
-    @primitives.float_property(min=0, max=1, is_slider=True)
+    @primitives.float_property(min=0, max=1, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def text_margin(self):
         """Spacing between the text and our area's borders. Does not apply when using CENTER text-alignment.
 
         This is a value in the range [0,1]. It is a relative percentage of the minimum (no margin, or 0) value and
         the maximum margin possible (so the text touches the opposite border).
         """
-        return self._text_internal.margin / self.max_text_margin
+        return self._text_margin
 
     @text_margin.setter
     def text_margin(self, value: float):
         value = max(0, min(1, value))
-        self._text_internal.margin = value * self.max_text_margin
+        self._text_margin = value
 
     @input_property(min=0.0, max=2.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def scale(self) -> float:
@@ -443,6 +444,7 @@ class TextMixin:
         self._text_internal.text = self._format_text(self.text)
         self._text_internal.color = color
         self._text_internal.scale = self.scale
+        self._text_internal.margin = self.text_margin * self._text_internal.max_text_margin
         self._text_internal.draw()
 
     def _format_text(self, text: str):
