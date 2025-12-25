@@ -23,7 +23,6 @@ class PanelBorders(Flag):
 
 
 # TODO: arrumar bordas só poderem ter Leafs ou AxisLists com só Leafs
-# TODO: border ratios com absolute=False tão bizarros
 class Panel(ContainerWidget):
     """A container widget with a single child and optional margin and borders around it.
 
@@ -38,10 +37,10 @@ class Panel(ContainerWidget):
 
         self._borders_type: PanelBorders = PanelBorders.ALL
         self._out_margin: float = 5.0
-        self._border_width_ratio = 0.3
-        self._border_height_ratio = 0.1
-        self._corner_inner_radius_ratio = 0.15  # based on width
-        self._use_absolute_values = False
+        self._border_width_ratio = 0.5
+        self._border_height_ratio = 0.5
+        self._corner_width_ratio = 0.3
+        self._corner_height_ratio = 0.2
 
         self._fixed_slots = [Slot(self, name) for name in base_names]
         self.corners = [
@@ -92,10 +91,9 @@ class Panel(ContainerWidget):
 
     @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def border_width_ratio(self):
-        """The ratio of our available horizontal space that is used as the width for each of the LEFT/RIGHT borders. [GET/SET]
+        """The ratio of the corner's horizontal space that is used as the width for each of the LEFT/RIGHT borders. [GET/SET]
 
-        This is the ratio (in [0,1]) of our area width that will be our column width. If ``self.use_absolute_values``
-        is True, then this value will be our column width directly.
+        This is the ratio (in [0,1]) of our corner width (see ``corner_width_ratio``) that will be our column width.
         """
         return self._border_width_ratio
 
@@ -105,10 +103,9 @@ class Panel(ContainerWidget):
 
     @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
     def border_height_ratio(self):
-        """The ratio of our available vertical space that is used as the height for each of the TOP/BOTTOM borders. [GET/SET]
+        """The ratio of the corner's vertical space that is used as the height for each of the TOP/BOTTOM borders. [GET/SET]
 
-        This is the ratio (in [0,1]) of our area height that will be our bar height. If ``self.use_absolute_values``
-        is True, then this value will be our bar height directly.
+        This is the ratio (in [0,1]) of our corner height (see ``corner_height_ratio``) that will be our bar height.
         """
         return self._border_height_ratio
 
@@ -117,21 +114,32 @@ class Panel(ContainerWidget):
         self._border_height_ratio = value
 
     @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
-    def corner_inner_radius_ratio(self) -> float:
-        return self._corner_inner_radius_ratio
+    def corner_width_ratio(self):
+        """The ratio of our available horizontal space that is used as the width for each of the corners. [GET/SET]
 
-    @corner_inner_radius_ratio.setter
-    def corner_inner_radius_ratio(self, value: float):
-        self._corner_inner_radius_ratio = value
+        This is the ratio (in [0,1]) of our area width that will be our corner width. Note that if we have corners on both
+        sides, using a ratio > 0.5 will cause them to overlap. Similarly, using ratio=0 will cause the corners to be invisible (have no size),
+        in which case it's best to just disable them with the ``borders_type`` property.
+        """
+        return self._corner_width_ratio
 
-    @primitives.bool_property()
-    def use_absolute_values(self):
-        """If our border width/height ratios are absolute values instead of ratios to our area size. [GET/SET]"""
-        return self._use_absolute_values
+    @corner_width_ratio.setter
+    def corner_width_ratio(self, value: float):
+        self._corner_width_ratio = value
 
-    @use_absolute_values.setter
-    def use_absolute_values(self, value: bool):
-        self._use_absolute_values = value
+    @primitives.float_property(max=1.0, is_slider=True, flags=imgui.SliderFlags_.always_clamp)
+    def corner_height_ratio(self):
+        """The ratio of our available vertical space that is used as the height for each of the corners. [GET/SET]
+
+        This is the ratio (in [0,1]) of our area height that will be our corner height. Note that if we have corners on top and bottom,
+        using a ratio > 0.5 will cause them to overlap. Similarly, using ratio=0 will cause the corners to be invisible (have no size),
+        in which case it's best to just disable them with the ``borders_type`` property.
+        """
+        return self._corner_height_ratio
+
+    @corner_height_ratio.setter
+    def corner_height_ratio(self, value: float):
+        self._corner_height_ratio = value
 
     @input_property()
     def border_style(self) -> VisualStyle:
@@ -152,19 +160,15 @@ class Panel(ContainerWidget):
     @property
     def border_size(self):
         """Base real size of borders, from our settings [GET]"""
-        size = Vector2(self._border_width_ratio, self._border_height_ratio)
-        if not self._use_absolute_values:
-            size *= self.area.size
-        return size
+        size = self.corner_size
+        return size * Vector2(self.border_width_ratio, self.border_height_ratio)
 
     @property
     def corner_size(self):
         """Real size of all corners [GET]"""
-        size = self.border_size
-        small = self._corner_inner_radius_ratio
-        if not self._use_absolute_values:
-            small *= size.x
-        return Corner.get_min_area(size.x, size.y, small)
+        size = Vector2(self.corner_width_ratio, self.corner_height_ratio)
+        size *= self.area.size
+        return size
 
     @property
     def child_pos(self):
@@ -220,9 +224,9 @@ class Panel(ContainerWidget):
             enabled = PanelBorders.BOTTOM in self._borders_type and PanelBorders.LEFT in self._borders_type
             pos += (margin_vec.x, self.area.size.y - size.y - margin_vec.y)
 
-        corner.use_absolute_values = self._use_absolute_values
-        corner.width_ratio = self._border_width_ratio
-        corner.height_ratio = self._border_height_ratio
+        corner.use_absolute_values = False
+        corner.width_ratio = self.border_width_ratio
+        corner.height_ratio = self.border_height_ratio
         corner.enabled = enabled
         corner.slot.enabled = True
         corner.slot.area.position = pos
@@ -304,28 +308,3 @@ class Panel(ContainerWidget):
         if menu_item("Fill Borders with Rects"):
             self.fill_borders_with_rects()
         imgui.set_item_tooltip(self.fill_borders_with_rects.__doc__)
-
-    # Dynamic Editor Updaters
-    def _update_border_width_ratio_editor(self, editor: primitives.FloatEditor):
-        """Method automatically called by our ``border_width_ratio`` float-property editor in order to dynamically
-        update its settings before editing."""
-        if self._use_absolute_values:
-            editor.max = self.area.size.x
-        else:
-            editor.max = 1.0
-
-    def _update_border_height_ratio_editor(self, editor: primitives.FloatEditor):
-        """Method automatically called by our ``border_height_ratio`` float-property editor in order to dynamically
-        update its settings before editing."""
-        if self._use_absolute_values:
-            editor.max = self.area.size.y
-        else:
-            editor.max = 1.0
-
-    def _update_corner_inner_radius_ratio_editor(self, editor: primitives.FloatEditor):
-        """Method automatically called by our ``corner_inner_radius_ratio`` float-property editor in order to dynamically
-        update its settings before editing."""
-        if self._use_absolute_values:
-            editor.max = self.border_size.x
-        else:
-            editor.max = 1.0
