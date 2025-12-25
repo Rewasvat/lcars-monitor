@@ -200,6 +200,8 @@ class SystemMonitorApp(windows.AppWindow):
             self.close()
         if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.end):
             self.change_mode()
+        if self.data.in_edit_mode and imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.s):
+            self.save_data()
 
         delta_t = imgui.get_io().delta_time
         sensors.ComputerSystem().timed_update(delta_t)
@@ -276,11 +278,7 @@ class SystemMonitorApp(windows.AppWindow):
             self.update_opened_system(self.selected_system)
 
     def on_before_exit(self):
-        for system in self.opened_systems.values():
-            system.save_config()
-        self.system_manager.save()
-        # TODO: persistir systems abertos pra edicao/display?
-        self.data.save()
+        self.save_data()
         super().on_before_exit()
 
     def change_mode(self):
@@ -417,10 +415,20 @@ class SystemMonitorApp(windows.AppWindow):
                     system.clear()
 
     def render_app_menu_items(self):
-        if imgui.menu_item_simple("Change to DISPLAY Mode"):
+        if imgui_utils.adv_button("Change to DISPLAY Mode", self.change_mode.__doc__, in_menu=True):
             self.change_mode()
-        imgui.set_item_tooltip(self.change_mode.__doc__)
+        if imgui_utils.adv_button("Save", self.save_data.__doc__, in_menu=True):
+            self.save_data()
         return super().render_app_menu_items()
+
+    def save_data(self):
+        """Saves all monitor data"""
+        for system in self.opened_systems.values():
+            system.save_config()
+        self.system_manager.save()
+        # TODO: persistir systems abertos pra edicao/display?
+        self.data.save()
+        click.secho("Saved all Monitor data!", fg="green")
 
 
 class MonitorMainWindow(windows.BasicWindow):
