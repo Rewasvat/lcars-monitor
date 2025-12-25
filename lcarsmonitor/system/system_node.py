@@ -29,18 +29,18 @@ class UseSystem(ContainerWidget):
         self._slot_class = SystemSlot
         self.node_bg_color = Color(0.1, 0.25, 0.15, 0.75)
         self.node_header_color = WidgetColors.External
-        self._system: UISystem = None
+        self._uisystem: UISystem = None
         self._system_pins: list[ActionFlow | DataPin] = []
 
     @primitives.string_property()
     def system_name(self) -> str:
         """Name of UISystem Config to use."""
-        return self._system.name if self._system is not None else ""
+        return self._uisystem.name if self._uisystem is not None else ""
 
     @system_name.setter
     def system_name(self, value: str):
-        if self._system is not None:
-            if self._system.name == value:
+        if self._uisystem is not None:
+            if self._uisystem.name == value:
                 return
             self._clear_system()
         manager = UIManager()
@@ -49,23 +49,23 @@ class UseSystem(ContainerWidget):
             self._set_system(config)
 
     @property
-    def system(self):
+    def uisystem(self):
         """Gets our internal UISystem being used.
 
         This depends on our ``system_name`` property.
         """
-        return self._system
+        return self._uisystem
 
     def render(self):
         self._handle_interaction()
         # No need to call `self.update_slots()` here, since we have no logic to update them.
         # Our 'SystemSlots' areas are actually directly updated by the ExternalWidgets that they render,
         # from the internal sub-UISystem.
-        if self._system is not None:
-            self._system.render()
+        if self._uisystem is not None:
+            self._uisystem.render()
 
     def delete(self):
-        if self._system is not None:
+        if self._uisystem is not None:
             self._clear_system()
         return super().delete()
 
@@ -107,7 +107,7 @@ class UseSystem(ContainerWidget):
 
     def _clear_system(self):
         """Clears and removes our instantiated UISystem and all other related objects (such as Pins, etc)."""
-        if self._system is None:
+        if self._uisystem is None:
             return
         # Remove all slots
         for slot in self.slots:
@@ -117,14 +117,14 @@ class UseSystem(ContainerWidget):
             pin.delete()
         self._system_pins.clear()
         # Clear the system itself
-        self._system.clear()
-        self._system = None
+        self._uisystem.clear()
+        self._uisystem = None
 
     def _set_system(self, config: SystemConfig):
         """Instantiates the UISystem from the given config and sets it up as our system, updating our pins, etc to match the system."""
-        self._system = config.instantiate()
+        self._uisystem = config.instantiate()
         # Create input-pin (for us) synced to the value output-pin of the sub-system's Input nodes.
-        for innode in self._system.input_nodes:
+        for innode in self._uisystem.input_nodes:
             if isinstance(innode, SystemActionInput):
                 pin = ActionFlow(self, PinKind.input, innode.name)
                 pin.pin_tooltip = innode.description
@@ -135,7 +135,7 @@ class UseSystem(ContainerWidget):
             self.add_pin(pin)
             self._system_pins.append(pin)
         # Create output-pin (for us) synced to the value input-pin of the sub-system's Output nodes.
-        for outnode in self._system.output_nodes:
+        for outnode in self._uisystem.output_nodes:
             if isinstance(outnode, ExternalWidget):
                 slot = SystemSlot(self, outnode)
                 self.add_new_slot(slot)
