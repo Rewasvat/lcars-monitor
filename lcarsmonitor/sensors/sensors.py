@@ -254,7 +254,7 @@ class Hardware:
         return [s for s in self.sensors if s.type == stype]
 
     def __str__(self):
-        return f"{self.type} {self.full_name}"
+        return self.full_name
 
 
 class SensorLimitsType(str, Enum):
