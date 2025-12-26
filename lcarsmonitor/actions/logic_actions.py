@@ -1,5 +1,5 @@
 from lcarsmonitor.actions.actions import Action, ActionFlow, ActionColors
-from libasvat.imgui.nodes import PinKind, input_property, output_property
+from libasvat.imgui.nodes import PinKind, input_property, output_property, SelectableTypeMixin
 from libasvat.imgui.general import not_user_creatable
 
 
@@ -7,12 +7,12 @@ from libasvat.imgui.general import not_user_creatable
 class LogicAction(Action):
     """Base class for logic flow related actions."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, include_default_flow_pins=True):
+        super().__init__(include_default_flow_pins=include_default_flow_pins)
         self.node_header_color = ActionColors.Logic
 
 
-class Branch(LogicAction):
+class ActionBranch(LogicAction):
     """Action Flow IF branching"""
 
     def __init__(self):
@@ -26,13 +26,39 @@ class Branch(LogicAction):
 
     @input_property()
     def condition(self) -> bool:
-        """Boolean value for the condition."""
+        """Boolean value for the condition check."""
 
     def execute(self):
         if self.condition:
             self.trigger_flow("True")
         else:
             self.trigger_flow("False")
+
+
+class DataBranch(SelectableTypeMixin, LogicAction):
+    """Data values IF branching"""
+
+    def __init__(self):
+        super().__init__(False)
+
+    @input_property()
+    def condition(self) -> bool:
+        """Boolean value for the condition check."""
+
+    @input_property()
+    def truthy(self):
+        """Value returned by this action if ``condition`` is truthy."""
+
+    @input_property()
+    def falsy(self):
+        """Value returned by this action if ``condition`` is falsy."""
+
+    @output_property(use_prop_value=True)
+    def result(self):
+        """The result of this data branch. Value is the same as either our ``truthy`` or ``falsy`` input, according to our ``condition``."""
+        if self.condition:
+            return self.truthy
+        return self.falsy
 
 
 class ForRangeLoop(LogicAction):
