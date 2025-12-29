@@ -149,10 +149,13 @@ class BarObject:
             draw.path_line_to(secnd_center)
             draw.path_fill_convex(self.bar_color.u32)
 
+        frame_offset = self.frame_thickness * 0.5 + 1
         if self.inner_hole_ratio > 0:
             draw.add_circle_filled(center, radius*self.inner_hole_ratio, Colors.background.u32)
-            draw.add_circle(center, radius*self.inner_hole_ratio, self.frame_color.u32, thickness=self.frame_thickness)
-        draw.add_circle(center, radius, self.frame_color.u32, thickness=self.frame_thickness)
+            if self.frame_thickness > 0:
+                draw.add_circle(center, radius*self.inner_hole_ratio - frame_offset, self.frame_color.u32, thickness=self.frame_thickness)
+        if self.frame_thickness > 0:
+            draw.add_circle(center, radius - frame_offset, self.frame_color.u32, thickness=self.frame_thickness)
 
 
 class ChainedBarObject:
@@ -354,7 +357,7 @@ class ProgressBar(TextMixin, LeafWidget):
 
     @frame_thickness.setter
     def frame_thickness(self, value: float):
-        self._inner_bar.frame_thickness = value
+        self._inner_bar.frame_thickness = max(value, 0)
 
     @primitives.enum_property()
     def bar_type(self) -> BarType:
