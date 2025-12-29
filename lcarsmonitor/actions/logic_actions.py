@@ -189,3 +189,81 @@ class DataSwitch(SelectableTypeMixin, LogicAction):
     def _update_selection_editor(self, editor: StringEditor):
         """Callback to update TypeEditor object from our ``selection`` property."""
         editor.options = self.input_names
+
+
+class ActionSwitch(LogicAction):
+    """Converts a named input action flow trigger into data.
+
+    Allows the user to set up multiple input actions, each with a specific name.
+    When any input is triggered, the node's sole output action "Trigger" is executed,
+    and the ``value`` output property has its value changed to the name of the input that was triggered.
+    """
+
+    def __init__(self):
+        super().__init__(False)
+        self._input_options: str = "A,B"
+        self._subpins: dict[str, ActionFlow] = {}
+
+        output_flow = ActionFlow(self, PinKind.output, "Trigger")
+        output_flow.pin_tooltip = "Triggered when any input flows are triggered. Our data output `value` pin will be properly updated."
+        self.add_pin(output_flow)
+
+    @primitives.string_property(imgui.InputTextFlags_.enter_returns_true)
+    def options(self) -> str:
+        """List of input options for this switch, defined as a comma-separated list of input names.
+
+        For example, defining this property as ``A,B,C`` will create 3 inputs for the switch: A, B and C.
+
+        The inputs created are flow-inputs, to be triggered by events such as a button's OnClick.
+        Our ``value`` outputted by this node will be the name of the triggered input.
+        """
+        return self._input_options
+
+    @options.setter
+    def options(self, value: str):
+        self._input_options = value
+        self.update_input_pins()
+
+    @output_property()
+    def value(self) -> str:
+        """The name of the input action that was last triggered."""
+
+    @property
+    def input_names(self):
+        """Names of our input pins, taken from the ``options`` property."""
+        return self.options.split(",")
+
+    def execute(self, trigger_pin: ActionFlow):
+        self.value = trigger_pin.pin_name
+        self.trigger_flow()
+
+    def update_input_pins(self):
+        """Updates our dynamic switch input pins, creating or deleting them as needed so that our pins
+        matches the expected input options defined in ``self.options``."""
+        new_keys = set(self.input_names)
+        cur_keys = set(self._subpins.keys())
+        missing = new_keys - cur_keys
+        for name in missing:
+            self.create_flow_pin(name)
+        removed = cur_keys - new_keys
+        for name in removed:
+            pin = self._subpins.pop(name)
+            pin.delete()
+
+    def create_flow_pin(self, name: str):
+        """Creates a new input flow sub-pin in this node with the given name.
+        These subpins are meant to represent the possible inputs for the switch, based on the given ``options``.
+
+        Args:
+            name (str): sub-pin name.
+        """
+        pin = ActionFlow(self, PinKind.input, name)
+        pin.pin_tooltip = "Switch action input. Changes the ``value`` output accordingly."
+        self.add_pin(pin)
+        return pin
+
+    def render_edit_details(self):
+        imgui.text("ActionSwitch Properties:")
+        type(self).options.render_editor(self)
+        imgui.separator()
+        return super().render_edit_details()

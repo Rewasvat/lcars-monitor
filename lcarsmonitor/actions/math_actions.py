@@ -217,3 +217,16 @@ class FormatString(Operation):
         pin = DataPin(self, state)
         self.add_pin(pin)
         self._subpins[name] = pin
+
+
+class FormatPercent(Operation):
+    """Formats a percent value (a float in [0,1] range) to a proper string"""
+
+    @input_property()
+    def percent(self) -> float:
+        """The percent value in [0,1] range"""
+
+    @output_property(use_prop_value=True)
+    def text(self):
+        """The percent value, formatted as a string from 0% to 100% with up to 2 decimal plates."""
+        return f"{self.percent*100.0:.2f}%"
