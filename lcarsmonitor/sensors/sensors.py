@@ -60,9 +60,9 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         self._pc.IsMotherboardEnabled = True
         self._pc.IsStorageEnabled = True
         self._pc.IsNetworkEnabled = True
-        # IsControllerEnabled  NOTE: tried this one, apparently was crashing due to missing assembly
-        # IsBatteryEnabled
-        # IsControllerEnabled
+        self._pc.IsBatteryEnabled = True
+        self._pc.IsControllerEnabled = True
+        self._pc.IsPsuEnabled = True
         self._pc.Open()
 
         for hw in self._pc.Hardware:
@@ -257,7 +257,7 @@ class Hardware:
         return self.full_name
 
 
-class SensorLimitsType(str, Enum):
+class SensorLimitsType(Enum):
     """Methods to acquire the min/max limits of a sensor.
     * CRITICAL: limits from sensor's device critical limits (if they exist).
     * LIMITS: limits from sensor's device limits (if they exist).
