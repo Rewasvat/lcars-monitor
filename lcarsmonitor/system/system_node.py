@@ -184,7 +184,7 @@ class SystemActionInput(SystemAction):
         self.flow_pin = ActionFlow(self, PinKind.output, "External Trigger")
         self.add_pin(self.flow_pin)
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         pass
 
 
@@ -198,7 +198,7 @@ class SystemActionOutput(SystemAction):
         self.flow_pin = ActionFlow(self, PinKind.input, "Execute External")
         self.add_pin(self.flow_pin)
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         pass
 
 

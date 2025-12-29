@@ -1,4 +1,4 @@
-from lcarsmonitor.actions.actions import Action, ActionColors
+from lcarsmonitor.actions.actions import Action, ActionColors, ActionFlow
 from libasvat.imgui.editors.primitives import StringEditor
 from libasvat.imgui.nodes import input_property, output_property
 from libasvat.imgui.general import not_user_creatable
@@ -29,7 +29,7 @@ class SetBoard(WidgetAction):
     def success(self) -> bool:
         """If changing selected slot on the board was successful."""
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         self.success = False
         if self.board and self.slot_name:
             if self.slot_name in self.board.boards:

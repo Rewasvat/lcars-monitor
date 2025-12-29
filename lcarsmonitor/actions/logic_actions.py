@@ -31,7 +31,7 @@ class ActionBranch(LogicAction):
     def condition(self) -> bool:
         """Boolean value for the condition check."""
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         if self.condition:
             self.trigger_flow("True")
         else:
@@ -100,7 +100,7 @@ class ForRangeLoop(LogicAction):
     def index(self) -> int:
         """The current index of the loop. Should be used along with ``On Iteration`` triggers."""
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         for i in range(self.start, self.end, self.step):
             self.index = i
             self.trigger_flow("On Iteration")

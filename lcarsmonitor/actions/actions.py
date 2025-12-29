@@ -71,7 +71,7 @@ class ActionFlow(NodePin):
                 if self.synced_to_flow:
                     self.synced_to_flow.trigger()
                 else:
-                    self.parent_node.execute()
+                    self.parent_node.execute(self)
             except Exception:
                 # TODO: melhorar msg pra ser mais fácil identificar qual action node que falhou.
                 click.secho(f"Error while executing action {self.parent_node}/{self}:\n{traceback.format_exc()}", fg="red")
@@ -120,7 +120,7 @@ class Action(Node):
         if create_data_pins:
             self.create_data_pins_from_properties()
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         """Executes the logic of this action.
 
         Subclasses should overwrite this method to implement their logic. Default behavior in ``Action`` base class is to
@@ -138,6 +138,10 @@ class Action(Node):
         * Process its data, do its work, etc.
         * Set its output data using its output property's setters.
         * Use ``trigger_flow(name)`` to trigger the next node, connected to our ActionFlow output pin with the given name.
+
+        Args:
+            trigger_pin (ActionFlow): the flow pin that triggered this execution. By definition it should be a input flow pin
+                of this node.
         """
         raise NotImplementedError
 

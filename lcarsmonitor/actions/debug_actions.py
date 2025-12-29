@@ -1,5 +1,5 @@
 import click
-from lcarsmonitor.actions.actions import Action, ActionColors
+from lcarsmonitor.actions.actions import Action, ActionColors, ActionFlow
 from libasvat.imgui.nodes import input_property
 from libasvat.imgui.general import not_user_creatable
 
@@ -20,6 +20,6 @@ class Print(DebugAction):
     def text(self) -> str:
         """Text to print."""
 
-    def execute(self):
+    def execute(self, trigger_pin: ActionFlow):
         click.secho(self.text)
         self.trigger_flow()
