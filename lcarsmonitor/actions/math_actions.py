@@ -1,7 +1,8 @@
 import re
 import math
+import libasvat.imgui.editors.primitives as primitives
 from lcarsmonitor.actions.actions import Action, ActionColors
-from libasvat.imgui.nodes import input_property, output_property, DataPin, DataPinState, PinKind
+from libasvat.imgui.nodes import input_property, output_property, DataPin, DataPinState, PinKind, SelectableTypeMixin
 from libasvat.imgui.general import not_user_creatable
 from libasvat.imgui.math import Vector2
 
@@ -10,8 +11,8 @@ from libasvat.imgui.math import Vector2
 class Operation(Action):
     """Base class for math-related actions."""
 
-    def __init__(self):
-        super().__init__(False)
+    def __init__(self, create_data_pins=True):
+        super().__init__(False, create_data_pins)
         self.node_header_color = ActionColors.Operations
 
 
@@ -230,3 +231,178 @@ class FormatPercent(Operation):
     def text(self):
         """The percent value, formatted as a string from 0% to 100% with up to 2 decimal plates."""
         return f"{self.percent*100.0:.2f}%"
+
+
+class AND(Operation):
+    """Performs logical AND operation between ``A`` and ``B``."""
+
+    @input_property()
+    def a(self) -> bool:
+        """Left value for operation ``A and B``"""
+
+    @input_property()
+    def b(self) -> bool:
+        """Right value for operation ``A and B``"""
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``A and B``"""
+        return self.a and self.b
+
+
+class OR(Operation):
+    """Performs logical OR operation between ``A`` and ``B``."""
+
+    @input_property()
+    def a(self) -> bool:
+        """Left value for operation ``A or B``"""
+
+    @input_property()
+    def b(self) -> bool:
+        """Right value for operation ``A or B``"""
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``A or B``"""
+        return self.a or self.b
+
+
+class NOT(Operation):
+    """Performs logical NOT operation with the given value."""
+
+    @input_property()
+    def value(self) -> bool:
+        """Value to negate."""
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``not value``."""
+        return not self.value
+
+
+class GreaterThan(SelectableTypeMixin, Operation):
+    """Performs mathematical ``>`` comparison between two values."""
+
+    def __init__(self):
+        super().__init__(False)
+        self._use_equals: bool = False
+        self.value_type = float
+        self.create_data_pins_from_properties()
+
+    @primitives.bool_property()
+    def use_equals(self) -> bool:
+        """If true, will use equals comparison along with ``>``, thus performing ``>=``."""
+        return self._use_equals
+
+    @use_equals.setter
+    def use_equals(self, value: bool):
+        self._use_equals = value
+
+    @input_property()
+    def a(self):
+        """Left value for comparison ``A > B``"""
+        return self.value_type()
+
+    @input_property()
+    def b(self):
+        """Right value for comparison ``A > B``"""
+        return self.value_type()
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``A > B``"""
+        if self.use_equals:
+            return self.a >= self.b
+        return self.a > self.b
+
+    def render_edit_details(self):
+        super().render_edit_details()
+        type(self).use_equals.render_editor(self)
+
+
+class LessThan(SelectableTypeMixin, Operation):
+    """Performs mathematical ``<`` comparison between two values."""
+
+    def __init__(self):
+        super().__init__(False)
+        self._use_equals: bool = False
+        self.value_type = float
+        self.create_data_pins_from_properties()
+
+    @primitives.bool_property()
+    def use_equals(self) -> bool:
+        """If true, will use equals comparison along with ``<``, thus performing ``<=``."""
+        return self._use_equals
+
+    @use_equals.setter
+    def use_equals(self, value: bool):
+        self._use_equals = value
+
+    @input_property()
+    def a(self):
+        """Left value for comparison ``A < B``"""
+        return self.value_type()
+
+    @input_property()
+    def b(self):
+        """Right value for comparison ``A < B``"""
+        return self.value_type()
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``A < B``"""
+        if self.use_equals:
+            return self.a <= self.b
+        return self.a < self.b
+
+    def render_edit_details(self):
+        super().render_edit_details()
+        type(self).use_equals.render_editor(self)
+
+
+class Equals(SelectableTypeMixin, Operation):
+    """Performs logical ``==`` (is equal to) comparison between two values."""
+
+    def __init__(self):
+        super().__init__(False)
+        self.value_type = float
+        self.create_data_pins_from_properties()
+
+    @input_property()
+    def a(self):
+        """Left value for comparison ``A == B``"""
+        return self.value_type()
+
+    @input_property()
+    def b(self):
+        """Right value for comparison ``A == B``"""
+        return self.value_type()
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``A == B``"""
+        return self.a == self.b
+
+
+class DifferentThan(SelectableTypeMixin, Operation):
+    """Performs logical ``!=`` (is different than) comparison between two values."""
+
+    def __init__(self):
+        super().__init__(False)
+        self.value_type = float
+        self.create_data_pins_from_properties()
+
+    @input_property()
+    def a(self):
+        """Left value for comparison ``A != B``"""
+        return self.value_type()
+
+    @input_property()
+    def b(self):
+        """Right value for comparison ``A != B``"""
+        return self.value_type()
+
+    @output_property(use_prop_value=True)
+    def result(self) -> bool:
+        """Result of ``A != B``"""
+        return self.a != self.b
