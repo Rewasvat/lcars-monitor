@@ -3,6 +3,7 @@ import click
 import itertools
 import libasvat.command_utils as cmd_utils
 from enum import Enum
+from typing import Callable
 from dataclasses import dataclass
 from typing import Iterator, TYPE_CHECKING
 from imgui_bundle import imgui
@@ -10,8 +11,8 @@ from lcarsmonitor.sensors.native_api import SensorType, ISensor, Computer
 from lcarsmonitor.sensors.test_sensor import TestIHardware, TestIComputer
 from libasvat.data import DataCache
 from libasvat.imgui.math import Vector2
-from libasvat.imgui.colors import Color, Colors
-from libasvat.imgui.general import drop_down
+from libasvat.imgui.colors import Colors
+from libasvat.imgui.general import adv_button
 from libasvat.imgui.editors import TypeDatabase, TypeEditor
 
 
@@ -457,35 +458,82 @@ class InternalSensorEditor(TypeEditor):
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self._options: list[SensorID] = []
-        self._docs: list[str] = []
         self.add_tooltip_after_value = False
         self.color = Colors.yellow
         self.extra_accepted_input_types = str
         self.convert_value_to_type = True
 
-    @property
-    def sensor_options(self):
-        """Gets the sensor options available for selection."""
-        if len(self._options) == 0:
-            self._populate_options()
-        return self._options
-
-    @property
-    def sensor_docs(self):
-        """Gets the docstrings for the sensor options."""
-        if len(self._docs) == 0:
-            self._populate_options()
-        return self._docs
-
     def draw_value_editor(self, value: SensorID):
-        flags = imgui.SelectableFlags_.no_auto_close_popups
-        return drop_down(value, self.sensor_options, self.sensor_docs, default_doc=self.attr_doc, item_flags=flags)
+        changed = False
+        new_value = value
+        system = ComputerSystem()
+        isen = system.get_isensor_by_id(value)
+        if imgui.begin_combo("##", f"{isen.parent.full_name} / {isen.name}"):
+            new_sensor = render_create_sensor_menu()
+            if new_sensor:
+                changed = True
+                new_value = new_sensor.id
+            imgui.end_combo()
+        return changed, new_value
 
-    def _populate_options(self):
-        """Populates the available sensor IDs and infos (used as doc) data stored by this object.
-        This data is then used when rendering the editor to properly display the available options and their docs."""
-        isensors = ComputerSystem().get_all_isensors()
-        for isen in isensors:
-            self._options.append(isen.id)
-            self._docs.append(isen.info)
+
+def render_create_sensor_menu(sensor_tooltip_suffix: str = "", filter: Callable[[InternalSensor], bool] = None) -> InternalSensor | None:
+    """Renders the contents for a menu that allows the user to select a computer sensor.
+
+    Args:
+        sensor_tooltip_suffix (str, optional): Extra text to display at the end of the tooltip for each sensor. Defaults to "".
+        filter (Callable[[InternalSensor], bool], optional): optional callable that receives a InternalSensor and returns a boolean
+            indicating if the sensor can be displayed for the user to select. This only applies to the sensor itself -
+            subclasses of the sensor/hardware are checked separately. If None (the default), all sensors are allowed.
+
+    Returns:
+        InternalSensor: the InternalSensor object from the ComputerSystem singleton. The object is only returned in the frame the user
+        clicked to select that sensor. All other times this will return None.
+    """
+    def check_hw(hw: Hardware) -> bool:
+        """Checks if any sensor in the given hardware (or its children hardware) can be displayed."""
+        for sub_hw in hw.children:
+            if check_hw(sub_hw):
+                return True
+        for isensor in hw.isensors:
+            if filter is None or filter(isensor.name):
+                return True
+        return False
+
+    def render_hw(hw: Hardware) -> InternalSensor | None:
+        ret = None
+        if not check_hw(hw):
+            return ret
+        opened = imgui.begin_menu(hw.name)
+        imgui.set_item_tooltip(f"ID: {hw.id}\nTYPE: {hw.type}\n\n{hw.__doc__}")
+        if opened:
+            for sub_hw in hw.children:
+                sub_ret = render_hw(sub_hw)
+                if sub_ret:
+                    ret = sub_ret
+            for isensor in hw.isensors:
+                if filter is None or filter(isensor.name):
+                    imgui.push_id(repr(isensor))
+                    if adv_button(f"{isensor.name} ({isensor.type}: {isensor.unit})", f"{isensor.info}\n\n{sensor_tooltip_suffix}", in_menu=True):
+                        ret = isensor
+                    imgui.pop_id()
+            imgui.end_menu()
+        return ret
+
+    new_sensor = None
+    # Check which of the root hardware objects of the Computer can be displayed
+    checked_hardware: list[Hardware] = []
+    for hardware in ComputerSystem():
+        if check_hw(hardware):
+            checked_hardware.append(hardware)
+    if len(checked_hardware) > 0:
+        # Only display the Sensor menu if we have at least one hardware to display.
+        opened = imgui.begin_menu("Sensors:")
+        imgui.set_item_tooltip("Select a sensor to create.\n\nA 'empty' sensor or one already set can be created directly.")
+        if opened:
+            for hardware in checked_hardware:
+                ret = render_hw(hardware)
+                if ret:
+                    new_sensor = ret
+            imgui.end_menu()
+    return new_sensor

@@ -8,7 +8,7 @@ from libasvat.imgui.nodes import Node, NodeSystem, PinKind, output_property
 from libasvat.imgui.nodes.node_config import SystemConfig
 from libasvat.imgui.colors import Colors, Color
 from lcarsmonitor.widgets.base import BaseWidget, Slot
-from lcarsmonitor.sensors.sensors import Hardware, ComputerSystem
+from lcarsmonitor.sensors.sensors import InternalSensor, render_create_sensor_menu
 from lcarsmonitor.sensors.sensor_node import Sensor
 from libasvat.data import DataCache
 
@@ -196,65 +196,18 @@ class UISystem(NodeSystem):
     def render_create_sensor_menu(self) -> Sensor | None:
         """Renders the contents for a menu that allows the user to create a Sensor node.
 
-        Note that only one Sensor object may exist for any given sensor ID.
-
         Returns:
-            Sensor: the sensor object from the MonitorManager singleton.
+            Sensor: the sensor object from the ComputerSystem singleton, when the user selects a sensor. None otherwise.
         """
-        def filter(name: str):
+        def filter(isen: InternalSensor):
             """Checks if the given sensor name matches our filter and thus can be displayed."""
             if not self._node_creation_filter:
                 return True
-            return self._node_creation_filter.lower() in name.lower()
+            return self._node_creation_filter.lower() in isen.name.lower()
 
-        def check_hw(hw: Hardware) -> bool:
-            """Checks if any sensor in the given hardware (or its children hardware) can be displayed."""
-            for sub_hw in hw.children:
-                if check_hw(sub_hw):
-                    return True
-            for isensor in hw.isensors:
-                if filter(isensor.name):
-                    return True
-            return False
-
-        def render_hw(hw: Hardware) -> Sensor:
-            ret = None
-            if not check_hw(hw):
-                return ret
-            opened = imgui.begin_menu(hw.name)
-            imgui.set_item_tooltip(f"ID: {hw.id}\nTYPE: {hw.type}\n\n{hw.__doc__}")
-            if opened:
-                for sub_hw in hw.children:
-                    sub_ret = render_hw(sub_hw)
-                    if sub_ret:
-                        ret = sub_ret
-                for isensor in hw.isensors:
-                    if filter(isensor.name):
-                        imgui.push_id(repr(isensor))
-                        if menu_item(f"{isensor.name} ({isensor.type}: {isensor.unit})"):
-                            ret = isensor.create()
-                        imgui.set_item_tooltip(f"{isensor.info}\n\n{Sensor.__doc__}")
-                        imgui.pop_id()
-                imgui.end_menu()
-            return ret
-
-        new_sensor = None
-        # Check which of the root hardware objects of the Computer can be displayed
-        checked_hardware: list[Hardware] = []
-        for hardware in ComputerSystem():
-            if check_hw(hardware):
-                checked_hardware.append(hardware)
-        if len(checked_hardware) > 0:
-            # Only display the Sensor menu if we have at least one hardware to display.
-            opened = imgui.begin_menu("Sensors:")
-            imgui.set_item_tooltip("Select a sensor to create.\n\nA 'empty' sensor or one already set can be created directly.")
-            if opened:
-                for hardware in checked_hardware:
-                    ret = render_hw(hardware)
-                    if ret:
-                        new_sensor = ret
-                imgui.end_menu()
-        return new_sensor
+        new_sensor = render_create_sensor_menu(Sensor.__doc__, filter)
+        if new_sensor:
+            return new_sensor.create()
 
     def draw_background_context_menu(self, linked_to_pin):
         if isinstance(linked_to_pin, Slot):
