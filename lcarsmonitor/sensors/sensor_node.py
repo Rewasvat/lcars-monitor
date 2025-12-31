@@ -124,7 +124,7 @@ class Sensor(Node):
         """Gets the sensor's value, but formatted to the common value-format for this sensor's type."""
         try:
             if self.value is not None:
-                return self.unit.value_format.format(self.value)
+                return f"{self.unit.value_format.format(self.value)} {self.unit}"
             return "None"
         except Exception:
             click.secho(f"FVALUE CRASH: value='{self.value}' realType='{type(self.value)}' format='{self.unit.value_format}'", fg="red")

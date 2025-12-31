@@ -287,9 +287,13 @@ class SensorLimitsType(Enum):
 @dataclass
 class SensorUnitData:
     id: str
+    """Unit identifier (usually SI)."""
     limits: Vector2
+    """Default min/max limits of this unit."""
     types: set[SensorType]
+    """SensorTypes that use this Unit."""
     value_format: str
+    """Format-string to convert a numeric value of this unit to human-readable text."""
 
 
 class SensorUnit(SensorUnitData, Enum):
