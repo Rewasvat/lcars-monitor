@@ -1,3 +1,4 @@
+import click
 import libasvat.imgui.editors.primitives as primitives
 from libasvat.imgui.colors import Color
 from libasvat.imgui.general import not_user_creatable
@@ -95,8 +96,12 @@ class UseSystem(ContainerWidget):
         for name, value in data.items():
             if not name.startswith(prefix):
                 continue
-            pin: DataPin = self.get_input_pin(name[len(prefix):])
-            pin.set_value(value)
+            pin_name = name[len(prefix):]
+            pin: DataPin = self.get_input_pin(pin_name)
+            if pin:
+                pin.set_value(value)
+            else:
+                click.secho(f"Setup {self}: Couldn't find input-pin '{pin_name}' to restore.", fg="yellow")
         super().setup_from_config(data)
 
     def _update_system_name_editor(self, editor: primitives.StringEditor):
