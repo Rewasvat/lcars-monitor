@@ -344,6 +344,8 @@ class Slot(NodePin):
         self.accepted_child_types: list[type[BaseWidget]] = [BaseWidget]
         """The types accepted by this slot as children (subclasses of them are accepted as well). Subclasses of slots should
         override this as desired. Default is to allow ``BaseWidget`` and thus, all of its subclasses (all widgets)."""
+        self._use_forced_area_ratio: bool = False
+        self._forced_area_ratio: float = 1.0
         self._draw_area_outline = False
         self._area_outline_color: Color = Colors.white
         self.enabled = True
@@ -364,6 +366,33 @@ class Slot(NodePin):
         That is, if the slot's parent-node is of the expected type (ContainerWidget).
         """
         return isinstance(self.parent_node, ContainerWidget)
+
+    @primitives.bool_property()
+    def use_forced_area_ratio(self) -> bool:
+        """If true, this slot will draw its child in a sub-area with forced aspect-ratio, instead of using the slot's full area.
+
+        Thus depending on the area of this slot, there might be empty ("black") regions at the top/bottom or left/right sides.
+
+        The sub-area used is the centrally-aligned largest area possible with the ``self.forced_area_ratio`` aspect-ratio.
+        """
+        return self._use_forced_area_ratio
+
+    @use_forced_area_ratio.setter
+    def use_forced_area_ratio(self, value: bool):
+        self._use_forced_area_ratio = value
+
+    @primitives.float_property(min=0.01, max=20, is_slider=True)  # speed=0.01
+    def forced_area_ratio(self) -> float:
+        """The aspect-ratio to use when ``self.use_forced_area_ratio`` is True, and thus we're drawing our child in a sub-area
+        of this slot instead of using the slot's full area.
+
+        The sub-area used is the centrally-aligned largest area possible with this aspect-ratio.
+        """
+        return self._forced_area_ratio
+
+    @forced_area_ratio.setter
+    def forced_area_ratio(self, value: float):
+        self._forced_area_ratio = value
 
     @primitives.bool_property()
     def draw_area_outline(self) -> bool:
@@ -412,13 +441,17 @@ class Slot(NodePin):
             # Can't render a slot that has no size. (actually crashes)
             return
 
-        if self.draw_area_outline:
-            imgui.get_window_draw_list().add_rect(self.area.position, self.area.bottom_right_pos, self.area_outline_color.u32)
+        actual_area = self.area
+        if self.use_forced_area_ratio:
+            actual_area = actual_area.get_inner_rect(self.forced_area_ratio)
 
-        imgui.set_cursor_screen_pos(self.area.position)
+        if self.draw_area_outline:
+            imgui.get_window_draw_list().add_rect(actual_area.position, actual_area.bottom_right_pos, self.area_outline_color.u32)
+
+        imgui.set_cursor_screen_pos(actual_area.position)
         window_flags = imgui.WindowFlags_.no_scrollbar | imgui.WindowFlags_.no_scroll_with_mouse
         id = f"{self.parent_node}Slot{self.pin_name}"
-        imgui.begin_child(id, self.area.size, window_flags=window_flags)
+        imgui.begin_child(id, actual_area.size, window_flags=window_flags)
         imgui.push_id(id)
         if self.child:
             self.child._set_pos_and_size()
@@ -440,6 +473,15 @@ class Slot(NodePin):
 
         Subclasses may override this to add their own editing rendering logic or change the base one.
         """
+        size = self.area.size
+        color = Colors.green
+        imgui.text("Current Area Size:")
+        imgui.same_line()
+        imgui.text_colored(color, f"{size.x:.2f} x {size.y:.2f}")
+        imgui.same_line()
+        imgui.text("(aspect-ratio:")
+        imgui.same_line()
+        imgui.text_colored(color, f"{size.aspect_ratio():.2f})")
         render_all_properties(self, self.edit_ignored_properties)
 
     def draw_open_slot_menu(self):

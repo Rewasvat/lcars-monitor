@@ -5,7 +5,7 @@ from imgui_bundle import imgui
 from libasvat.imgui.general import object_creation_menu, menu_item
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.nodes import Node, NodeSystem, PinKind, output_property
-from libasvat.imgui.nodes.node_config import SystemConfig
+from libasvat.imgui.nodes.node_config import SystemConfig, get_all_prop_values_for_storage, restore_prop_values_to_object
 from libasvat.imgui.colors import Colors, Color
 from lcarsmonitor.widgets.base import BaseWidget, Slot
 from lcarsmonitor.sensors.sensors import InternalSensor, render_create_sensor_menu
@@ -75,6 +75,17 @@ class SystemRootNode(Node):
         if menu_item("Save"):
             self.system.save_config()
         imgui.set_item_tooltip(self.system.save_config.__doc__)
+
+    def get_custom_config_data(self):
+        data = super().get_custom_config_data()
+        data["widget_root"] = get_all_prop_values_for_storage(self.widget_root)
+        return data
+
+    def setup_from_config_post_props(self, data):
+        widget_root_data = data.get("widget_root", None)
+        if widget_root_data:
+            restore_prop_values_to_object(self.widget_root, widget_root_data)
+        return super().setup_from_config_post_props(data)
 
 
 class UISystem(NodeSystem):
