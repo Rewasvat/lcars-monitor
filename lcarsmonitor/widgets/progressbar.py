@@ -149,13 +149,13 @@ class BarObject:
             draw.path_line_to(secnd_center)
             draw.path_fill_convex(self.bar_color.u32)
 
-        frame_offset = self.frame_thickness * 0.5 + 1
+        frame_offset = self.frame_thickness * 0.5
         if self.inner_hole_ratio > 0:
             draw.add_circle_filled(center, radius*self.inner_hole_ratio, Colors.background.u32)
             if self.frame_thickness > 0:
-                draw.add_circle(center, radius*self.inner_hole_ratio - frame_offset, self.frame_color.u32, thickness=self.frame_thickness)
+                draw.add_circle(center, radius*self.inner_hole_ratio + frame_offset, self.frame_color.u32, thickness=self.frame_thickness)
         if self.frame_thickness > 0:
-            draw.add_circle(center, radius - frame_offset, self.frame_color.u32, thickness=self.frame_thickness)
+            draw.add_circle(center, radius - frame_offset + 0.5, self.frame_color.u32, thickness=self.frame_thickness)
 
 
 class ChainedBarObject:
