@@ -111,7 +111,7 @@ class Alignment(Enum):
         return dirs[self]
 
     def get_pos_offset(self, area_size: Vector2, obj_size: Vector2, margin=0.0):
-        """Calculates the position offset (top-left corner) of a OBJECT for drawing it in a AREA,
+        """Calculates the position offset (top-left corner) of an OBJECT for drawing it in a AREA,
         given the AREA and OBJ sizes and this Alignment setting.
 
         Args:

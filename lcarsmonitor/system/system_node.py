@@ -309,7 +309,7 @@ class SystemSlot(Slot):
     """Slot for a UseSystem Container.
 
     Meant for internal use by the UseSystem node: this slot is associated (1:1) with a `ExternalWidget` inside
-    the subsystem in the UseSystem node. That `ExternalWidget` that update and renders this slot.
+    the subsystem in the UseSystem node. That `ExternalWidget` will update and render this slot.
     """
 
     def __init__(self, parent: ContainerWidget, external: ExternalWidget):
