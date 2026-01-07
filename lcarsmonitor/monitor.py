@@ -203,9 +203,6 @@ class SystemMonitorApp(windows.AppWindow):
         if self.data.in_edit_mode and imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.s):
             self.save_data()
 
-        delta_t = imgui.get_io().delta_time
-        sensors.ComputerSystem().timed_update(delta_t)
-
         if self.data.in_edit_mode:
             self._render_edit_mode()
         else:

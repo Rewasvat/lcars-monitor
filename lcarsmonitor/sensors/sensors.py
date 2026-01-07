@@ -1,6 +1,7 @@
 import math
 import click
 import itertools
+import threading
 import libasvat.command_utils as cmd_utils
 from enum import Enum
 from typing import Callable
@@ -23,7 +24,6 @@ if TYPE_CHECKING:
 # Local implementation of classes wrapping C# types.
 # This is to allow us some documentation (intellisense) and some custom logic/API of ours.
 
-# TODO: update dos hardware era feito de forma async (no C#)
 class ComputerSystem(metaclass=cmd_utils.Singleton):
     """Singleton class that represents the Computer System we're running from.
 
@@ -36,10 +36,12 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         self._pc: Computer = None
         self.hardwares: list[Hardware] = []
         self.all_sensors: dict[str, InternalSensor] = {}
-        self.elapsed_time: float = 0
-        """Internal counter of elapsed time, used for ``timed_update()`` (in seconds)."""
         self.update_time: float = 1.0
-        """Amount of time that must pass for a ``timed_update()`` call to trigger an actual ``update()`` (in seconds)."""
+        """Amount of time that must pass for our async-update-thread to trigger an actual ``update()`` (in seconds)."""
+        # Async update thread support
+        self._update_thread: threading.Thread = None
+        self._stop_event: threading.Event = None
+        self._lock: threading.Lock = None
 
     def open(self, dummy_test=False):
         """Starts the computer object, allowing us to query its hardware, sensors and more.
@@ -75,6 +77,7 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         click.secho("Initialized Computer", fg="magenta")
         cache = DataCache()
         cache.add_shutdown_listener(self.close)
+        self.start_async_update()
 
     def close(self):
         """Stops the computer object, releasing resources.
@@ -83,29 +86,59 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         if len(self.all_sensors) <= 0:
             # Was already closed
             return
+        self.stop_async_update()
         self._pc.Close()
         click.secho("Closed Computer", fg="magenta")
         self.hardwares.clear()
         self.all_sensors.clear()
 
     def update(self):
-        """Updates our hardware, to update all of our sensors."""
+        """Updates our hardware, to update all of our sensors.
+
+        NOTE: this is a costly call! Updating the native sensors takes time. So its preferable to call
+        this asynchronously, using ``self.start_async_update()``.
+        """
         for hardware in self.hardwares:
             hardware.update()
 
-    def timed_update(self, delta_time: float):
-        """Updates our hardware (calls ``self.update()``), but only after a set of time has elapsed.
+    def start_async_update(self):
+        """Starts a background thread to periodically call ``update()`` on hardware sensors.
+        Uses ``self.update_time`` as the interval between updates (can be changed at runtime).
 
-        This instance stores how much time has elapsed, and updates it with the given ``delta_time``.
-        When elapsed time passes the threshold of ``self.update_time``, then ``update()`` is triggered.
-
-        Args:
-            delta_time (float): Amount of time passed since the previous call to this method. In seconds.
+        This is started by default when the ``self.open()`` is called.
         """
-        self.elapsed_time += delta_time
-        if self.elapsed_time >= self.update_time:
-            self.update()
-            self.elapsed_time = 0
+        if self._update_thread and self._update_thread.is_alive():
+            return  # Already running
+        self._stop_event = threading.Event()
+        self._lock = threading.Lock()
+
+        def _async_update_loop():
+            while not self._stop_event.is_set():
+                with self._lock:
+                    self.update()
+                # Use the current value of self.update_time for each wait
+                self._stop_event.wait(self.update_time)
+        self._update_thread = threading.Thread(target=_async_update_loop, daemon=True)
+        self._update_thread.start()
+
+    def stop_async_update(self):
+        """Stops the background update thread, if its running.
+        This is automatically called by ``self.close()``."""
+        if self._stop_event:
+            self._stop_event.set()
+        if self._update_thread:
+            self._update_thread.join()
+        self._update_thread = None
+        self._stop_event = None
+        self._lock = None
+
+    def get_sensor_data(self):
+        """Returns a thread-safe shallow copy of the latest sensor data dictionary."""
+        if self._lock:
+            with self._lock:
+                return self.all_sensors.copy()
+        else:
+            return self.all_sensors.copy()
 
     def get_all_isensors(self) -> list['InternalSensor']:
         """Gets a list of all internal sensors of this system.
@@ -126,7 +159,7 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
 
         Args:
             id_obj (str | ISensor): the ID of the sensor to get. Can be an ID str to check, or a native ISensor
-            object, in which case we'll use its ID.
+                object, in which case we'll use its ID.
 
         Returns:
             InternalSensor: the InternalSensor object, or None if no sensor exists with the given ID.
