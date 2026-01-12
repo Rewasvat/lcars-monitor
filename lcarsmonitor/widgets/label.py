@@ -218,7 +218,7 @@ class TextObject:
             # Second pass to render the text with proper font size.
             with font_db.using_font(font_size, self.font) as font:
                 # Since fonts have a maximum possible size, we might still need to scale.
-                font_scale = (font_size / font.font_size) * (font_size / int(font_size))
+                font_scale = (font_size / font.size) * (font_size / int(font_size))
                 self._text_rect, line_rects = self.get_text_rects(lines, wrap_width, font_scale)
 
                 draw = imgui.get_window_draw_list()
@@ -235,7 +235,7 @@ class TextObject:
                         fsize += font_db.get_text_size_fix(font, self.font) * font_scale
                         draw.add_rect(fpos, fpos + fsize, Colors.yellow.u32)
                     draw.add_text(
-                        font=font,
+                        font=font.owner_font,
                         font_size=font_size,
                         pos=line_rect.position - font_db.get_text_pos_fix(font, self.font) * font_scale,  # NOTE: text rect Ypos fix for font
                         col=self.color.u32,
@@ -278,7 +278,7 @@ class TextObject:
             elif self.scale > 0:
                 actual_scale = self.scale
 
-            base_font_height = base_font.font_size
+            base_font_height = base_font.size
             final_font_size = int(base_font_height * actual_scale)
 
             frames_to_wait = 5
