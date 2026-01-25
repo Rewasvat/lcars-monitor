@@ -583,7 +583,7 @@ class ContainerWidget(BaseWidget):
         self._slots: list[Slot] = []
         """List of slots this container contains. This should be a list of ``self._slot_class`` instances."""
         self.slot_counter: int = 0
-        """Counter of how many different slots this container ever had.
+        """Counter of how many different slots this container _ever_ had.
 
         Used to provide a default unique name for new slots, if one wasn't provided when instantiating it.
         This is incremented automatically when a new slot is added, but subclasses should update this on their constructors
@@ -732,6 +732,7 @@ class ContainerWidget(BaseWidget):
             self.slot_counter += 1
             node_config.restore_prop_values_to_object(slot, info["prop_values"])
             self._slots.append(slot)
+        self.slot_counter = data.get("slot_counter", self.slot_counter)
         self.on_slots_changed()
         return super().setup_from_config(data)
 
@@ -743,6 +744,7 @@ class ContainerWidget(BaseWidget):
         # However, no property controls slot existence in ContainerWidgets.
         slots_data = []
         data["slots"] = slots_data
+        data["slot_counter"] = self.slot_counter
         for slot in self._slots:
             # Ignore Slot child widget, since that is a LINK. NodeConfig handles those automatically.
             slots_data.append({
