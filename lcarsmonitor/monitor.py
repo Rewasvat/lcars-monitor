@@ -278,6 +278,14 @@ class SystemMonitorApp(windows.AppWindow):
         self.save_data()
         super().on_before_exit()
 
+    def on_setup_imgui_style(self):
+        if not self.data.in_edit_mode:
+            # TODO: this affects ALL windows - the actual window, as well as tooltip and context-menu popups.
+            #   fix this to only apply to the actual main window.
+            imgui.get_style().window_border_size = 0
+            imgui.get_style().window_padding = imgui.ImVec2(0, 0)
+        super().on_setup_imgui_style()
+
     def change_mode(self):
         """Changes the GUI mode of the Monitor App between EDIT and DISPLAY (Key shortcut: CTRL+END).
 
