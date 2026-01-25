@@ -10,6 +10,7 @@ from libasvat.imgui.colors import Colors
 from libasvat.imgui.editors.controller import render_all_properties
 from libasvat.data import DataCache
 from imgui_bundle import imgui, imgui_ctx
+from libasvat.imgui.windows_settings import WindowSettings, WindowedTemplate
 
 
 class MonitorAppData:
@@ -159,7 +160,9 @@ class SystemMonitorApp(windows.AppWindow):
         if force_edit_mode is not None:
             data.in_edit_mode = force_edit_mode
         title_suffix = "Edit" if data.in_edit_mode else "Display"
-        super().__init__(f"System Monitor {title_suffix}", windows.RunnableAppMode.DOCK)
+        self.edit_window_settings = WindowedTemplate()
+        self.display_window_settings = WindowSettings.load_from_cache("display_mode") or WindowedTemplate()
+        super().__init__(f"System Monitor {title_suffix}", windows.RunnableAppMode.DOCK, self.edit_window_settings)
         self.data = data
         self.do_restart = False
         self._forced_system_name = forced_system_name
@@ -179,6 +182,17 @@ class SystemMonitorApp(windows.AppWindow):
             return self._forced_system_name
         return self.data.selected_system
 
+    @primitives.imgui_property()
+    def display_settings(self) -> WindowSettings:
+        """How to show the app when in Display Mode."""
+        return self.display_window_settings
+
+    @display_settings.setter
+    def display_settings(self, value: WindowSettings):
+        self.display_window_settings = value
+        if self.data.in_edit_mode:
+            self.settings = self.display_window_settings
+
     def _reset_window_attrs(self):
         """Sets Basic/AppWindow attributes we inherit."""
         in_edit_mode = self.data.in_edit_mode
@@ -191,6 +205,7 @@ class SystemMonitorApp(windows.AppWindow):
         self.enable_viewports = in_edit_mode
         self.use_borderless = (not in_edit_mode) and (self.data.use_borderless_display)
         self.debug_menu_enabled = True
+        self.settings = self.edit_window_settings if in_edit_mode else self.display_window_settings
 
     def render(self):
         close_shortcut = imgui.Key.mod_ctrl | imgui.Key.q
@@ -233,6 +248,11 @@ class SystemMonitorApp(windows.AppWindow):
                 self.idle_fps = self.data.idle_fps
             if self.window_fps_cap != self.data.window_fps:
                 self.window_fps_cap = self.data.window_fps
+
+        render_all_properties(self)
+
+        if imgui.button("Restart"):
+            self.restart()
 
     def _render_display_mode_context_menu(self):
         menu_title = "MonitorDisplayModeMenu"
@@ -295,6 +315,14 @@ class SystemMonitorApp(windows.AppWindow):
         Restarting the app is required since DISPLAY and EDIT modes are essentially different main app-windows.
         """
         self.data.in_edit_mode = not self.data.in_edit_mode
+        self.restart()
+
+    def restart(self):
+        """Restarts this App.
+
+        This will close the window and then re-open it.
+        Support for re-opening the window depends on how the app was launched.
+        """
         self.do_restart = True
         self.close()
 
@@ -428,12 +456,13 @@ class SystemMonitorApp(windows.AppWindow):
 
     def save_data(self):
         """Saves all monitor data"""
+        self.display_window_settings.save_data("display_mode")
         for system in self.opened_systems.values():
             system.save_config()
         self.system_manager.save()
         # TODO: persistir systems abertos pra edicao/display?
         self.data.save()
-        click.secho("Saved all Monitor data!", fg="green")
+        click.secho("Saved all LCARSMonitor data!", fg="green")
 
 
 class MonitorMainWindow(windows.BasicWindow):
