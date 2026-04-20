@@ -1,10 +1,36 @@
 import re
 import math
 import click
+from enum import Enum
 from libasvat.imgui.math import Vector2, multiple_lerp_with_weigths
 from libasvat.imgui.colors import Colors, Color
 from libasvat.imgui.nodes import PinKind, Node, input_property, output_property
-from lcarsmonitor.sensors.sensors import InternalSensor, SensorLimitsType, Hardware, SensorUnit, SensorID, ComputerSystem
+from lcarsmonitor.sensors.sensors import ComputerSystem
+from lcarsmonitor.sensors.sensors_api import SensorID, SensorUnit, Hardware, InternalSensor
+
+
+class SensorLimitsType(Enum):
+    """Methods to acquire the min/max limits of a sensor.
+    * LIMITS: limits from sensor's device limits (if they exist).
+    * MINMAX: limits are the same as the sensor's measured min/max values (always available).
+    * MINMAX_EVER: limits are the same as the sensor's measured min/max values ever, across all times this has been run.
+    * FIXED: limits are those set by the user. Defaults to values based on the sensor's unit (always available).
+    * AUTO: limits are acquired automatically. Tries getting from the following methods, using the first that is
+    available: LIMITS > FIXED.srgs
+    """
+    # NOTE: duplicated value's docs in the Enum class doc since at moment in python, we can't programmatically get these docstrings.
+    #   How then, you may ask, does VSCode gets them? Magic I tell you!
+    LIMITS = "LIMITS"
+    """Limits from the sensor's `limits` API (not all sensors implement this)."""
+    MINMAX = "MINMAX"
+    """Limits are the same as the sensor's measured min/max values."""
+    MINMAX_EVER = "MINMAX_EVER"
+    """Limits are the same as the sensor's measured min/max values ever - across all times this sensor was updated and saved."""
+    FIXED = "FIXED"
+    """Limits are hardcoded in the sensor object. Can be changed by user. Default values are based on the sensor's unit."""
+    AUTO = "AUTO"
+    """Limits are acquired automatically. The options are checked for availability following a specific order (LIMITS > FIXED),
+    and the first option that is valid will be used. This is the default limits type used."""
 
 
 class Sensor(Node):
@@ -77,13 +103,12 @@ class Sensor(Node):
     def limits_type(self) -> SensorLimitsType:
         """How to define this sensor's min/max limits. [GET/SET]
 
-        * CRITICAL: limits from sensor's device critical limits (if they exist).
         * LIMITS: limits from sensor's device limits (if they exist).
         * MINMAX: limits are the same as the sensor's measured min/max values (always available).
         * MINMAX_EVER: limits are the same as the sensor's measured min/max values ever, across all times this has been run.
         * FIXED: limits are those set by the user. Defaults to values based on the sensor's unit (always available).
         * AUTO: limits are acquired automatically. Tries getting from the following methods, using the first that is available:
-          CRITICAL > LIMITS > FIXED.  (This is the default).
+          LIMITS > FIXED.  (This is the default).
         """
         return SensorLimitsType.AUTO
 
@@ -117,7 +142,7 @@ class Sensor(Node):
     @output_property(use_prop_value=True)
     def value(self) -> float:
         """The current value of this sensor."""
-        return self.isensor and self.isensor.isensor.Value
+        return self.isensor and self.isensor.value
 
     @output_property(use_prop_value=True)
     def formatted_value(self) -> str:
@@ -133,19 +158,19 @@ class Sensor(Node):
     @output_property(use_prop_value=True)
     def minimum(self) -> float:
         """The minimum value this sensor has reached since measurements started."""
-        return self.isensor and self.isensor.isensor.Min or math.inf
+        return self.value_range.x
 
     @output_property(use_prop_value=True)
     def maximum(self) -> float:
         """The maximum value this sensor has reached since measurements started."""
-        return self.isensor and self.isensor.isensor.Max or -math.inf
+        return self.value_range.y
 
     @property
     def value_range(self):
         """Gets the minimum/maximum sensor values as a (min, max) vector2.
 
         These are the min/max values recorded by the sensor since the start of this our measurement."""
-        return Vector2(self.minimum, self.maximum)
+        return self.isensor and self.isensor.value_range or Vector2(math.inf, -math.inf)
 
     @output_property(use_prop_value=True)
     def type(self) -> str:
@@ -196,9 +221,7 @@ class Sensor(Node):
         in order to prevent thermal throttling.
         """
         limit_type = self.limits_type
-        if limit_type == SensorLimitsType.CRITICAL:
-            return self._get_critical_limits()
-        elif limit_type == SensorLimitsType.LIMITS:
+        if limit_type == SensorLimitsType.LIMITS:
             return self._get_basic_limits()
         elif limit_type == SensorLimitsType.MINMAX:
             return self.value_range
@@ -207,7 +230,7 @@ class Sensor(Node):
         elif limit_type == SensorLimitsType.FIXED:
             return self._get_custom_limits()
         # else is only AUTO
-        return self._get_critical_limits() or self._get_basic_limits() or self._get_custom_limits()
+        return self._get_basic_limits() or self._get_custom_limits()
 
     @property
     def limits_diff(self):
@@ -275,13 +298,9 @@ class Sensor(Node):
 
         return re.sub(r"{([^}]+)}", replace, format)
 
-    def _get_critical_limits(self):
-        """Internal method to try to get the sensor's limits from the ICriticalSensorLimits interface."""
-        return self.isensor and self.isensor.critical_limits
-
     def _get_basic_limits(self):
         """Internal method to try to get the sensor's limits from the ISensorLimits interface."""
-        return self.isensor and self.isensor.basic_limits
+        return self.isensor and self.isensor.limits
 
     def _get_custom_limits(self):
         """Internal method to get the sensor's custom (FIXED) limits."""

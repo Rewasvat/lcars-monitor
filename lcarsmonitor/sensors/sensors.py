@@ -1,28 +1,20 @@
-import math
 import click
-import itertools
 import threading
 import libasvat.command_utils as cmd_utils
-from enum import Enum
 from typing import Callable
-from dataclasses import dataclass
 from typing import Iterator, TYPE_CHECKING
 from imgui_bundle import imgui
-from lcarsmonitor.sensors.native_api import SensorType, ISensor, Computer
-from lcarsmonitor.sensors.test_sensor import TestIHardware, TestIComputer
 from libasvat.data import DataCache
-from libasvat.imgui.math import Vector2
 from libasvat.imgui.colors import Colors
 from libasvat.imgui.general import adv_button
 from libasvat.imgui.editors import TypeDatabase, TypeEditor
+from lcarsmonitor.sensors.sensors_api import SensorSource, Hardware, InternalSensor, SensorID
+from lcarsmonitor.sensors.sources.dummy_impl import DummySensors
 
 
 if TYPE_CHECKING:
     from lcarsmonitor.sensors.sensor_node import Sensor
 
-
-# Local implementation of classes wrapping C# types.
-# This is to allow us some documentation (intellisense) and some custom logic/API of ours.
 
 class ComputerSystem(metaclass=cmd_utils.Singleton):
     """Singleton class that represents the Computer System we're running from.
@@ -33,8 +25,6 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
     """
 
     def __init__(self):
-        self._pc: Computer = None
-        self.hardwares: list[Hardware] = []
         self.all_sensors: dict[str, InternalSensor] = {}
         self.update_time: float = 1.0
         """Amount of time that must pass for our async-update-thread to trigger an actual ``update()`` (in seconds)."""
@@ -43,40 +33,35 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         self._stop_event: threading.Event = None
         self._lock: threading.Lock = None
 
+        cache = DataCache()
+        cache.add_shutdown_listener(self.close)
+
+        self._available_sources = {name: source() for name, source in SensorSource.get_all_subclasses().items()}
+        self._selected_source: str = "LibreComputer"
+        # TODO: load and save selected-source from cache
+        self._dummy_source = DummySensors()
+
+    @property
+    def current_source(self):
+        """Gets the currently selected SensorSource instance."""
+        return self._available_sources.get(self._selected_source)
+
     def open(self, dummy_test=False):
         """Starts the computer object, allowing us to query its hardware, sensors and more.
 
         Args:
             dummy_test (bool, optional): If true, will use a dummy internal Computer object, with dummy sensors that simulate actual
-            sensors with changing values, for testing sensor-related code without needing to load sensors properly. Defaults to False.
+                sensors with changing values, for testing sensor-related code without needing to load sensors properly. Defaults to False.
         """
         if len(self.all_sensors) > 0:
-            # Was already opened
+            click.secho("ComputerSystem: tried to open() while already opened.", fg="yellow")
             return
-        if dummy_test:
-            self._pc = TestIComputer()
-        else:
-            self._pc = Computer()
-        self._pc.IsCpuEnabled = True
-        self._pc.IsGpuEnabled = True
-        self._pc.IsMemoryEnabled = True
-        self._pc.IsMotherboardEnabled = True
-        self._pc.IsStorageEnabled = True
-        self._pc.IsNetworkEnabled = True
-        self._pc.IsBatteryEnabled = True
-        self._pc.IsControllerEnabled = True
-        self._pc.IsPsuEnabled = True
-        self._pc.Open()
-
-        for hw in self._pc.Hardware:
-            self.hardwares.append(Hardware(hw))
-        if not dummy_test:
-            self.hardwares.append(Hardware(TestIHardware()))
-
+        # TODO: a flag de dummy-test é pra desabilitar usar qualquer SensorSource, portanto rodando só com os DummySensors
+        if self.current_source:
+            self.current_source.initialize()
+        self._dummy_source.initialize()
         self.all_sensors = {sensor.id: sensor for sensor in self.get_all_isensors()}
-        click.secho("Initialized Computer", fg="magenta")
-        cache = DataCache()
-        cache.add_shutdown_listener(self.close)
+        click.secho("ComputerSystem: Initialized!", fg="magenta")
         self.start_async_update()
 
     def close(self):
@@ -84,13 +69,14 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
 
         This is automatically called on shutdown of LCARSMonitor."""
         if len(self.all_sensors) <= 0:
-            # Was already closed
+            click.secho("ComputerSystem: tried to close() while already closed.", fg="yellow")
             return
         self.stop_async_update()
-        self._pc.Close()
-        click.secho("Closed Computer", fg="magenta")
-        self.hardwares.clear()
         self.all_sensors.clear()
+        if self.current_source:
+            self.current_source.shutdown()
+        self._dummy_source.shutdown()
+        click.secho("ComputerSystem: Closed Computer.", fg="magenta")
 
     def update(self):
         """Updates our hardware, to update all of our sensors.
@@ -98,14 +84,15 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         NOTE: this is a costly call! Updating the native sensors takes time. So its preferable to call
         this asynchronously, using ``self.start_async_update()``.
         """
-        for hardware in self.hardwares:
-            hardware.update()
+        if self.current_source:
+            self.current_source.update()
+        self._dummy_source.update()
 
     def start_async_update(self):
         """Starts a background thread to periodically call ``update()`` on hardware sensors.
         Uses ``self.update_time`` as the interval between updates (can be changed at runtime).
 
-        This is started by default when the ``self.open()`` is called.
+        This is started by default when ``self.open()`` is called.
         """
         if self._update_thread and self._update_thread.is_alive():
             return  # Already running
@@ -119,6 +106,12 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
                 # Use the current value of self.update_time for each wait
                 self._stop_event.wait(self.update_time)
         self._update_thread = threading.Thread(target=_async_update_loop, daemon=True)
+        # NOTE: if we need to get a thread-safe something, use:
+        #   if lock:
+        #       with lock:
+        #           get/copy stuff
+        #   else:
+        #       get/copy stuff
         self._update_thread.start()
 
     def stop_async_update(self):
@@ -132,357 +125,34 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         self._stop_event = None
         self._lock = None
 
-    def get_sensor_data(self):
-        """Returns a thread-safe shallow copy of the latest sensor data dictionary."""
-        if self._lock:
-            with self._lock:
-                return self.all_sensors.copy()
-        else:
-            return self.all_sensors.copy()
-
-    def get_all_isensors(self) -> list['InternalSensor']:
+    def get_all_isensors(self):
         """Gets a list of all internal sensors of this system.
 
         Returns:
             list[InternalSensor]: list of sensors
         """
-        if self._pc is None:
-            return []
-
-        sensors = []
-        for hardware in self.hardwares:
+        sensors: list[InternalSensor] = []
+        for hardware in self:
             sensors += list(hardware.get_all_isensors())
         return sensors
 
-    def get_isensor_by_id(self, id_obj: str | ISensor):
+    def get_isensor_by_id(self, id_obj: str):
         """Gets the sensor with the given ID.
 
         Args:
-            id_obj (str | ISensor): the ID of the sensor to get. Can be an ID str to check, or a native ISensor
-                object, in which case we'll use its ID.
+            id_obj (str): the ID of the sensor to get.
 
         Returns:
             InternalSensor: the InternalSensor object, or None if no sensor exists with the given ID.
         """
-        if isinstance(id_obj, str):
-            id = id_obj
-        elif id_obj is not None:
-            id = str(id_obj.Identifier)
-        return self.all_sensors.get(id)
+        return self.all_sensors.get(id_obj)
 
-    def __iter__(self) -> Iterator['Hardware']:
-        return iter(self.hardwares)
-
-
-# TODO: transformar isso num node? ou melhor: ter action pra pegar os dados de um hardware, ai poderia pegar coisas do HW vindo de um sensor.
-class Hardware:
-    """Represents a Hardware device on the system.
-
-    Hardware are the "building blocks" of the system: your CPU, GPU, Memory, etc.
-    Amongst other things, a hardware may contain Sensors and other "children" sub-Hardware (which are other Hardware objects).
-
-    Wraps and builds upon ``LibreHardwareMonitorLib.Hardware.IHardware`` interface."""
-
-    def __init__(self, hw, parent: 'Hardware' = None):
-        self._parent = parent
-        self._hw = hw
-        """Internal IHardware object from native C#"""
-        self._isensors: list[InternalSensor] = [InternalSensor(s, self) for s in hw.Sensors]
-        """Sensors of this hardware. Note that sub-hardware may have other sensors as well."""
-        self.children: list[Hardware] = [Hardware(subhw, self) for subhw in hw.SubHardware]
-        """Sub-hardwares of this device."""
-
-    @property
-    def id(self):
-        """Gets the unique identifier of this hardware"""
-        return str(self._hw.Identifier)
-
-    @property
-    def type(self):
-        """Gets the type of this hardware"""
-        return str(self._hw.HardwareType)
-
-    @property
-    def root_type(self) -> str:
-        """Gets the type of our 'root' parent hardware, which is the parent of our parent and so on, until reaching the parent with no parent."""
-        if self._parent is not None:
-            return self._parent.root_type
-        return self.type
-
-    @property
-    def name(self):
-        """Gets the name of this hardware"""
-        return str(self._hw.Name)
-
-    @property
-    def full_name(self):
-        """Gets the full name of this hardware, which is ``parent_name / our_name``, recursively
-        checking all parent hardware up to the root."""
-        if self._parent is not None:
-            return f"{self._parent.full_name} / {self.name}"
-        return self.name
-
-    @property
-    def parent(self):
-        """Gets the parent hardware of this device. May be None if we don't have a parent (root hardware)."""
-        return self._parent
-
-    @property
-    def enabled(self):
-        """Checks if this hardware is enabled. That is, if at least one of its sensors (recursively through sub-hardware)
-        is enabled"""
-        for sensor in self:
-            if sensor.enabled:
-                return True
-        return False
-
-    @enabled.setter
-    def enabled(self, value: bool):
-        """Sets the 'enabled' flag on all of our sensors to the given value.
-
-        Args:
-            value (bool): if sensors will be enabled or not
-        """
-        for sensor in self:
-            sensor.enabled = value
-
-    @property
-    def sensors(self):
-        """Gets a list of all existing Sensor objects that use a InternalSensor from this hardware."""
-        return sum((isen.sensors for isen in self._isensors), [])
-
-    @property
-    def isensors(self):
-        """Gets a list of the InternalSensors of this hardware.
-        Doesn't include sensors from sub-hardware, see ``self.get_all_isensors()`` for that."""
-        return self._isensors.copy()
-
-    def update(self):
-        """Updates this hardware, updating all of our sensors."""
-        if self.enabled:
-            self._hw.Update()
-            for sensor in self.sensors:
-                sensor.update()
-            for child in self.children:
-                child.update()
-
-    def __iter__(self) -> Iterator['Sensor']:
-        return itertools.chain(iter(self.sensors), *(iter(child) for child in self.children))
-
-    def get_all_isensors(self) -> Iterator['InternalSensor']:
-        """Returns an iterator of all InternalSensors of this hardware and recursively of all sub-hardware we have."""
-        return itertools.chain(iter(self._isensors), *(child.get_all_isensors() for child in self.children))
-
-    def get_sensors_by_type(self, stype: str, recursive=False):
-        """Gets all of our sensors of the given type.
-
-        Args:
-            stype (str): Type of sensors to acquire.
-            recursive (bool, optional): If true, will also check sensors of all sub-hardware recursively. Defaults to False.
-
-        Returns:
-            list[Sensor]: the sensors of the given type.
-        """
-        if recursive:
-            return [s for s in self if s.type == stype]
-        return [s for s in self.sensors if s.type == stype]
-
-    def __str__(self):
-        return self.full_name
-
-
-class SensorLimitsType(Enum):
-    """Methods to acquire the min/max limits of a sensor.
-    * CRITICAL: limits from sensor's device critical limits (if they exist).
-    * LIMITS: limits from sensor's device limits (if they exist).
-    * MINMAX: limits are the same as the sensor's measured min/max values (always available).
-    * MINMAX_EVER: limits are the same as the sensor's measured min/max values ever, across all times this has been run.
-    * FIXED: limits are those set by the user. Defaults to values based on the sensor's unit (always available).
-    * AUTO: limits are acquired automatically. Tries getting from the following methods, using the first that is
-    available: CRITICAL > LIMITS > FIXED.
-    """
-    # NOTE: duplicated value's docs in the Enum class doc since at moment in python, we can't programmatically get these docstrings.
-    #   How then, you may ask, does VSCode gets them? Magic I tell you!
-    CRITICAL = "CRITICAL"
-    """Limits from the sensor's ICriticalSensorLimits interface (not all sensors implement this)."""
-    LIMITS = "LIMITS"
-    """Limits from the sensor's ISensorLimits interface (not all sensors implement this)."""
-    MINMAX = "MINMAX"
-    """Limits are the same as the sensor's measured min/max values."""
-    MINMAX_EVER = "MINMAX_EVER"
-    """Limits are the same as the sensor's measured min/max values ever - across all times this sensor was updated and saved."""
-    FIXED = "FIXED"
-    """Limits are hardcoded in the sensor object. Can be changed by user. Default values are based on the sensor's unit."""
-    AUTO = "AUTO"
-    """Limits are acquired automatically. The options are checked for availability following a specific order (CRITICAL > LIMITS > FIXED),
-    and the first option that is valid will be used. This is the default limits type used."""
-
-
-@dataclass
-class SensorUnitData:
-    id: str
-    """Unit identifier (usually SI)."""
-    limits: Vector2
-    """Default min/max limits of this unit."""
-    types: set[SensorType]
-    """SensorTypes that use this Unit."""
-    value_format: str
-    """Format-string to convert a numeric value of this unit to human-readable text."""
-
-
-class SensorUnit(SensorUnitData, Enum):
-    """Enum of all possible Sensor Units.
-
-    Each item also associates its unit to the internal sensor types. A few sensor types share the same unit, while a few
-    sensor types have the same unit but on different orders of magnitude (such as Hz and MHz). When possible the unit is from SI.
-
-    Each unit also contains a few other attributes related to it, such as default min/max limits and more.
-    """
-    VOLTAGE = ("V", Vector2(1, 1.5), {SensorType.Voltage}, "{:.3f}")
-    CURRENT = ("A", Vector2(5, 90), {SensorType.Current}, "{:.3f}")
-    CLOCK = ("MHz", Vector2(1000, 6000), {SensorType.Clock}, "{:.1f}")
-    PERCENT = ("%", Vector2(0, 100), {SensorType.Load, SensorType.Level, SensorType.Control}, "{:.1f}")
-    TEMPERATURE = ("°C", Vector2(20, 90), {SensorType.Temperature}, "{:.1f}")
-    FAN = ("RPM", Vector2(0, 10000), {SensorType.Fan}, "{:.0f}")
-    FLOW = ("L/h", Vector2(), {SensorType.Flow}, "{:.1f}")
-    POWER = ("W", Vector2(10, 200), {SensorType.Power}, "{:.1f}")
-    DATA = ("GB", Vector2(0, math.inf), {SensorType.Data}, "{:.1f}")
-    SMALLDATA = ("MB", Vector2(0, math.inf), {SensorType.SmallData}, "{:.1f}")
-    FACTOR = (".", Vector2(-math.inf, math.inf), {SensorType.Factor}, "{:.3f}")
-    FREQUENCY = ("Hz", Vector2(0, 4000), {SensorType.Frequency}, "{:.1f}")
-    THROUGHPUT = ("B/s", Vector2(0, 1e9), {SensorType.Throughput}, "{:.1f}")
-    # TODO: TIMESPAN VALUE FORMAT: no C#, era `{0:g}` que eh "general-short" format do elemento. Aparentemente isso muda de acordo com o tipo.
-    # Se for numero normal, seria a mesma coisa. Mas se o valor for um time-span mesmo, ai o resultado eh "[-][d:]h:mm:ss[.FFFFFFF]"
-    # Precisa arrumar isso aqui
-    TIMESPAN = ("s", Vector2(-math.inf, math.inf), {SensorType.TimeSpan}, "{}")
-    ENERGY = ("mWh", Vector2(), {SensorType.Energy}, "{:.0f}")
-    UNKNOWN = ("<WAT>", Vector2(), {}, "{}")
-
-    def __str__(self):
-        return self.id
-
-    @classmethod
-    def from_type(self, stype: str):
-        for unit in self:
-            if stype in [str(t) for t in unit.types]:
-                return unit
-        return self.UNKNOWN
-
-
-class InternalSensor:
-    """Represents a single ISensor object from C# for a hardware device.
-
-    This is a simple wrapper of ``LibreHardwareMonitorLib.Hardware.ISensor`` interface, providing some basic identification values.
-
-    A ComputerSystem will always create all of its InternalSensors objects upon loading. Since we contain native C# objects, this class
-    can't be pickled.
-
-    A InternalSensor contains refs to all ``Sensor`` objects that use it. The ``Sensor`` class is the proper API to access/use sensor
-    data, and it uses its InternalSensor object internally to access the underlying data.
-    """
-
-    def __init__(self, internal_sensor: ISensor, parent_hw: Hardware):
-        # FIXED SENSOR-RELATED ATTRIBUTES
-        self.isensor = internal_sensor  # LibreHardwareMonitor.Hardware.ISensor
-        """Internal, fixed, ISensor object from LibreHardwareMonitor to access sensor data."""
-        self.parent = parent_hw
-        """Parent hardware of this sensor."""
-        self.unit: SensorUnit = SensorUnit.from_type(self.type)
-        """Unit of this sensor, based on its type (usually SI units)."""
-        self._sensors: list[Sensor] = []
-
-    @property
-    def id(self) -> 'SensorID':
-        """Gets the sensor ID. This uniquely identifies this sensor (and is reasonably human-readable)."""
-        return SensorID(self.isensor.Identifier)
-
-    @property
-    def name(self) -> str:
-        """Gets the sensor name. Some different sensors may have the same name."""
-        return str(self.isensor.Name)
-
-    @property
-    def type(self) -> str:
-        """Gets the type of this sensor. This specifies which kind of data it measures/returns, such
-        as Temperature, Power, Frequency, Load, etc"""
-        # TODO: trocar isso pra uma enum? ou usar a própria enum do C#? Como funcionaria?
-        return str(self.isensor.SensorType)
-
-    @property
-    def critical_limits(self):
-        """Tries to get the sensor's limits from the ICriticalSensorLimits interface."""
-        low = getattr(self.isensor, "CriticalLowLimit", None)
-        high = getattr(self.isensor, "CriticalHighLimit", None)
-        if low is not None and high is not None:
-            # TODO: in C#, we used to cast the ISensor object to ICriticalSensorLimits to see if we could access these attributes.
-            #   maybe should've done something like that here? Not sure if this `hasattr` method works...
-            #   On the other hand, apparently no sensors implement the Limits interfaces anyway...
-            return Vector2(low, high)
-
-    @property
-    def basic_limits(self):
-        """Tries to get the sensor's limits from the ISensorLimits interface."""
-        low = getattr(self.isensor, "LowLimit", None)
-        high = getattr(self.isensor, "HighLimit", None)
-        if low is not None and high is not None:
-            return Vector2(low, high)
-
-    @property
-    def info(self):
-        """Gets a short multi-line description of this sensor (name, type, unit, parent hardware, etc)"""
-        lines = [
-            f"Sensor: {self.name} ({self.id})",
-            f"Type/unit: {self.type} ({self.unit})",
-            f"Hardware: {self.parent.full_name} ({self.parent.type})",
-        ]
-        return "\n".join(lines)
-
-    @property
-    def sensors(self):
-        """Gets the Sensor nodes associated with this InternalSensor/ID.
-
-        A Sensor node is the proper API for accessing/changing sensor data, while this InternalSensor is only a bare
-        ISensor wrapper providing minimal identification values.
-
-        See ``self.create()`` to create and associate a Sensor to this InternalSensor.
-        """
-        return self._sensors
-
-    def create(self):
-        """Creates a Sensor object associated with this InternalSensor/ID.
-
-        Returns:
-            Sensor: newly created Sensor object.
-        """
-        from lcarsmonitor.sensors.sensor_node import Sensor
-        sensor = Sensor(self.id)
-        self._add(sensor)
-        return sensor
-
-    def _add(self, sensor: 'Sensor'):
-        """Adds the given Sensor object to our list of sensors, if we haven't already.
-        This is used internally when ``self.create()``ing a new sensor object.
-        """
-        if sensor not in self._sensors:
-            self._sensors.append(sensor)
-
-    def _remove(self, sensor: 'Sensor'):
-        """Clears our associated Sensor object, if any.
-        This is used internally by the Sensor when it is destroyed.
-        """
-        if sensor in self._sensors:
-            self._sensors.remove(sensor)
-
-
-class SensorID(str):
-    """Represents the unique identification value of a InternalSensor.
-
-    This is just a `string`. But by using this sub-class, we can better document (by typing) the
-    places that should/are using a Sensor ID, and we can easily allow a custom editing of this
-    value in IMGUI with our TypeEditors to only allow selecting valid sensor IDs as value.
-
-    The editing part is particularly useful when the sensors are used as nodes in a UISystem graph.
-    """
+    def __iter__(self) -> Iterator[Hardware]:
+        all_hw = []
+        if self.current_source:
+            all_hw.extend(self.current_source.get_all_hardware())
+        all_hw.extend(self._dummy_source.get_all_hardware())
+        return iter(all_hw)
 
 
 @TypeDatabase.register_editor_for_type(SensorID)
