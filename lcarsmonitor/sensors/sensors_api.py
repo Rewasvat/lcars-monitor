@@ -1,3 +1,4 @@
+import re
 import math
 import itertools
 from enum import Enum
@@ -5,6 +6,7 @@ from dataclasses import dataclass
 from typing import Iterator, TYPE_CHECKING
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.general import is_user_creatable
+from libasvat.imgui.editors.controller import render_all_properties, get_all_prop_values_for_storage, restore_prop_values_to_object
 
 if TYPE_CHECKING:
     from lcarsmonitor.sensors.sensor_node import Sensor
@@ -24,23 +26,66 @@ class SensorSource:
     While SensorSource implementations may be singletons themselves, the ComputerSystem will only instantiate a single instance
     of any implementations during a session.
 
-    NOTE: this base class has abstract methods that need to be overriden by subclasses in order to properly implement the
-    class to their sensor source. These are: `initialize`, `shutdown` and `get_all_hardware`.
+    NOTE: this base class has a single abstract method - the ``initialize()`` method - that need to be overriden by subclasses
+    in order to properly implement the class to their sensor source. Besides that, subclasses may choose to override some other
+    methods (such as ``check_availability()``) to implement or add their own logic to the base logic.
     """
 
+    def __init__(self):
+        self._hardwares: list[Hardware] = []
+        # Insert spaces before capital letters (except the first one)
+        self._pretty_name = re.sub(r'(?<!^)(?=[A-Z])', ' ', type(self).__name__)
+        """Value returned by the ``.pretty_name`` property. Default value is a prettified class name."""
+
+    def check_availability(self) -> tuple[bool, str]:
+        """Checks the availability of this Sensor Source: if it can be used (initialized) or not.
+
+        The availability of a SensorSource may depend on external variables, such as a user-set property
+        on the SensorSource or existence of some external library. This method can be used to check these
+        conditions to make sure the SensorSource is ready to be used.
+
+        Base implementation in SensorSource always returns `True, ""`. Subclasses should override this to
+        implement their own logic. Note that this method may be called several times at the same frame,
+        so it's best to be performant.
+
+        Returns:
+            tuple[bool, str]: a `ok, message` tuple, with:
+            * `ok` being a boolean value indicating if the SensorSource is valid and can be initialized.
+            * `message` being a string indicating the status of the SensorSource: why it can be initialized or not.
+        """
+        return True, "Always Available"
+
     def initialize(self):
-        """Initializes this SensorSource, acquiring any needed resources to create our Hardware objects."""
+        """Initializes this SensorSource, acquiring any needed resources to create our Hardware objects.
+
+        Subclasses should override this method to implement their own initialization logic. Add any created
+        Hardware objects to our ``._hardwares`` list.
+        """
         raise NotImplementedError()
 
     def shutdown(self):
-        """Shuts down this SensorSource, releasing any stored resources and Hardware objects."""
-        raise NotImplementedError()
+        """Shuts down this SensorSource, releasing any stored resources and Hardware objects.
+
+        Base implementation in `SensorSource` only clears our `_hardwares` list. Subclasses may override
+        this to add their own specific shutdown logic.
+        """
+        self._hardwares.clear()
 
     def get_all_hardware(self) -> list['Hardware']:
         """Gets a list of Hardware objects provided by this SensorSource.
         This should return an empty list if the SensorSource is not initialized.
         """
-        return []
+        return self._hardwares
+
+    @property
+    def pretty_name(self) -> str:
+        """Gets a pretty representation of this SensorSource's name.
+
+        The default ``.pretty_name`` property implementation in SensorSource returns the prettified
+        class name (inserting spaces before capital letters). Subclasses may just change ``self._pretty_name``
+        to set the name to another value.
+        """
+        return self._pretty_name
 
     def update(self):
         """Updates our hardware, to update all of our sensors.
@@ -52,6 +97,35 @@ class SensorSource:
         """
         for hw in self.get_all_hardware():
             hw.update()
+
+    def render_editor(self):
+        """Renders IMGUI controls to edit settings of this SensorSource instance.
+
+        Base implementation in SensorSource uses ``render_all_properties(self)`` to render
+        all of the instance's imgui-properties.
+        """
+        render_all_properties(self)
+
+    def load_data(self, data: dict):
+        """Loads persisted data from the given dict into this SensorSource instance.
+
+        Base implementation in SensorSource uses ``restore_prop_values_to_object()`` to load
+        data into all of our imgui-properties.
+
+        The data received here should've been previously acquired via ``self.get_data()``.
+        """
+        restore_prop_values_to_object(self, data)
+
+    def get_data(self) -> dict:
+        """Gets data (as a pickable dict) from this instance to persist.
+
+        Base implementation in SensorSource uses ``get_all_prop_values_for_storage()`` to get
+        all data from our imgui-properties as a dict.
+
+        The data returned by this will be eventually used by ``self.load_data(data)`` to update
+        the instance.
+        """
+        return get_all_prop_values_for_storage(self)
 
     @classmethod
     def get_all_subclasses(cls):
