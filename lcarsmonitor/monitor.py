@@ -126,6 +126,10 @@ class SystemMonitorApp(windows.AppWindow):
 
         render_all_properties(self)
 
+        computer = sensors.ComputerSystem()
+        computer.render_menu()
+
+        imgui.separator_text("Actions")
         if imgui.button("Restart"):
             self.restart()
 
@@ -161,7 +165,6 @@ class SystemMonitorApp(windows.AppWindow):
         super().on_init()
         computer = sensors.ComputerSystem()
         computer.open()
-        computer.update_time = self.data.update_time
         self.children.clear()
         self.update_closed_systems()
         if self.data.in_edit_mode:

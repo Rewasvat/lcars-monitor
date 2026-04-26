@@ -24,7 +24,7 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
 
     def __init__(self):
         self.all_sensors: dict[str, InternalSensor] = {}
-        self.update_time: float = 1.0
+        self._update_time: float = 1.0
         """Amount of time that must pass for our async-update-thread to trigger an actual ``update()`` (in seconds)."""
         # Async update thread support
         self._update_thread: threading.Thread = None
@@ -46,6 +46,35 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
             source = self._available_sources.get(source_name)
             if source and source_data:
                 source.load_data(source_data)
+
+    @property
+    def update_time(self) -> float:
+        """Time between sensor updates (in seconds).
+
+        Every this amount of time, the sensors will be polled for new data, updating their values.
+
+        Lower values will make the sensors update more often, but will also increase CPU usage.
+        Default is 1 second.
+        """
+        return self._update_time
+
+    @update_time.setter
+    def update_time(self, value: float):
+        self._update_time = value
+
+    @primitives.int_property(min=1, max=60, is_slider=True)
+    def sensor_polling_rate(self) -> int:
+        """Number of times per second the sensors will be polled for new data, updating their values.
+
+        Higher values will make the sensors update more often, but will also increase CPU usage.
+        Default is 1 update per second.
+        """
+        return 1.0 / self.update_time
+
+    @sensor_polling_rate.setter
+    def sensor_polling_rate(self, value: int):
+        self.update_time = 1.0 / max(1, value)
+
     @property
     def current_source(self):
         """Gets the currently selected SensorSource instance."""
