@@ -9,24 +9,96 @@ import os
 import clr
 import math
 import click
+import libasvat.imgui.editors.primitives as primitives
+from imgui_bundle import imgui
 from libasvat.imgui.math import Vector2
 from lcarsmonitor.sensors.sensors_api import SensorSource, SensorID, HardwareType, SensorType, Hardware, InternalSensor
 
 
+# TODO: baixar ZIP do ultimo release de LHM pra atualizar a install atual (ou até permitir instalar do zero)
+#   copilot deve ajudar com isso.
+#   - interessante tb mostrar o changelog, se possivel desde a versão sendo usada até a atual
 class LibreComputer(SensorSource):
+    """LCARSMonitor Sensor Source implementation using Libre Hardware Monitor.
+
+    LibreHardwareMonitor (LHM for short), from https://github.com/LibreHardwareMonitor/LibreHardwareMonitor, is free
+    software that can monitor the temperature sensors, fan speeds, voltages, load and clock speeds of your computer.
+
+    LHM itself is a simple UI program on top of the Libre Hardware Monitor Lib (LHML), which is the actual library that
+    allows monitoring computer sensors. This SensorSource uses the LHML from a local install of LHM in your machine to
+    provide hardware/sensor data to LCARSMonitor.
+    """
 
     def __init__(self):
         super().__init__()
+        self._pretty_name = "Libre Hardware Monitor"
         self._pc = None
-        self._hardwares: list[LibreHardware] = []
+        self._lhm_path: str = None
+        self._lhm_loaded = False
+        self._last_message: str = "Please set the `library_path` property to a valid value"
 
-    def initialize(self):
-        # Load LibreHardwareMonitorLib (LHML) from C# .NET
-        from System.Reflection import Assembly  # type: ignore
+    @primitives.string_property(is_folder=True)
+    def library_path(self) -> str:
+        """Path to LibreHardwareMonitor folder [GET/SET].
+
+        The LibreHardwareMonitor (LHM) folder should contain the LibreHardwareMonitorLib.dll file which we'll load
+        to access sensor data. As such, this property needs to be correctly set in order for this Sensor Source to work.
+
+        To load the dll, other related DLLs should be in the same folder, so we need to point to the LHM folder directly.
+        Usually when downloading the LHM release from GitHub, the ZIP contains a folder with all DLLs and more.
+
+        When this property is set (in imgui - through select-folder dialog), we'll check the given path and try to load the LHMLib
+        DLL. Any errors will be shown in the UI.
+
+        However, if loading is successful, changing this property, for example to change which version of LHM you're using,
+        WILL NOT CHANGE THE DLL THAT IS LOADED. The .NET framework does not allow unloading assemblies. The path will still
+        be changed (and persisted!), but you'll need to restart this application entirely in order to "re-load" a different
+        LHM DLL.
+        """
+        return self._lhm_path
+
+    @library_path.setter
+    def library_path(self, value: str):
+        # NOTE: SensorSource base class handles loading/saving data from imgui-properties like this one.
+        if value != self._lhm_path:
+            self._lhm_path = value
+            if not self._lhm_loaded:
+                self._load_lhm()
+            else:
+                self._last_message = "Restart app to re-load DLL after path change (see tooltip). Previous DLL is loaded."
+
+    def check_availability(self):
+        return self._lhm_loaded, self._last_message
+
+    def _load_lhm(self):
+        """Loads the LibreHardwareMonitorLib.dll from C#/.NET using the `clr` module.
+
+        Appropriately updates our loaded/message attributes according to the result of loading the DLL.
+        """
+        if self._lhm_loaded:
+            click.secho("[LibreSensors] Tried to re-load LHML DLL. Restart the app to be able to load a different DLL", fg="yellow")
+            return
 
         dll_name = "LibreHardwareMonitorLib.dll"
-        dll_path = os.path.join(os.path.expanduser("~"), "Downloads", "LibreHardwareMonitor v0.9.5 BETA", dll_name)
-        Assembly.UnsafeLoadFrom(dll_path)
+        dll_path = os.path.join(self.library_path, dll_name)
+        if not os.path.isfile(dll_path):
+            self._last_message = f"{dll_name} not found. Path '{self.library_path}' doesn't point to a valid LHM install"
+            return
+
+        try:
+            # Load LibreHardwareMonitorLib (LHML) from C# .NET
+            from System.Reflection import Assembly  # type: ignore
+            Assembly.UnsafeLoadFrom(dll_path)
+        except Exception as e:
+            self._last_message = f"Error while loading {dll_name}: {e}"
+            return
+
+        self._lhm_loaded = True
+        self._last_message = f"{dll_name} successfully loaded"
+
+    def initialize(self):
+        if not self._lhm_loaded:
+            raise RuntimeError("Can't initialize LibreHardwareMonitor sensors without loading the LHM Lib.")
 
         from LibreHardwareMonitor.Hardware import Computer  # type: ignore
 
@@ -47,11 +119,9 @@ class LibreComputer(SensorSource):
             self._hardwares.append(LibreHardware(hw))
 
     def shutdown(self):
-        self._pc.Close()
-        self._hardwares.clear()
-
-    def get_all_hardware(self):
-        return self._hardwares
+        if self._pc is not None:
+            self._pc.Close()
+        super().shutdown()
 
 
 class LibreHardware(Hardware):
