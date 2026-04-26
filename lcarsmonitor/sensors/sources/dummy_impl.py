@@ -23,18 +23,8 @@ class DummySensors(SensorSource):
     the Sensor System, enabling code to use these test sensors as any other (real) sensor.
     """
 
-    def __init__(self):
-        super().__init__()
-        self._hardwares: list[DummyHardware] = []
-
     def initialize(self):
         self._hardwares.append(DummyHardware())
-
-    def shutdown(self):
-        self._hardwares.clear()
-
-    def get_all_hardware(self):
-        return self._hardwares
 
 
 class DummyHardware(Hardware):
