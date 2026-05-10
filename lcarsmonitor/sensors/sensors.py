@@ -241,6 +241,7 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         for source_id, source in self._available_sources.items():
             if imgui.collapsing_header(source.pretty_name):
                 imgui.text_wrapped(type(source).__doc__)
+                imgui.separator()
                 source.render_editor()
                 is_current = source_id == prev_source_id
                 is_ok, error_msg = source.check_availability()
