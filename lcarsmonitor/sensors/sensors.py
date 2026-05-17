@@ -304,7 +304,10 @@ class InternalSensorEditor(TypeEditor):
         new_value = value
         system = ComputerSystem()
         isen = system.get_isensor_by_id(value)
-        if imgui.begin_combo("##", f"{isen.parent.full_name} / {isen.name}"):
+        title = "Select Sensor"
+        if isen is not None:
+            title = isen.full_name
+        if imgui.begin_combo("##", title):
             new_sensor = render_create_sensor_menu()
             if new_sensor:
                 changed = True

@@ -4,6 +4,7 @@ import itertools
 from enum import Enum
 from dataclasses import dataclass
 from typing import Iterator, TYPE_CHECKING
+from libasvat.utils import format_bytes
 from libasvat.imgui.math import Vector2
 from libasvat.imgui.general import is_user_creatable
 from libasvat.imgui.editors.controller import render_all_properties, get_all_prop_values_for_storage, restore_prop_values_to_object
@@ -400,6 +401,16 @@ class SensorUnit(SensorUnitData, Enum):
     def __str__(self):
         return self.id
 
+    def format_value(self, value: float):
+        """Formats the given value of this unit to its string representation, including the unit itself."""
+        if self is SensorUnit.THROUGHPUT:
+            return f"{format_bytes(value, 1)}/s"
+        if self is SensorUnit.SMALLDATA:
+            return format_bytes(value * 1024 * 1024, 1)
+        if self.value_format:
+            return f"{self.value_format.format(value)} {self}"
+        return str(value)
+
     @classmethod
     def from_type(self, stype: SensorType):
         """Gets the SensorUnit that is used for the given sensor type.
@@ -519,9 +530,16 @@ class InternalSensor:
         lines = [
             f"Sensor: {self.name} ({self.id})",
             f"Type/unit: {self.type} ({self.unit})",
-            f"Hardware: {self.parent.full_name} ({self.parent.type})",
+            f"Hardware: {self.parent.full_name} ({self.parent.type})" if self.parent is not None else "Hardware: N/A",
         ]
         return "\n".join(lines)
+
+    @property
+    def full_name(self):
+        """Gets the full name of this sensor, which is ``parent-hardware full_name / our_name``."""
+        if self.parent is not None:
+            return f"{self.parent.full_name} / {self.name}"
+        return self.name
 
     @property
     def sensors(self):
