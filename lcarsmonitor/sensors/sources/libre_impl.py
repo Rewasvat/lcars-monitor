@@ -641,12 +641,17 @@ class LibreHardware(Hardware):
 
     def __init__(self, hw, parent: 'LibreHardware' = None):
         """hw should be LHML's IHardware object"""
+        self._hw = hw
+        """Internal IHardware object from native C#"""
+        # We have to perform a first full update on all hardware when initializing to make sure
+        # we register all available hardware/sensors. Since some hardware/sensors need at least
+        # one update to "exist" and be reported by the LHM API.
+        self._native_update()
+
         isensors = [LibreSensor(self, s) for s in hw.Sensors]
         children = [LibreHardware(subhw, self) for subhw in hw.SubHardware]
 
         super().__init__(parent, isensors, children)
-        self._hw = hw
-        """Internal IHardware object from native C#"""
         self._type: HardwareType = None
 
     @property
@@ -665,8 +670,12 @@ class LibreHardware(Hardware):
 
     def update(self):
         if self.enabled:
-            self._hw.Update()
+            self._native_update()
             return super().update()
+
+    def _native_update(self):
+        """Calls our internal LHM Hardware (C#) object update."""
+        self._hw.Update()
 
 
 class LibreSensor(InternalSensor):
