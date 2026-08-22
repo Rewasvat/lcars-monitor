@@ -26,6 +26,10 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         self.all_sensors: dict[str, InternalSensor] = {}
         self._update_time: float = 1.0
         """Amount of time that must pass for our async-update-thread to trigger an actual ``update()`` (in seconds)."""
+        self._sensors_relist_time: float = 0
+        """Time left (in secs) to re-list all available sensors.
+        Used to re-check all available sensor a while after initializing, since some sensors may need some time to get data to become available.
+        """
         # Async update thread support
         self._update_thread: threading.Thread = None
         self._stop_event: threading.Event = None
@@ -130,6 +134,7 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
                 self.current_source.initialize()
         self._dummy_source.initialize()
         self.all_sensors = {sensor.id: sensor for sensor in self.get_all_isensors()}
+        self._sensors_relist_time = 1
         msg_color = "green" if is_ok else "yellow"
         click.secho(f"ComputerSystem: Initialized with Source '{self._source_name}': {click.style(error_msg, fg=msg_color)}!", fg="magenta")
         self.start_async_update()
@@ -143,6 +148,7 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
             return
         self.stop_async_update()
         self.all_sensors.clear()
+        self._sensors_relist_time = 0.0
         if self.current_source:
             self.current_source.shutdown()
         self._dummy_source.shutdown()
@@ -165,6 +171,18 @@ class ComputerSystem(metaclass=cmd_utils.Singleton):
         if self.current_source:
             self.current_source.update()
         self._dummy_source.update()
+
+        if self._sensors_relist_time > 0:
+            # Actual frame delta-t would be more accurate, but this is enough
+            self._sensors_relist_time -= self.update_time
+            if self._sensors_relist_time <= 0:
+                # Relist time just ended, so recheck all isensors.
+                new_sensors = {sensor.id: sensor for sensor in self.get_all_isensors()}
+                num_current = len(self.all_sensors)
+                num_new = len(new_sensors)
+                if num_new != num_current:
+                    click.secho(f"ComputerSystem: Updated Sensors list! Now with {num_new} sensors, against previous {num_current}", fg="yellow")
+                    self.all_sensors = new_sensors
 
     def start_async_update(self):
         """Starts a background thread to periodically call ``update()`` on hardware sensors.
