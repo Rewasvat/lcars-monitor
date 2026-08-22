@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 # flake8: noqa
+import glob
 from PyInstaller.utils.hooks import collect_all
 # execute with: pyinstaller --clean -y lcarsmonitor.spec
 
@@ -11,10 +12,21 @@ imgui_datas, imgui_binaries, imgui_modules = collect_all("imgui_bundle")
 binaries += imgui_binaries
 hiddenimports += imgui_modules
 
-lcars_datas, lcars_binaries, lcars_modules = collect_all("lcarsmonitor")
-datas += lcars_datas
-binaries += lcars_binaries
-hiddenimports += lcars_modules
+dependencies = ["keyring", "wmi", "libasvat", "lcarsmonitor"]
+for pkg_name in dependencies:
+    pkg_datas, pkg_binaries, pkg_modules = collect_all(pkg_name)
+    datas += pkg_datas
+    binaries += pkg_binaries
+    hiddenimports += pkg_modules
+
+# Add all .py files from lcarsmonitor (including subfolders) to hiddenimports, since
+# collect_all() apparently doesn't get everything.
+for folder in ['lcarsmonitor/']:
+    for pyfile in glob.glob(folder + '/**/*.py', recursive=True):
+        mod = pyfile.replace('/', '.').replace('\\', '.').replace('.py', '')
+        if mod.endswith('__init__'):
+            mod = mod[:-9]  # remove .__init__
+        hiddenimports.append(mod)
 
 a = Analysis(  # type: ignore
     ['lcarsmonitor\\main.py'],
