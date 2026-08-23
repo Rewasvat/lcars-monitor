@@ -55,7 +55,7 @@ imgui_datas, imgui_binaries, imgui_modules = collect_all("imgui_bundle")
 binaries += imgui_binaries
 hiddenimports += imgui_modules
 
-dependencies = ["keyring", "wmi", "libasvat", "lcarsmonitor"]
+dependencies = ["keyring", "wmi", "glfw", "libasvat", "lcarsmonitor"]
 for pkg_name in dependencies:
     pkg_datas, pkg_binaries, pkg_modules = collect_all(pkg_name)
     datas += pkg_datas
