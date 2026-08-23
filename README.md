@@ -146,6 +146,16 @@ LCARSMonitor requires elevated privileges (due to LibreHardwareMonitor) to be ab
 The standalone executable app should by default ask the user for it through UAC. However if you're running LCARSMonitor from a Python package, you can
 open the terminal itself with elevated privileges, or create a shortcut that opens `lcarsmonitor` and setup the shortcut to request elevated privileges.
 
+About supported platforms/OS:
+* This project was only tested in Windows.
+* Cross-platform support was considered during development, but was not mandatory. As such this app _should_ work on Linux/Mac but was not tested in such systems
+so there might be blocking issues besides the obvious issue with sensor-sources:
+    - Nearly certain the default sensor-source implementation using LHM will not work outside Windows since LHM itself, as far as I know, only supports Windows.
+    - Thus other sensor-source implementations that work on Linux/Mac would be needed.
+
+If you, user, tries to use LCARS Monitor in a Linux/Mac machine, please give me feedback - open issues about it. Since I don't have Linux/Mac machines to test with,
+any feedback about this would help improve support on these other OSes.
+
 ### Saved Data
 LCARSMonitor saves its data, such as app settings and **UISystem**s, using Python's pickle. As such, it is easy to use to save & load, but issues may
 arise if the app's data structures are changed in the future. But we'll cross that bridge when the time comes.
