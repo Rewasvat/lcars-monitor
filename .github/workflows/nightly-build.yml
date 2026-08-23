@@ -39,6 +39,8 @@ jobs:
         run: |
           $version = python -c "from lcarsmonitor import get_version; print(get_version())"
           "version=$version" >> $env:GITHUB_OUTPUT
+          $shortSha = $env:GITHUB_SHA.Substring(0, 7)
+          "short_sha=$shortSha" >> $env:GITHUB_OUTPUT
 
       - name: Build executable
         shell: pwsh
@@ -47,13 +49,13 @@ jobs:
       - name: Name executable with build identity
         shell: pwsh
         run: |
-          $artifactName = "lcarsmonitor-${{ steps.version.outputs.version }}-dev+${{ github.sha }}.exe"
+          $artifactName = "lcarsmonitor-${{ steps.version.outputs.version }}-dev+${{ steps.version.outputs.short_sha }}.exe"
           Move-Item -Path dist\lcarsmonitor.exe -Destination "dist\$artifactName"
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lcarsmonitor-${{ steps.version.outputs.version }}-dev+${{ github.sha }}
+          name: lcarsmonitor-${{ steps.version.outputs.version }}-dev+${{ steps.version.outputs.short_sha }}
           path: dist/*.exe
           if-no-files-found: error
           retention-days: 90
