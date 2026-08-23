@@ -1,0 +1,59 @@
+name: Nightly Build
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-build-main
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Windows executable
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install package and build dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Read package version
+        id: version
+        shell: pwsh
+        run: |
+          $version = python -c "from lcarsmonitor import get_version; print(get_version())"
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Build executable
+        shell: pwsh
+        run: pyinstaller --clean -y lcarsmonitor.spec
+
+      - name: Name executable with build identity
+        shell: pwsh
+        run: |
+          $artifactName = "lcarsmonitor-${{ steps.version.outputs.version }}-dev+${{ github.sha }}.exe"
+          Move-Item -Path dist\lcarsmonitor.exe -Destination "dist\$artifactName"
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcarsmonitor-${{ steps.version.outputs.version }}-dev+${{ github.sha }}
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 90
