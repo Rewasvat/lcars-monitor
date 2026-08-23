@@ -1,11 +1,12 @@
 import setuptools
+from lcarsmonitor import __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='lcarsmonitor',
-    version='1.0',
+    version=__version__,
     py_modules=["lcarsmonitor"],
     entry_points={
         "console_scripts": [

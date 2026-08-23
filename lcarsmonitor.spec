@@ -2,7 +2,50 @@
 # flake8: noqa
 import glob
 from PyInstaller.utils.hooks import collect_all
+from PyInstaller.utils.win32.versioninfo import (
+    FixedFileInfo,
+    StringFileInfo,
+    StringStruct,
+    StringTable,
+    VarFileInfo,
+    VarStruct,
+    VSVersionInfo,
+)
+from lcarsmonitor import __version__
 # execute with: pyinstaller --clean -y lcarsmonitor.spec
+
+
+version_parts = tuple(int(part) for part in __version__.split('.'))
+windows_version = version_parts + (0,) * (4 - len(version_parts))
+version_info = VSVersionInfo(
+    ffi=FixedFileInfo(
+        filevers=windows_version,
+        prodvers=windows_version,
+        mask=0x3F,
+        flags=0x0,
+        OS=0x40004,
+        fileType=0x1,
+        subtype=0x0,
+        date=(0, 0),
+    ),
+    kids=[
+        StringFileInfo([
+            StringTable('040904B0', [
+                StringStruct('CompanyName', 'Spheretech'),
+                StringStruct('FileDescription', 'Python/IMGUI App to monitor hardware status with a customizable LCARS-themed interface'),
+                StringStruct('FileVersion', __version__),
+                StringStruct('InternalName', 'lcarsmonitor'),
+                StringStruct('LegalCopyright', 'Copyright @ 2026'),
+                StringStruct('OriginalFilename', 'lcarsmonitor.exe'),
+                StringStruct('ProductName', 'LCARS Monitor'),
+                StringStruct('ProductVersion', __version__),
+            ])
+        ]),
+        VarFileInfo([
+            VarStruct('Translation', [1033, 1200])
+        ])
+    ]
+)
 
 hiddenimports = []
 datas = []
@@ -65,4 +108,5 @@ exe = EXE(  # type: ignore
     uac_admin=True,
     one_file=True,
     icon=['lcarsmonitor\\assets\\app_settings\\icon.png'],
+    version=version_info,
 )
