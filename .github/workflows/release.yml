@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish Windows release
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Validate tag and package version
+        id: version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          if ($env:RELEASE_TAG -notmatch '^v(\d+\.\d+\.\d+)$') {
+            throw "Release tag '$env:RELEASE_TAG' must use the format vMAJOR.MINOR.PATCH."
+          }
+
+          $tagVersion = $Matches[1]
+          $packageVersion = python -c "from lcarsmonitor import get_version; print(get_version())"
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Could not read the package version.'
+          }
+          $packageVersion = $packageVersion.Trim()
+
+          if ($packageVersion -ne $tagVersion) {
+            throw "Package version '$packageVersion' does not match release tag '$env:RELEASE_TAG'. Update lcarsmonitor/__init__.py before tagging."
+          }
+
+          $previousTags = git tag --list 'v*.*.*' --sort=-v:refname |
+            Where-Object { $_ -match '^v\d+\.\d+\.\d+$' -and $_ -ne $env:RELEASE_TAG }
+          if ($previousTags) {
+            $previousVersion = [version]($previousTags[0].Substring(1))
+            $currentVersion = [version]$tagVersion
+            if ($currentVersion -le $previousVersion) {
+              throw "Release version '$tagVersion' must be greater than the previous release version '$previousVersion'."
+            }
+          }
+
+          "version=$tagVersion" >> $env:GITHUB_OUTPUT
+
+      - name: Install package and build dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Build executable
+        shell: pwsh
+        run: pyinstaller --clean -y lcarsmonitor.spec
+
+      - name: Name release executable
+        shell: pwsh
+        run: Move-Item -Path dist\lcarsmonitor.exe -Destination "dist\lcarsmonitor-${{ steps.version.outputs.version }}.exe"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: LCARS Monitor ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: dist/lcarsmonitor-${{ steps.version.outputs.version }}.exe
