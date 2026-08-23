@@ -9,6 +9,7 @@ from libasvat.imgui.editors.controller import render_all_properties
 from imgui_bundle import imgui, imgui_ctx
 from libasvat.imgui.windows_settings import WindowSettings, WindowedTemplate
 from lcarsmonitor.monitor_data import MonitorAppData
+from lcarsmonitor import get_version
 
 
 class SystemMonitorApp(windows.AppWindow):
@@ -117,6 +118,8 @@ class SystemMonitorApp(windows.AppWindow):
 
     def draw_settings(self):
         """Draws the settings menu for the Monitor App."""
+        imgui.text(f"LCARS Monitor v{get_version()}")
+        imgui.separator()
         changed = render_all_properties(self.data)
         if changed:
             if self.idle_fps != self.data.idle_fps:
