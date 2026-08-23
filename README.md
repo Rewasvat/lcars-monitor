@@ -2,6 +2,7 @@
 Python/IMGUI App to monitor hardware sensors with a customizable LCARS-themed interface.
 
 > TODO: imagem de full lcars UISystem
+![Complex LCARS Example](readme_assets/full_lcars_example.png)
 
 ## Features:
 * **UISystem**: a customizable graph-based GUI system integrating Widgets (UI elements), Actions (logic nodes) and Sensors (data sources).
@@ -9,6 +10,7 @@ Python/IMGUI App to monitor hardware sensors with a customizable LCARS-themed in
     * **EDIT** Mode: Main GUI to create/see/edit/select/delete UISystems (more on this below), as well as change app settings and more.
     * **DISPLAY** Mode: borderless-fullscreen GUI to display a single UISystem to the user, so you can use the system you've defined while doing something else (like gaming).
 * App settings, configured UISystems and other persisted data are saved to a binary file located in the user's HOME directory.
+* Sensors Source API: allow implementing and using different sources of sensor data.
 
 ### UI System
 The **UISystem** is the customizable graph-based GUI system at the core of LCARS Monitor.
@@ -75,11 +77,18 @@ Pressing `CTRL+Q` will close the LCARSMonitor.
 See the [How to Use](#how-to-use) section on ways to change between modes.
 
 ### Hardware Sensors Data
-LCARSMonitor uses [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) in order to read hardware sensor status.
-This is included as a DLL in the LCARSMonitor package.
+LCARSMonitor's Sensors Source API allows implementing different "sensor sources". Each Sensor Source has its own implementation on
+how it reads hardware sensors. The user can change which source it is using to read sensor data. Each sensor source can also define its own
+settings the user can change at will in the app's settings menu.
+
+By default, we have a implementation for [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) (LHM), which then uses the LHM Lib
+to read hardware sensor status.
+
+However, while LCARSMonitor has a LHM implementation for sensor source, it does not include the LHM Lib itself, which is required. But it allows to download/update
+LHM via its settings menu after selecting the path where LHM will be located in your computer.
+
 
 ### Next Steps/Milestones:
-* Update to support newer `imgui-bundle` (has breaking changes from Dear IMGUI, mainly with fonts).
 * Support loading third-party nodes for the UISystem from other python packages.
 * Support other Hardware Sensor data sources (such as HWiNFO or others)
 * Support OpenRGB
@@ -98,9 +107,11 @@ This is included as a DLL in the LCARSMonitor package.
 
 
 ## How to Use
-Execute the lcarsmonitor app, which depends on how it was installed:
-* From standalone executable: just run the `lcarsmonitor.exe`.
-* From Python package: open a terminal and execute the command `lcarsmonitor`.
+1) Execute the lcarsmonitor app, which depends on how it was installed:
+    * From standalone executable: just run the `lcarsmonitor.exe`.
+    * From Python package: open a terminal and execute the command `lcarsmonitor`.
+2) Configure Sensors Source.
+    * LHM (the default sensor source) requires a simple setup: configure LHM path and download (or update) LHM lib.
 
 LCARS Monitor has the following possible command-line arguments:
 * `open`: opens the LCARS Monitor in the Display Mode.
@@ -112,6 +123,16 @@ All options also support a `--test`(`-t`) flag, which if true will restrict the 
 
 When running the executable or command without arguments, the app defaults to execute the `lcarsmonitor run` command.
 Regardless of command used to open the app, the user can still change the mode while running.
+
+Note that inside the app, nearly all UI elements have tooltips to explain them when hovered with the mouse.
+
+
+### Changing Settings
+LCARSMonitor has several settings to change. They can be changed both in EDIT and DISPLAY modes:
+* In EDIT Mode, in the right-pane of `Monitor Main` window.
+* In DISPLAY Mode, in the context menu when right-clicking the window.
+
+Note that display-related settings might require you to change the active mode or close and reopen the app to be applied.
 
 ### Changing between Modes
 There are a few ways you can change the current mode of the LCARSMonitor while it is running:
