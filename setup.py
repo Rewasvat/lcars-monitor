@@ -20,6 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Rewasvat/lcars-monitor",
     packages=setuptools.find_packages(),
+    package_data={"lcarsmonitor": ["assets/**/*"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: Exclusive Copyright",
